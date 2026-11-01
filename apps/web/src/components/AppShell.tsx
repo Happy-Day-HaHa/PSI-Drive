@@ -9,7 +9,7 @@ import { dataQuality, driver, mileage } from "@/lib/sample-data";
 const navItems = [
   { label: "대시보드", href: "/", icon: HomeIcon },
   { label: "페달 습관", href: "/pedal", icon: BarsIcon },
-  { label: "사건 분석", href: "/events", icon: FlagIcon },
+  { label: "주행 돌아보기", href: "/events", icon: FlagIcon },
 ];
 
 function isActive(pathname: string, href: string) {
@@ -31,7 +31,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-300 opacity-40 motion-reduce:animate-none" />
             <span className="relative inline-flex size-2 rounded-full bg-emerald-300" />
           </span>
-          <span className="text-xs font-medium text-white/80">분석 시스템 정상</span>
+          <span className="text-xs font-medium text-white/80">주행 기록 연결됨</span>
           <span className="ml-auto text-[10px] text-white/45">LIVE</span>
         </div>
         <nav aria-label="주 메뉴" className="mt-8 space-y-1">

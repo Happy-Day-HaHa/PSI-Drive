@@ -65,21 +65,21 @@ export const ACCEL_COLOR = "#2563EB";
 export const BRAKE_COLOR = "#DC2626";
 
 export const eventTypeLabels: Record<EventType, string> = {
-  pedestrian: "보행자 출현",
-  lead_brake: "선행차 급제동",
+  pedestrian: "보행자 대응",
+  lead_brake: "선행차 감속 대응",
   routine: "일상 감속",
   overlap: "페달 중첩",
 };
 
 export const stepInfo: Record<string, { title: string; body: string; source: string }> = {
-  T0: { title: "위험 상황 발생", body: "전방 영상에서 위험이 나타난 시점입니다.", source: "전방 영상" },
+  T0: { title: "주의 상황 확인", body: "전방 영상에서 대응이 필요한 상황이 나타난 시점입니다.", source: "전방 영상" },
   T1: { title: "가속 페달 해제 시작", body: "가속 페달에서 힘을 빼기 시작했습니다.", source: "압력 센서" },
   T2: { title: "가속 페달 완전 해제", body: "가속 페달 압력이 2% 이하로 떨어졌습니다.", source: "압력 센서" },
   T3: { title: "발 이동 시작", body: "발이 브레이크 쪽으로 움직이기 시작했습니다.", source: "풋웰 영상" },
   T4: { title: "브레이크 접촉", body: "브레이크 압력이 오르기 시작했습니다.", source: "압력 센서" },
-  T5: { title: "제동력 80% 도달", body: "이번 사건 최대 압력의 80%에 도달했습니다.", source: "압력 센서" },
+  T5: { title: "제동력 80% 도달", body: "이번 장면 최대 압력의 80%에 도달했습니다.", source: "압력 센서" },
   T6: { title: "차량 감속 시작", body: "차량 감속도가 0.1g를 넘었습니다.", source: "IMU" },
-  T7: { title: "사건 종료", body: "차량이 정지했거나 브레이크를 놓았습니다.", source: "IMU·압력 센서" },
+  T7: { title: "장면 종료", body: "차량이 정지했거나 브레이크를 놓았습니다.", source: "IMU·압력 센서" },
   O0: { title: "페달 중첩 시작", body: "가속 페달을 밟은 채 브레이크 압력이 올랐습니다.", source: "압력 센서" },
   O1: { title: "페달 중첩 종료", body: "두 페달 중 하나의 압력이 해제되었습니다.", source: "압력 센서" },
 };
@@ -102,7 +102,7 @@ export function eventHeadline(event: PedalEvent): string {
   if (event.type === "routine") {
     return `가속 페달을 뗀 뒤 ${((metrics.coastMs ?? 0) / 1000).toFixed(1)}초 동안 타력으로 주행하고, 브레이크를 최대 ${Math.round(stats.peakBrakePct)}%까지 천천히 밟았습니다.`;
   }
-  return `위험 발생 후 ${formatMs(metrics.recognitionMs ?? 0)}에 가속 페달에서 힘을 빼기 시작했고, ${formatMs(metrics.totalReactionMs ?? 0)}에 브레이크에 닿았습니다. 브레이크를 최대 ${Math.round(stats.peakBrakePct)}%까지 밟아 ${stats.peakDecelG.toFixed(2)}g로 감속했습니다.`;
+  return `상황 확인 후 ${formatMs(metrics.recognitionMs ?? 0)}에 가속 페달에서 힘을 빼기 시작했고, ${formatMs(metrics.totalReactionMs ?? 0)}에 브레이크에 닿았습니다. 브레이크를 최대 ${Math.round(stats.peakBrakePct)}%까지 밟아 ${stats.peakDecelG.toFixed(2)}g로 감속했습니다.`;
 }
 
 export type Finding = { kind: "good" | "watch" | "info"; text: string };
@@ -132,14 +132,14 @@ export function eventFindings(event: PedalEvent): Finding[] {
   if (recognition >= average.recognitionMs + 50) {
     findings.push({ kind: "watch", text: `가속 페달 해제가 평균보다 ${recognition - average.recognitionMs}ms 늦게 시작되었습니다. 전방 영상에서 당시 상황을 확인하시기 바랍니다.` });
   } else if (recognition <= average.recognitionMs - 50) {
-    findings.push({ kind: "good", text: `위험을 보고 가속 페달을 떼기 시작한 시점이 평균보다 ${average.recognitionMs - recognition}ms 빨랐습니다.` });
+    findings.push({ kind: "good", text: `상황을 확인하고 가속 페달을 떼기 시작한 시점이 평균보다 ${average.recognitionMs - recognition}ms 빨랐습니다.` });
   }
   if (rise <= 200 && stats.peakBrakePct >= 70) {
     findings.push({ kind: "good", text: `${formatMs(rise)} 만에 제동력을 올려 단호하게 제동했습니다.` });
   } else if (rise >= 350) {
-    findings.push({ kind: "watch", text: `제동력이 오르는 데 ${formatMs(rise)}가 걸렸습니다. 위험 상황에서는 초기에 더 강하게 밟는 편이 유리합니다.` });
+    findings.push({ kind: "watch", text: `제동력이 오르는 데 ${formatMs(rise)}가 걸렸습니다. 빠른 대응이 필요할 때는 초기에 조금 더 힘을 주면 좋습니다.` });
   }
-  if (findings.length === 0) findings.push({ kind: "info", text: "이번 사건의 지표는 전반적으로 평균 수준입니다." });
+  if (findings.length === 0) findings.push({ kind: "info", text: "이번 장면의 조작은 전반적으로 평소 수준입니다." });
   return findings;
 }
 

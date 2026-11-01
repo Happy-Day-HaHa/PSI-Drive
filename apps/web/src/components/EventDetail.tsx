@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { FootView } from "@/components/FootView";
+import { MobilePedalSync } from "@/components/MobilePedalSync";
 import { PedalEventIcon, pedalActionLabel } from "@/components/PedalEventIcon";
 import { PauseIcon, PlayIcon } from "@/components/Icons";
 import { ChartLegend } from "@/components/LineChart";
@@ -160,7 +161,48 @@ export function EventDetail({ event }: { event: PedalEvent }) {
           description="재생하거나 그래프를 눌러 시점을 옮기면 발 위치와 페달 압력이 함께 움직입니다."
           action={<ChartLegend series={[{ name: "가속 페달", color: ACCEL_COLOR }, { name: "브레이크", color: BRAKE_COLOR }]} />}
         />
-        <div className="grid grid-cols-1 gap-6 xl:grid-cols-[280px_minmax(0,1fr)]">
+        <div className="xl:hidden">
+          <MobilePedalSync
+            accel={accel}
+            brake={brake}
+            foot={series.foot[index]}
+            accelSeries={series.accel}
+            brakeSeries={series.brake}
+            playheadMs={playheadMs}
+            durationMs={durationMs}
+            stepLabel={currentStep ? `${currentStep.key} · ${stepInfo[currentStep.key].title}` : "장면 직전 주행"}
+          />
+          <div className="mt-3 flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                if (playheadMs >= durationMs) setPlayheadMs(0);
+                setHighlight(null);
+                setPlaying((current) => !current);
+              }}
+              className="flex size-10 shrink-0 items-center justify-center rounded-full bg-brand text-white"
+              aria-label={playing ? "일시정지" : "재생"}
+            >
+              {playing ? <PauseIcon className="size-4" /> : <PlayIcon className="size-4" />}
+            </button>
+            <input
+              type="range"
+              min={0}
+              max={durationMs}
+              step={SAMPLE_DT_MS}
+              value={Math.round(playheadMs)}
+              onChange={(input) => {
+                setPlaying(false);
+                setPlayheadMs(Number(input.target.value));
+              }}
+              aria-label="동시 보기 재생 위치"
+              className="min-w-0 flex-1 accent-brand"
+            />
+            <span className="w-[74px] text-right text-[11px] font-semibold text-muted tabular-nums">{elapsed >= 0 ? "+" : "−"}{Math.abs(elapsed)}ms</span>
+          </div>
+          <p className="mt-2 text-[11px] leading-relaxed text-muted">재생하거나 슬라이더를 움직이면 발 위치와 두 페달 압력이 같은 시간축에서 함께 움직입니다.</p>
+        </div>
+        <div className="hidden grid-cols-1 gap-6 xl:grid xl:grid-cols-[280px_minmax(0,1fr)]">
           <div className="rounded-xl bg-canvas p-3 sm:p-4">
             <FootView accel={accel} brake={brake} foot={series.foot[index]} />
             <div className="mt-3 border-t border-line pt-3">
@@ -173,7 +215,7 @@ export function EventDetail({ event }: { event: PedalEvent }) {
                   <p className="mt-1 text-[13px] leading-relaxed text-muted">{stepInfo[currentStep.key].body}</p>
                 </>
               ) : (
-                <p className="mt-0.5 text-sm font-bold">사건 직전 주행</p>
+                <p className="mt-0.5 text-sm font-bold">장면 직전 주행</p>
               )}
             </div>
             <dl className="mt-3 grid grid-cols-2 gap-2 border-t border-line pt-3 text-[13px]">
@@ -340,7 +382,7 @@ export function EventDetail({ event }: { event: PedalEvent }) {
         </Panel>
 
         <Panel>
-          <PanelHeader title="이번 사건 평가" description={isHazard ? `위험 사건 ${pedalSamples.scope.hazardEvents}건의 평균과 비교했습니다.` : "이번 조작의 특징입니다."} />
+          <PanelHeader title="이번 장면 돌아보기" description={isHazard ? `주의 장면 ${pedalSamples.scope.hazardEvents}개의 평균과 비교했습니다.` : "이번 조작의 특징입니다."} />
           <ul className="space-y-3">
             {findings.map((finding) => (
               <li key={finding.text} className="flex flex-col items-start gap-1.5">
@@ -364,7 +406,7 @@ export function EventDetail({ event }: { event: PedalEvent }) {
             </div>
             {stats.accelBeforePct !== undefined && (
               <div className="flex justify-between gap-4">
-                <dt className="text-muted">위험 직전 가속 압력</dt>
+                <dt className="text-muted">주의 상황 직전 가속 압력</dt>
                 <dd className="font-medium tabular-nums">{Math.round(stats.accelBeforePct)}%</dd>
               </div>
             )}

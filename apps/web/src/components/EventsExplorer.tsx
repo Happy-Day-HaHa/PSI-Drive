@@ -34,11 +34,11 @@ export function EventsExplorer() {
   return (
     <>
       <PageHeader
-        title="사건 분석"
-        description="위험 상황과 일상 감속에서 발이 어떤 순서로 움직였고, 페달을 얼마나 세게 밟았는지 사건별로 확인합니다."
+        title="주행 돌아보기"
+        description="운전 중 발이 어떤 순서로 움직였고 페달을 얼마나 세게 밟았는지, 기억하기 쉬운 장면별로 돌아봅니다."
         action={<SampleBadge />}
       />
-      <div className="flex flex-wrap gap-1.5" role="group" aria-label="사건 유형 필터">
+      <div className="flex flex-wrap gap-1.5" role="group" aria-label="주행 장면 유형 필터">
         {filters.map((item) => (
           <button
             key={item.key}
@@ -54,10 +54,10 @@ export function EventsExplorer() {
         ))}
       </div>
       <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[272px_minmax(0,1fr)]">
-        <nav aria-label="사건 목록" className="min-w-0 overflow-hidden rounded-2xl border border-line bg-card shadow-[0_12px_32px_rgba(15,31,54,0.04)] lg:sticky lg:top-6">
+        <nav aria-label="주행 장면 목록" className="min-w-0 overflow-hidden rounded-2xl border border-line bg-card shadow-[0_12px_32px_rgba(15,31,54,0.04)] lg:sticky lg:top-6">
           <div className="border-b border-line px-4 py-3">
             <p className="text-[11px] font-bold tracking-[0.12em] text-muted uppercase">Detected events</p>
-            <p className="mt-0.5 text-sm font-semibold">{visible.length}건의 페달 사건</p>
+            <p className="mt-0.5 text-sm font-semibold">{visible.length}개의 주행 장면</p>
           </div>
           <ul className="flex snap-x gap-2 overflow-x-auto p-2 lg:max-h-[calc(100dvh-180px)] lg:snap-none lg:flex-col lg:gap-0 lg:divide-y lg:divide-line lg:overflow-x-hidden lg:overflow-y-auto lg:p-0">
             {visible.map((event) => {

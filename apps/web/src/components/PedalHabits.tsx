@@ -23,7 +23,7 @@ export function PedalHabits() {
     { key: "both", label: "두 페달 동시", value: usage.both, color: "#7C3AED", onColor: "#FFFFFF" },
   ];
   const reactionSegments: Segment[] = [
-    { key: "recognition", label: "위험 인지 → 가속 해제 시작", note: "T0–T1", value: averages.recognitionMs, color: "#2563EB", onColor: "#FFFFFF" },
+    { key: "recognition", label: "상황 확인 → 가속 해제 시작", note: "T0–T1", value: averages.recognitionMs, color: "#2563EB", onColor: "#FFFFFF" },
     { key: "release", label: "가속 페달 완전 해제", note: "T1–T2", value: averages.releaseMs, color: "#14A98A", onColor: "#10223F" },
     { key: "transition", label: "페달 전환", note: "T2–T4", value: averages.transitionMs, color: "#E8863A", onColor: "#10223F" },
     { key: "rise", label: "제동력 80% 도달", note: "T4–T5", value: averages.riseMs, color: "#8B5CF6", onColor: "#FFFFFF" },
@@ -31,7 +31,7 @@ export function PedalHabits() {
 
   const curveLabels = brakeCurve.hazard.map((_, index) => `${index * brakeCurve.stepMs}ms`);
   const curveSeries: Series[] = [
-    { name: "위험 사건 평균", values: brakeCurve.hazard, color: BRAKE_COLOR, emphasized: true },
+    { name: "주의 장면 평균", values: brakeCurve.hazard, color: BRAKE_COLOR, emphasized: true },
     { name: "일상 감속 평균", values: brakeCurve.routine, color: NEUTRAL },
   ];
   const at250 = Math.round(250 / brakeCurve.stepMs);
@@ -51,7 +51,7 @@ export function PedalHabits() {
     <>
       <PageHeader
         title="페달 습관"
-        description={`압력 센서 기록으로 페달을 얼마나 세게, 얼마나 빠르게 밟는지 분석합니다. 합성 세션 ${scope.sessions}개, 주행 ${scope.drivingMinutes}분, 위험 사건 ${scope.hazardEvents}건 기준입니다.`}
+        description={`압력 센서 기록으로 페달을 얼마나 부드럽고 빠르게 조작하는지 살펴봅니다. 주행 ${scope.drivingMinutes}분, 주의 장면 ${scope.hazardEvents}개 기준입니다.`}
         action={<SampleBadge />}
       />
 
@@ -101,10 +101,10 @@ export function PedalHabits() {
             labelEvery={10}
             unit="%"
             height={230}
-            ariaLabel={`브레이크 접촉 후 250ms 시점 압력: 위험 사건 ${brakeCurve.hazard[at250]}%, 일상 감속 ${brakeCurve.routine[at250]}%`}
+            ariaLabel={`브레이크 접촉 후 250ms 시점 압력: 주의 장면 ${brakeCurve.hazard[at250]}%, 일상 감속 ${brakeCurve.routine[at250]}%`}
           />
           <Insight>
-            접촉 후 250ms 시점의 평균 압력은 위험 사건에서 <b>{Math.round(brakeCurve.hazard[at250])}%</b>, 일상 감속에서 <b>{Math.round(brakeCurve.routine[at250])}%</b>입니다. 상황에 따라 제동 강도를 구분해 사용하고 있습니다.
+            접촉 후 250ms 시점의 평균 압력은 주의 장면에서 <b>{Math.round(brakeCurve.hazard[at250])}%</b>, 일상 감속에서 <b>{Math.round(brakeCurve.routine[at250])}%</b>입니다. 상황에 따라 제동 강도를 구분해 사용하고 있습니다.
           </Insight>
         </Panel>
         <Panel>
@@ -113,15 +113,15 @@ export function PedalHabits() {
           <Insight>
             점수 기준은 {transitionFullScoreMs}ms 이하 만점, {transitionZeroScoreMs}ms 이상 0점입니다. {transitionTotal}건 중 {slowTransitions}건이 400ms를 넘었습니다.{" "}
             <Link href={`/events?id=${slowest.id}`} className="font-medium whitespace-nowrap text-brand underline underline-offset-2">
-              가장 느린 사건 보기 ({eventTypeLabels[slowest.type]}, {formatMs(slowest.metrics.transitionMs ?? 0)})
+              전환이 길었던 장면 보기 ({eventTypeLabels[slowest.type]}, {formatMs(slowest.metrics.transitionMs ?? 0)})
             </Link>
           </Insight>
         </Panel>
       </div>
 
       <Panel>
-        <PanelHeader title="위험 상황 평균 반응 구성" description={`위험 사건 ${scope.hazardEvents}건의 평균입니다. 위험 인지부터 브레이크 접촉까지 평균 ${formatMs(averages.totalReactionMs)}가 걸렸습니다.`} />
-        <SegmentBar segments={reactionSegments} unit="ms" ariaLabel="위험 상황 반응 시간 구성" />
+        <PanelHeader title="주의 장면의 평균 반응" description={`주의 장면 ${scope.hazardEvents}개의 평균입니다. 상황 확인부터 브레이크 접촉까지 평균 ${formatMs(averages.totalReactionMs)}가 걸렸습니다.`} />
+        <SegmentBar segments={reactionSegments} unit="ms" ariaLabel="주의 장면 반응 시간 구성" />
         <p className="mt-3 text-xs text-muted">T0는 전방 영상에서 표시한 시점이므로 약 ±17ms의 불확실성이 있습니다.</p>
       </Panel>
     </>

@@ -58,7 +58,7 @@ export type Trip = {
 export const driver = { id: "DRV-0142", vehicle: "VEH-07" };
 
 const subScoreBase = [
-  { key: "responsiveness", label: "반응성", description: "위험 인지부터 브레이크 접촉까지", weight: 35 },
+  { key: "responsiveness", label: "반응성", description: "상황 확인부터 브레이크 접촉까지", weight: 35 },
   { key: "braking", label: "제동 품질", description: "제동력 상승과 제동 부드러움", weight: 25 },
   { key: "safety", label: "페달 안전성", description: "페달 중첩과 오조작 의심 패턴", weight: 25 },
   { key: "smoothness", label: "주행 부드러움", description: "급가속과 가속 일관성", weight: 15 },
@@ -97,7 +97,7 @@ export const periods: Record<PeriodKey, PeriodData> = {
       { key: "overlap", label: "페달 중첩", value: "0", unit: "회", changePct: -100, lowerIsBetter: true },
       { key: "time", label: "주행 시간", value: "9.8", unit: "시간", changePct: 5, lowerIsBetter: null },
       { key: "distance", label: "주행 거리", value: "296", unit: "km", changePct: 3, lowerIsBetter: null },
-      { key: "events", label: "분석 사건", value: "6", unit: "건", changePct: -14, lowerIsBetter: null },
+      { key: "events", label: "주행 장면", value: "6", unit: "개", changePct: -14, lowerIsBetter: null },
     ],
   },
   "30d": {
@@ -118,7 +118,7 @@ export const periods: Record<PeriodKey, PeriodData> = {
       { key: "overlap", label: "페달 중첩", value: "1", unit: "회", changePct: -50, lowerIsBetter: true },
       { key: "time", label: "주행 시간", value: "42.5", unit: "시간", changePct: 8, lowerIsBetter: null },
       { key: "distance", label: "주행 거리", value: "1,284", unit: "km", changePct: 6, lowerIsBetter: null },
-      { key: "events", label: "분석 사건", value: "24", unit: "건", changePct: 9, lowerIsBetter: null },
+      { key: "events", label: "주행 장면", value: "24", unit: "개", changePct: 9, lowerIsBetter: null },
     ],
   },
   "90d": {
@@ -139,7 +139,7 @@ export const periods: Record<PeriodKey, PeriodData> = {
       { key: "overlap", label: "페달 중첩", value: "4", unit: "회", changePct: -20, lowerIsBetter: true },
       { key: "time", label: "주행 시간", value: "121", unit: "시간", changePct: 4, lowerIsBetter: null },
       { key: "distance", label: "주행 거리", value: "3,642", unit: "km", changePct: 2, lowerIsBetter: null },
-      { key: "events", label: "분석 사건", value: "71", unit: "건", changePct: 12, lowerIsBetter: null },
+      { key: "events", label: "주행 장면", value: "71", unit: "개", changePct: 12, lowerIsBetter: null },
     ],
   },
 };
@@ -176,7 +176,7 @@ export const trips: Trip[] = [
 export const habitTips: Record<HabitKey, string> = {
   accel: "출발할 때 페달을 2초에 걸쳐 나누어 밟으면 급가속 횟수를 줄일 수 있습니다.",
   braking: "앞차의 움직임을 일찍 확인하고 가속 페달을 먼저 떼면 강한 제동이 줄어듭니다.",
-  overlap: "두 페달을 함께 밟은 순간은 오조작 신호일 수 있습니다. 해당 구간을 사건 분석에서 확인하시기 바랍니다.",
+  overlap: "두 페달을 함께 밟은 순간입니다. 해당 구간은 주행 돌아보기에서 편하게 확인할 수 있습니다.",
   transition: "뒤꿈치를 축으로 발을 옮기면 가속 페달에서 브레이크로 더 빠르게 넘어갈 수 있습니다.",
-  reaction: "위험을 인지한 뒤 브레이크에 닿기까지의 시간입니다. 전방 시야를 넓게 유지하면 도움이 됩니다.",
+  reaction: "상황을 확인한 뒤 브레이크에 닿기까지의 시간입니다. 전방 시야를 넓게 유지하면 도움이 됩니다.",
 };

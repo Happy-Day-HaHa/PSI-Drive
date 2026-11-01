@@ -4,8 +4,8 @@ import { AppShell } from "@/components/AppShell";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "PSI 스튜디오",
-  description: "압력 센서로 페달 조작을 밀리초 단위로 분석하는 운전 습관 분석 서비스",
+  title: "PSI Studio",
+  description: "시간에 따른 페달 조작과 운전 습관을 편하게 돌아보는 서비스",
 };
 
 export const viewport: Viewport = {

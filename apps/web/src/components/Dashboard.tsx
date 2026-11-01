@@ -56,6 +56,18 @@ function eventFigure(event: PedalEvent) {
   return `전환 ${formatMs(event.metrics.transitionMs ?? 0)}`;
 }
 
+function miniTrendPath(values: number[]) {
+  const min = Math.min(...values) - 2;
+  const max = Math.max(...values) + 2;
+  return values
+    .map((value, index) => {
+      const x = values.length === 1 ? 0 : (index / (values.length - 1)) * 76;
+      const y = 28 - ((value - min) / Math.max(max - min, 1)) * 24;
+      return `${index === 0 ? "M" : "L"}${x.toFixed(1)} ${y.toFixed(1)}`;
+    })
+    .join(" ");
+}
+
 export function Dashboard() {
   const [periodKey, setPeriodKey] = useState<PeriodKey>("30d");
   const [habit, setHabit] = useState<HabitKey | null>(null);
@@ -88,58 +100,54 @@ export function Dashboard() {
     <>
       <PageHeader
         title="대시보드"
-        description="운전 습관 점수와 페달 조작 요약을 한눈에 확인합니다."
-        action={
-          <div className="flex items-center gap-2">
-            <SampleBadge />
-            <label className="flex items-center gap-2 rounded-md border border-line bg-card px-3 py-1.5 text-sm font-medium focus-within:outline-2 focus-within:outline-brand">
-              <span className="text-muted">조회 기간</span>
-              <select value={periodKey} onChange={(event) => setPeriodKey(event.target.value as PeriodKey)} className="cursor-pointer bg-transparent outline-none">
-                {periodOrder.map((key) => (
-                  <option key={key} value={key}>
-                    {periods[key].label}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </div>
-        }
+        description="기간별 점수와 달라진 운전 습관을 편하게 확인해 보세요."
+        action={<SampleBadge />}
       />
 
-      <section className="relative overflow-hidden rounded-2xl bg-[linear-gradient(120deg,#0b1e36_0%,#173f73_62%,#1c5794_100%)] p-5 text-white shadow-[0_18px_40px_rgba(11,30,54,0.16)] sm:p-7">
-        <div aria-hidden className="absolute -top-20 -right-16 size-64 rounded-full border border-white/10 bg-white/[0.035]" />
-        <div aria-hidden className="absolute -right-4 -bottom-24 size-52 rounded-full border border-white/10" />
-        <div className="relative grid gap-6 lg:grid-cols-[minmax(0,1.55fr)_minmax(390px,1fr)] lg:items-end">
-          <div>
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="rounded-full bg-emerald-300/15 px-2.5 py-1 text-[11px] font-bold text-emerald-200">안정 추세</span>
-              <span className="text-xs text-white/55">2026년 11월 1일 기준</span>
+      <section className="overflow-hidden rounded-2xl border border-line/90 bg-white shadow-[0_12px_34px_rgba(15,31,54,0.05)]">
+        <div className="p-5 sm:p-6">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p className="text-[11px] font-bold tracking-[0.14em] text-brand uppercase">나의 운전 점수</p>
+              <h2 className="mt-1.5 text-xl font-bold tracking-tight sm:text-2xl">
+                {period.label} {score}점
+                <span className="ml-2 text-sm font-semibold text-good">{period.compareLabel}보다 +{period.scoreChange}점</span>
+              </h2>
             </div>
-            <p className="mt-4 text-[11px] font-semibold tracking-[0.16em] text-blue-200 uppercase">Driver performance brief</p>
-            <h2 className="mt-2 max-w-2xl text-2xl leading-snug font-bold tracking-[-0.025em] sm:text-[30px]">
-              페달 안전성은 우수하고,<br className="hidden sm:block" /> 전환 반응은 개선 여지가 있습니다.
-            </h2>
-            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/68">
-              선택 기간 종합 점수는 {score}점입니다. 가장 안정적인 항목은 {best.label}({best.score}점), 우선 살펴볼 항목은 {weakest.label}({weakest.score}점)입니다.
-            </p>
+            <p className="text-xs text-muted">기간을 눌러 바로 비교해 보세요</p>
           </div>
-          <dl className="grid grid-cols-2 overflow-hidden rounded-xl border border-white/12 bg-white/[0.07] backdrop-blur-sm sm:grid-cols-3">
-            <div className="p-4">
-              <dt className="text-[11px] text-white/55">종합 점수</dt>
-              <dd className="mt-1 text-2xl font-bold tabular-nums">{score}<span className="ml-0.5 text-xs font-medium text-white/55">점</span></dd>
-              <p className="mt-1 text-[11px] text-emerald-200">+{period.scoreChange}점 상승</p>
-            </div>
-            <div className="border-l border-white/12 p-4">
-              <dt className="text-[11px] text-white/55">평균 전환</dt>
-              <dd className="mt-1 text-2xl font-bold tabular-nums">{averages.transitionMs}<span className="ml-0.5 text-xs font-medium text-white/55">ms</span></dd>
-              <p className="mt-1 text-[11px] text-white/55">가속 → 브레이크</p>
-            </div>
-            <div className="col-span-2 border-t border-white/12 p-4 sm:col-span-1 sm:border-t-0 sm:border-l">
-              <dt className="text-[11px] text-white/55">주의 사건</dt>
-              <dd className="mt-1 text-2xl font-bold tabular-nums">{alerts.length}<span className="ml-0.5 text-xs font-medium text-white/55">건</span></dd>
-              <p className="mt-1 text-[11px] text-amber-200">상세 확인 권장</p>
-            </div>
-          </dl>
+          <div className="mt-5 grid grid-cols-3 gap-2 sm:gap-3" role="group" aria-label="점수 조회 기간">
+            {periodOrder.map((key) => {
+              const item = periods[key];
+              const itemScore = overallScore(item.subScores);
+              const selected = periodKey === key;
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  aria-pressed={selected}
+                  onClick={() => setPeriodKey(key)}
+                  className={`min-w-0 rounded-xl border p-3 text-left transition-all sm:p-4 ${selected ? "border-brand bg-[#f1f6fc] shadow-[0_0_0_1px_rgba(23,63,115,.08)]" : "border-line bg-white hover:border-[#b9c8d9]"}`}
+                >
+                  <span className="block text-[11px] font-semibold text-muted sm:text-xs">{item.label}</span>
+                  <span className="mt-1 flex items-end justify-between gap-1">
+                    <span className={`text-2xl font-bold tracking-tight tabular-nums sm:text-[28px] ${selected ? "text-brand" : "text-ink"}`}>
+                      {itemScore}<span className="ml-0.5 text-[11px] font-medium text-muted">점</span>
+                    </span>
+                    <svg viewBox="0 0 76 32" className="hidden h-8 w-[76px] sm:block" aria-hidden>
+                      <path d={miniTrendPath(item.trendCurrent)} fill="none" stroke={selected ? "#173f73" : "#9aa8ba"} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </span>
+                  <span className="mt-1 block text-[10px] font-semibold text-good sm:text-[11px]">+{item.scoreChange}점 좋아짐</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-line/80 bg-[#f8fafc] px-5 py-3 text-xs sm:px-6">
+          <span><b className="text-ink">{best.label} {best.score}점</b> · 가장 안정적이에요</span>
+          <span className="text-muted"><b className="text-caution">{weakest.label} {weakest.score}점</b> · 조금 더 살펴보세요</span>
+          <span className="text-muted">평균 페달 전환 <b className="text-ink">{averages.transitionMs}ms</b></span>
         </div>
       </section>
 
@@ -148,7 +156,7 @@ export function Dashboard() {
       <details className="group rounded-2xl border border-line/90 bg-white shadow-[0_8px_24px_rgba(15,31,54,0.035)]">
         <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 marker:hidden sm:px-6">
           <span>
-            <span className="block text-sm font-bold">상세 분석 펼쳐보기</span>
+            <span className="block text-sm font-bold">더 자세히 보기</span>
             <span className="mt-0.5 block text-xs text-muted">추세, 페달 분포, 최근 운전 기록 등 보조 지표</span>
           </span>
           <span className="flex size-8 items-center justify-center rounded-full bg-canvas text-brand transition-transform group-open:rotate-90">
@@ -238,7 +246,7 @@ export function Dashboard() {
         </Panel>
 
         <Panel>
-          <PanelHeader title="확인이 필요한 항목" description="항목을 누르면 해당 사건의 압력 기록으로 이동합니다." />
+          <PanelHeader title="조금 더 살펴볼 장면" description="항목을 누르면 당시의 페달 움직임으로 이동합니다." />
           <ul className="divide-y divide-line">
             {alerts.map((alert) => (
               <li key={alert.title}>
@@ -263,8 +271,8 @@ export function Dashboard() {
 
       <Panel>
         <PanelHeader
-          title="최근 사건"
-          description="사건을 누르면 페달을 어떻게 밟았는지 단계별로 확인할 수 있습니다."
+          title="최근 주행 장면"
+          description="장면을 누르면 발과 페달이 움직인 과정을 단계별로 확인할 수 있습니다."
           action={
             <Link href="/events" className="inline-flex items-center gap-0.5 text-[13px] font-medium text-brand hover:underline">
               전체 보기
@@ -363,7 +371,7 @@ export function Dashboard() {
                 <th scope="col" className="py-2 pr-4 font-medium">일시</th>
                 <th scope="col" className="py-2 pr-4 text-right font-medium">거리</th>
                 <th scope="col" className="py-2 pr-4 text-right font-medium">시간</th>
-                <th scope="col" className="py-2 pr-4 text-right font-medium">사건</th>
+                <th scope="col" className="py-2 pr-4 text-right font-medium">장면</th>
                 <th scope="col" className="py-2 pr-4 font-medium">동기화</th>
                 <th scope="col" className="py-2 text-right font-medium">점수</th>
               </tr>

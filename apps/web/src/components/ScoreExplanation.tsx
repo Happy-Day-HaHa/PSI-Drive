@@ -5,8 +5,8 @@ import type { SubScore } from "@/lib/sample-data";
 
 const explanation: Record<string, { cause: string; cta: string; href: string; color: string }> = {
   responsiveness: {
-    cause: "가속 해제 후 브레이크 접촉이 기준보다 느린 사건이 있었습니다.",
-    cta: "가장 큰 감점 사건 보기",
+    cause: "가속 해제 후 브레이크 접촉이 평소보다 느린 장면이 있었습니다.",
+    cta: "가장 큰 변화 장면 보기",
     href: "/events",
     color: "#e8863a",
   },
@@ -18,7 +18,7 @@ const explanation: Record<string, { cause: string; cta: string; href: string; co
   },
   safety: {
     cause: "짧은 페달 중첩 1건이 감지됐지만 전체 영향은 낮았습니다.",
-    cta: "중첩 사건 확인하기",
+    cta: "동시 입력 장면 확인하기",
     href: "/events",
     color: "#7c3aed",
   },
@@ -59,7 +59,7 @@ export function ScoreExplanation({ score, subScores, events }: { score: number; 
           <p className="text-[11px] font-bold tracking-[0.14em] text-brand uppercase">Score explanation</p>
           <h2 className="mt-1.5 text-xl font-bold tracking-tight">내 점수는 왜 {score}점인가요?</h2>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted">
-            100점에서 각 항목의 기준 미달분과 가중치를 적용해 총 {deduction}점이 조정됐습니다. 항목을 누르면 실제 사건과 발 움직임까지 바로 확인할 수 있습니다.
+            100점에서 각 운전 습관과 중요도를 반영해 총 {deduction}점이 조정됐습니다. 항목을 누르면 해당 주행 장면과 발 움직임을 바로 확인할 수 있습니다.
           </p>
         </div>
         <div className="flex items-center gap-4 bg-[#f7f9fc] px-5 py-4 md:justify-center md:border-l md:border-line/80">
@@ -105,7 +105,7 @@ export function ScoreExplanation({ score, subScores, events }: { score: number; 
       </ol>
       <div className="grid grid-cols-3 border-t border-line/80 bg-[#fbfcfe] text-center text-[11px] text-muted">
         <div className="px-2 py-3"><b className="mr-1 text-brand">1</b>감점 원인 선택</div>
-        <div className="border-x border-line/80 px-2 py-3"><b className="mr-1 text-brand">2</b>사건·시점 확인</div>
+        <div className="border-x border-line/80 px-2 py-3"><b className="mr-1 text-brand">2</b>주행 장면 확인</div>
         <div className="px-2 py-3"><b className="mr-1 text-brand">3</b>발·압력 과정 재생</div>
       </div>
     </section>

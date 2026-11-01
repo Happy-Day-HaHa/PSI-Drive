@@ -60,8 +60,8 @@ export function PsiLogo() {
         </svg>
       </span>
       <span>
-        <span className="block text-[15px] leading-none font-extrabold tracking-[0.04em]">PSI DRIVE</span>
-        <span className="mt-1 block text-[8px] leading-none font-semibold tracking-[0.2em] text-blue-200/80">DRIVER INTELLIGENCE</span>
+        <span className="block text-[15px] leading-none font-extrabold tracking-[0.04em]">PSI STUDIO</span>
+        <span className="mt-1 block text-[8px] leading-none font-semibold tracking-[0.2em] text-blue-200/80">DRIVING INSIGHT</span>
       </span>
     </span>
   );
