@@ -3,13 +3,14 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
-import { BarsIcon, FlagIcon, HomeIcon, PsiLogo } from "@/components/Icons";
+import { BarsIcon, CarIcon, FlagIcon, HomeIcon, PsiLogo } from "@/components/Icons";
 import { dataQuality, driver, mileage } from "@/lib/sample-data";
 
 const navItems = [
-  { label: "대시보드", href: "/dashboard", icon: HomeIcon },
-  { label: "페달 습관", href: "/pedal", icon: BarsIcon },
-  { label: "주행 돌아보기", href: "/events", icon: FlagIcon },
+  { label: "홈", href: "/dashboard", icon: HomeIcon },
+  { label: "운전 습관", href: "/pedal", icon: BarsIcon },
+  { label: "주행 기록", href: "/events", icon: FlagIcon },
+  { label: "내 차량", href: "/dashboard#vehicle", icon: CarIcon },
 ];
 
 function isActive(pathname: string, href: string) {
@@ -104,7 +105,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <footer className="mx-auto w-full max-w-[1320px] px-4 pb-28 text-xs leading-relaxed text-muted sm:px-8 lg:pb-8">
           점수와 지표는 운전 행동을 설명하는 자료이며, 사고 원인이나 법적 과실을 판정하지 않습니다. 현재 화면의 수치는 실제 측정값이 아닌 샘플 및 합성 데이터입니다.
         </footer>
-        <nav aria-label="모바일 주 메뉴" className="fixed inset-x-3 bottom-3 z-40 grid grid-cols-3 overflow-hidden rounded-2xl border border-white/10 bg-navy/95 p-1.5 text-white shadow-[0_12px_32px_rgba(5,18,34,0.28)] backdrop-blur-xl lg:hidden">
+        <nav aria-label="모바일 주 메뉴" className="fixed inset-x-3 bottom-3 z-40 grid grid-cols-4 overflow-hidden rounded-2xl border border-white/10 bg-navy/95 p-1.5 text-white shadow-[0_12px_32px_rgba(5,18,34,0.28)] backdrop-blur-xl lg:hidden">
           {navItems.map(({ label, href, icon: Icon }) => {
             const active = isActive(pathname, href);
             return (

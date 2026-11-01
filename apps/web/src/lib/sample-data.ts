@@ -48,6 +48,7 @@ export type PeriodData = {
 export type Trip = {
   date: string;
   time: string;
+  location: string;
   minutes: number;
   distanceKm: number;
   score: number;
@@ -186,10 +187,10 @@ export const mileage = { drivenKm: 1284, goalKm: 2000 };
 export const dataQuality = { sync: "양호", missingRatePct: 0.4 };
 
 export const trips: Trip[] = [
-  { date: "11월 1일 (일)", time: "오전 8:38", minutes: 30, distanceKm: 18.4, score: 84, events: 2, sync: "양호" },
-  { date: "10월 31일 (토)", time: "오후 5:52", minutes: 45, distanceKm: 21.7, score: 79, events: 3, sync: "양호" },
-  { date: "10월 31일 (토)", time: "오전 8:04", minutes: 32, distanceKm: 18.2, score: 88, events: 1, sync: "주의" },
-  { date: "10월 30일 (금)", time: "오후 6:11", minutes: 38, distanceKm: 20.5, score: 86, events: 2, sync: "양호" },
+  { date: "11월 1일 (일)", time: "오전 8:38", location: "성수사거리 → 잠실대교", minutes: 30, distanceKm: 18.4, score: 84, events: 2, sync: "양호" },
+  { date: "10월 31일 (토)", time: "오후 5:52", location: "양재시민의숲 → 한남오거리", minutes: 45, distanceKm: 21.7, score: 79, events: 3, sync: "양호" },
+  { date: "10월 31일 (토)", time: "오전 8:04", location: "공덕오거리 → 광화문", minutes: 32, distanceKm: 18.2, score: 88, events: 1, sync: "주의" },
+  { date: "10월 30일 (금)", time: "오후 6:11", location: "서울역 → 보라매공원", minutes: 38, distanceKm: 20.5, score: 86, events: 2, sync: "양호" },
 ];
 
 export const habitTips: Record<HabitKey, string> = {

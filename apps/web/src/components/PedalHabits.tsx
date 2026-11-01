@@ -50,7 +50,7 @@ export function PedalHabits() {
   return (
     <>
       <PageHeader
-        title="페달 습관"
+        title="운전 습관"
         description={`압력 센서 기록으로 페달을 얼마나 부드럽고 빠르게 조작하는지 살펴봅니다. 주행 ${scope.drivingMinutes}분, 주의 장면 ${scope.hazardEvents}개 기준입니다.`}
         action={<SampleBadge />}
       />

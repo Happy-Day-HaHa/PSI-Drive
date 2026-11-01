@@ -35,7 +35,7 @@ export function EventsExplorer() {
   return (
     <>
       <PageHeader
-        title="주행 돌아보기"
+        title="주행 기록"
         description="운전 중 발이 어떤 순서로 움직였고 페달을 얼마나 세게 밟았는지, 기억하기 쉬운 장면별로 돌아봅니다."
         action={<SampleBadge />}
       />
