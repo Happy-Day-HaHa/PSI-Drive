@@ -1,0 +1,93 @@
+# 개발 전용 구성. 기본 비밀번호는 로컬 개발용이며 포트는 127.0.0.1에만 연다.
+services:
+  postgres:
+    image: timescale/timescaledb:2.17.2-pg16
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-psi}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-psi_dev}
+      POSTGRES_DB: ${POSTGRES_DB:-psi}
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-psi} -d ${POSTGRES_DB:-psi}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  redis:
+    image: redis:7.4-alpine
+    ports:
+      - "127.0.0.1:6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  minio:
+    image: minio/minio:RELEASE.2024-11-07T00-52-20Z
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-psi}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-psi_dev_secret}
+    ports:
+      - "127.0.0.1:9000:9000"
+      - "127.0.0.1:9001:9001"
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-psi}:${POSTGRES_PASSWORD:-psi_dev}@postgres:5432/${POSTGRES_DB:-psi}
+      REDIS_URL: redis://redis:6379/0
+      S3_ENDPOINT_URL: http://minio:9000
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+
+  worker:
+    build:
+      context: .
+      dockerfile: workers/Dockerfile
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-psi}:${POSTGRES_PASSWORD:-psi_dev}@postgres:5432/${POSTGRES_DB:-psi}
+      REDIS_URL: redis://redis:6379/0
+      S3_ENDPOINT_URL: http://minio:9000
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    environment:
+      API_URL: http://api:8000
+    ports:
+      - "127.0.0.1:3000:3000"
+    depends_on:
+      - api
+
+volumes:
+  postgres_data:
+  minio_data:

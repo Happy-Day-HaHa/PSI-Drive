@@ -1,0 +1,51 @@
+# PSI Studio 점수·이벤트 검출 설정 v1
+# 모든 계산 결과에는 이 파일의 version을 함께 저장한다.
+# "가정" 주석이 붙은 값은 사양서에 없는 초기값이며, 파일럿(운전자 20명, 200시간, 사건 1,000건) 후 재보정한다.
+version: v1
+
+event_detection:
+  pedal:
+    on_threshold_pct: 5.0
+    off_threshold_pct: 2.0
+    debounce_ms: 20
+    filter:
+      type: butterworth
+      order: 4
+      cutoff_hz: 20
+      zero_phase: true
+  t5_brake_force_ratio: 0.8
+  t6_decel_threshold_g: -0.1
+
+habits:
+  hard_accel_g: 0.3
+  hard_accel_pedal_rate_pct_per_s: 300.0 # 가정
+  hard_brake_g: -0.4
+  brake_cover_max_gap_ms: 400 # 가정
+
+sync:
+  video_sensor_max_error_ms: 33
+  pedal_imu_max_error_ms: 5
+  max_frame_drop_rate: 0.01
+
+scoring:
+  method: piecewise_linear # piecewise_linear | cohort_percentile
+  weights:
+    responsiveness: 35
+    braking_quality: 25
+    pedal_safety: 25
+    smoothness: 15
+  min_events:
+    responsiveness: 5
+  session_weight_by_sync:
+    good: 1.0
+    warning: 0.5 # 가정
+    fail: 0.0
+  # [지표값, 점수] 쌍. 사이 구간은 선형 보간, 양 끝 밖은 끝점 점수로 고정한다.
+  curves:
+    recognition_to_release_ms: [[300, 100], [1000, 0]] # 가정
+    pedal_transition_ms: [[200, 100], [600, 0]]
+    total_brake_reaction_ms: [[700, 100], [1500, 0]]
+    brake_rise_ms: [[150, 100], [800, 0]] # 가정
+    hard_brake_per_100km: [[0, 100], [20, 0]] # 가정
+    pedal_overlap_count: [[0, 100], [4, 0]] # 1회당 -25점
+    hard_accel_per_100km: [[0, 100], [20, 0]] # 가정

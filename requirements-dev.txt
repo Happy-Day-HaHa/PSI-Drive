@@ -1,0 +1,6 @@
+-e packages/signal[video]
+-e tools/synth
+-e apps/api
+-e workers
+pytest>=8
+httpx>=0.27

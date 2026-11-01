@@ -1,0 +1,5 @@
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+# macOS에서 Python 3.13은 숨김 플래그가 붙은 editable .pth를 무시하므로 경로를 직접 지정한다.
+pythonpath = ["packages/signal/src", "tools/synth/src", "apps/api", "workers", "tests"]
