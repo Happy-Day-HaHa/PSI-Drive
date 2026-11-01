@@ -88,35 +88,36 @@ export function AppShell({ children }: { children: ReactNode }) {
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-20 bg-navy text-white lg:hidden">
-          <div className="flex items-center justify-between px-4 pt-3">
+        <header className="sticky top-0 z-30 border-b border-white/10 bg-navy/95 text-white shadow-[0_4px_18px_rgba(8,25,46,0.12)] backdrop-blur-md lg:hidden">
+          <div className="flex min-h-16 items-center justify-between px-4">
             <Link href="/" aria-label="PSI 스튜디오 홈">
               <PsiLogo />
             </Link>
-            <span className="text-xs text-white/70">
-              {driver.id} · {driver.vehicle}
+            <span className="rounded-full border border-white/12 bg-white/[0.07] px-2.5 py-1.5 text-[10px] font-semibold text-white/75">
+              {driver.id}
             </span>
           </div>
-          <nav aria-label="주 메뉴" className="mt-2 flex gap-1 px-2">
-            {navItems.map(({ label, href }) => {
-              const active = isActive(pathname, href);
-              return (
-                <Link
-                  key={href}
-                  href={href}
-                  aria-current={active ? "page" : undefined}
-                  className={`border-b-2 px-3 py-2 text-sm font-medium ${active ? "border-white text-white" : "border-transparent text-white/70"}`}
-                >
-                  {label}
-                </Link>
-              );
-            })}
-          </nav>
         </header>
-        <main className="mx-auto w-full max-w-[1360px] flex-1 space-y-5 px-4 py-6 sm:px-8 sm:py-8">{children}</main>
-        <footer className="mx-auto w-full max-w-[1320px] px-4 pb-8 text-xs leading-relaxed text-muted sm:px-8">
+        <main className="mx-auto w-full max-w-[1360px] flex-1 space-y-5 px-4 py-5 pb-24 sm:px-8 sm:py-8 sm:pb-24 lg:pb-8">{children}</main>
+        <footer className="mx-auto w-full max-w-[1320px] px-4 pb-28 text-xs leading-relaxed text-muted sm:px-8 lg:pb-8">
           점수와 지표는 운전 행동을 설명하는 자료이며, 사고 원인이나 법적 과실을 판정하지 않습니다. 현재 화면의 수치는 실제 측정값이 아닌 샘플 및 합성 데이터입니다.
         </footer>
+        <nav aria-label="모바일 주 메뉴" className="fixed inset-x-3 bottom-3 z-40 grid grid-cols-3 overflow-hidden rounded-2xl border border-white/10 bg-navy/95 p-1.5 text-white shadow-[0_12px_32px_rgba(5,18,34,0.28)] backdrop-blur-xl lg:hidden">
+          {navItems.map(({ label, href, icon: Icon }) => {
+            const active = isActive(pathname, href);
+            return (
+              <Link
+                key={href}
+                href={href}
+                aria-current={active ? "page" : undefined}
+                className={`flex min-h-12 flex-col items-center justify-center gap-0.5 rounded-xl text-[10px] font-semibold transition-colors ${active ? "bg-white text-navy shadow-sm" : "text-white/60 active:bg-white/10"}`}
+              >
+                <Icon className="size-[18px]" />
+                {label}
+              </Link>
+            );
+          })}
+        </nav>
       </div>
     </div>
   );

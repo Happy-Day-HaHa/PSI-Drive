@@ -54,22 +54,22 @@ export function EventsExplorer() {
         ))}
       </div>
       <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[272px_minmax(0,1fr)]">
-        <nav aria-label="사건 목록" className="overflow-hidden rounded-2xl border border-line bg-card shadow-[0_12px_32px_rgba(15,31,54,0.04)] lg:sticky lg:top-6">
+        <nav aria-label="사건 목록" className="min-w-0 overflow-hidden rounded-2xl border border-line bg-card shadow-[0_12px_32px_rgba(15,31,54,0.04)] lg:sticky lg:top-6">
           <div className="border-b border-line px-4 py-3">
             <p className="text-[11px] font-bold tracking-[0.12em] text-muted uppercase">Detected events</p>
             <p className="mt-0.5 text-sm font-semibold">{visible.length}건의 페달 사건</p>
           </div>
-          <ul className="flex max-h-[420px] flex-col divide-y divide-line overflow-y-auto lg:max-h-[calc(100dvh-180px)]">
+          <ul className="flex snap-x gap-2 overflow-x-auto p-2 lg:max-h-[calc(100dvh-180px)] lg:snap-none lg:flex-col lg:gap-0 lg:divide-y lg:divide-line lg:overflow-x-hidden lg:overflow-y-auto lg:p-0">
             {visible.map((event) => {
               const active = event.id === selected.id;
               return (
-                <li key={event.id}>
+                <li key={event.id} className="w-[252px] shrink-0 snap-start lg:w-auto lg:shrink">
                   <button
                     type="button"
                     aria-current={active ? "true" : undefined}
                     onClick={() => select(event.id)}
-                    className={`block w-full border-l-[3px] px-3.5 py-3 text-left transition-colors ${
-                      active ? "border-brand bg-track/70" : "border-transparent hover:bg-canvas"
+                    className={`block h-full w-full rounded-xl border px-3 py-3 text-left transition-colors lg:rounded-none lg:border-y-0 lg:border-r-0 lg:border-l-[3px] lg:px-3.5 ${
+                      active ? "border-brand bg-track/70" : "border-line bg-white hover:bg-canvas lg:border-transparent"
                     }`}
                   >
                     <span className="flex gap-2.5">

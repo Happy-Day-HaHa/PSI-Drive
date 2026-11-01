@@ -25,8 +25,8 @@ export function PageHeader({ title, description, action }: { title: string; desc
     <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3 border-b border-line/80 pb-5">
       <div className="min-w-0">
         <p className="mb-1.5 text-[11px] font-bold tracking-[0.16em] text-brand uppercase">PSI Driver Intelligence</p>
-        <h1 className="text-2xl font-bold tracking-[-0.025em] sm:text-[28px]">{title}</h1>
-        <p className="mt-1.5 max-w-3xl text-sm leading-relaxed text-muted">{description}</p>
+        <h1 className="text-[25px] font-bold tracking-[-0.025em] sm:text-[28px]">{title}</h1>
+        <p className="mt-1.5 max-w-3xl text-[13px] leading-relaxed text-muted sm:text-sm">{description}</p>
       </div>
       {action}
     </div>

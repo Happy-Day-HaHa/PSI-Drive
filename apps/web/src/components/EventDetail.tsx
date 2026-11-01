@@ -160,8 +160,8 @@ export function EventDetail({ event }: { event: PedalEvent }) {
           description="재생하거나 그래프를 눌러 시점을 옮기면 발 위치와 페달 압력이 함께 움직입니다."
           action={<ChartLegend series={[{ name: "가속 페달", color: ACCEL_COLOR }, { name: "브레이크", color: BRAKE_COLOR }]} />}
         />
-        <div className="grid grid-cols-1 gap-6 xl:grid-cols-[250px_minmax(0,1fr)]">
-          <div className="order-2 rounded-lg bg-canvas p-4 xl:order-1">
+        <div className="grid grid-cols-1 gap-6 xl:grid-cols-[280px_minmax(0,1fr)]">
+          <div className="rounded-xl bg-canvas p-3 sm:p-4">
             <FootView accel={accel} brake={brake} foot={series.foot[index]} />
             <div className="mt-3 border-t border-line pt-3">
               <p className="text-xs text-muted">현재 단계</p>
@@ -187,7 +187,7 @@ export function EventDetail({ event }: { event: PedalEvent }) {
               </div>
             </dl>
           </div>
-          <div className="order-1 min-w-0 space-y-2 xl:order-2">
+          <div className="min-w-0 space-y-2">
             <TimeChart
               title="페달 압력 (%)"
               ariaLabel={`가속 페달과 브레이크 압력 그래프. 최대 제동 압력 ${Math.round(stats.peakBrakePct)}%`}

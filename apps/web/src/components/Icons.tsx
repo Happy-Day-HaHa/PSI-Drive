@@ -52,11 +52,17 @@ export const PauseIcon = (p: P) => (
 
 export function PsiLogo() {
   return (
-    <span className="inline-flex items-center gap-2 text-white">
-      <svg viewBox="0 0 44 28" className="h-6 w-9" fill="none" aria-hidden>
-        <path d="M2 16h8l3.5-5 4.5 15L24 2l4.5 19 3-5H42" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-      <span className="text-[17px] font-bold tracking-tight">PSI 스튜디오</span>
+    <span className="inline-flex items-center gap-2.5 text-white">
+      <span className="flex size-9 items-center justify-center rounded-[11px] bg-[linear-gradient(145deg,#3b82f6,#1b4f91)] shadow-[inset_0_1px_0_rgba(255,255,255,.22),0_5px_14px_rgba(0,0,0,.15)]">
+        <svg viewBox="0 0 30 30" className="size-7" fill="none" aria-hidden>
+          <path d="M4 16h5l2.3-4 3.2 11L18.2 7l2.6 11 2-3H26" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+          <circle cx="23.8" cy="7.2" r="1.5" fill="#8de5cd" />
+        </svg>
+      </span>
+      <span>
+        <span className="block text-[15px] leading-none font-extrabold tracking-[0.04em]">PSI DRIVE</span>
+        <span className="mt-1 block text-[8px] leading-none font-semibold tracking-[0.2em] text-blue-200/80">DRIVER INTELLIGENCE</span>
+      </span>
     </span>
   );
 }

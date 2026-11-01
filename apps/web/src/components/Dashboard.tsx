@@ -7,6 +7,7 @@ import { PedalEventIcon, pedalActionLabel } from "@/components/PedalEventIcon";
 import { ChartLegend, LineChart, type Series } from "@/components/LineChart";
 import { RadarChart } from "@/components/RadarChart";
 import { ScoreRing } from "@/components/ScoreRing";
+import { ScoreExplanation } from "@/components/ScoreExplanation";
 import { SegmentBar, type Segment } from "@/components/SegmentBar";
 import { PageHeader, Panel, PanelHeader, SampleBadge } from "@/components/ui";
 import { ACCEL_COLOR, BRAKE_COLOR, eventAlerts, eventTypeLabels, formatMs, pedalSamples, type PedalEvent } from "@/lib/pedal";
@@ -122,7 +123,7 @@ export function Dashboard() {
               선택 기간 종합 점수는 {score}점입니다. 가장 안정적인 항목은 {best.label}({best.score}점), 우선 살펴볼 항목은 {weakest.label}({weakest.score}점)입니다.
             </p>
           </div>
-          <dl className="grid grid-cols-3 overflow-hidden rounded-xl border border-white/12 bg-white/[0.07] backdrop-blur-sm">
+          <dl className="grid grid-cols-2 overflow-hidden rounded-xl border border-white/12 bg-white/[0.07] backdrop-blur-sm sm:grid-cols-3">
             <div className="p-4">
               <dt className="text-[11px] text-white/55">종합 점수</dt>
               <dd className="mt-1 text-2xl font-bold tabular-nums">{score}<span className="ml-0.5 text-xs font-medium text-white/55">점</span></dd>
@@ -133,7 +134,7 @@ export function Dashboard() {
               <dd className="mt-1 text-2xl font-bold tabular-nums">{averages.transitionMs}<span className="ml-0.5 text-xs font-medium text-white/55">ms</span></dd>
               <p className="mt-1 text-[11px] text-white/55">가속 → 브레이크</p>
             </div>
-            <div className="border-l border-white/12 p-4">
+            <div className="col-span-2 border-t border-white/12 p-4 sm:col-span-1 sm:border-t-0 sm:border-l">
               <dt className="text-[11px] text-white/55">주의 사건</dt>
               <dd className="mt-1 text-2xl font-bold tabular-nums">{alerts.length}<span className="ml-0.5 text-xs font-medium text-white/55">건</span></dd>
               <p className="mt-1 text-[11px] text-amber-200">상세 확인 권장</p>
@@ -141,6 +142,20 @@ export function Dashboard() {
           </dl>
         </div>
       </section>
+
+      <ScoreExplanation score={score} subScores={period.subScores} events={events} />
+
+      <details className="group rounded-2xl border border-line/90 bg-white shadow-[0_8px_24px_rgba(15,31,54,0.035)]">
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 marker:hidden sm:px-6">
+          <span>
+            <span className="block text-sm font-bold">상세 분석 펼쳐보기</span>
+            <span className="mt-0.5 block text-xs text-muted">추세, 페달 분포, 최근 운전 기록 등 보조 지표</span>
+          </span>
+          <span className="flex size-8 items-center justify-center rounded-full bg-canvas text-brand transition-transform group-open:rotate-90">
+            <ChevronIcon className="size-4" />
+          </span>
+        </summary>
+        <div className="space-y-5 border-t border-line/80 p-3 sm:p-5">
 
       <Panel>
         <div className="grid grid-cols-1 gap-8 xl:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
@@ -372,6 +387,8 @@ export function Dashboard() {
           </table>
         </div>
       </Panel>
+        </div>
+      </details>
     </>
   );
 }
