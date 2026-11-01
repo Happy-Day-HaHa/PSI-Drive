@@ -40,9 +40,9 @@ export function RadarChart({ habits, selected, onSelect }: Props) {
       })}
       <polygon
         points={polygon(habits.map((habit) => habit.score))}
-        fill="var(--color-brand)"
+        fill="var(--color-data)"
         fillOpacity="0.1"
-        stroke="var(--color-brand)"
+        stroke="var(--color-data)"
         strokeWidth="2"
         strokeLinejoin="round"
       />
@@ -74,7 +74,7 @@ export function RadarChart({ habits, selected, onSelect }: Props) {
               cx={p.x}
               cy={p.y}
               r={isSelected ? 6.5 : 4.5}
-              fill="var(--color-brand)"
+              fill="var(--color-data)"
               stroke="var(--color-card)"
               strokeWidth="2"
             />

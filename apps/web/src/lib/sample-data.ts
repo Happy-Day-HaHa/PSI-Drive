@@ -30,15 +30,6 @@ export type Metric = {
   lowerIsBetter: boolean | null;
 };
 
-export type ReactionPhase = {
-  key: string;
-  label: string;
-  span: string;
-  ms: number;
-  color: string;
-  onColor: string;
-};
-
 export type PeriodData = {
   label: string;
   compareLabel: string;
@@ -52,15 +43,6 @@ export type PeriodData = {
   subScores: SubScore[];
   habits: Habit[];
   metrics: Metric[];
-  reactionMs: [number, number, number, number];
-  eventCount: number;
-};
-
-export type Alert = {
-  title: string;
-  when: string;
-  body: string;
-  severity: "alert" | "caution";
 };
 
 export type Trip = {
@@ -117,8 +99,6 @@ export const periods: Record<PeriodKey, PeriodData> = {
       { key: "distance", label: "주행 거리", value: "296", unit: "km", changePct: 3, lowerIsBetter: null },
       { key: "events", label: "분석 사건", value: "6", unit: "건", changePct: -14, lowerIsBetter: null },
     ],
-    reactionMs: [490, 105, 295, 230],
-    eventCount: 6,
   },
   "30d": {
     label: "최근 30일",
@@ -140,8 +120,6 @@ export const periods: Record<PeriodKey, PeriodData> = {
       { key: "distance", label: "주행 거리", value: "1,284", unit: "km", changePct: 6, lowerIsBetter: null },
       { key: "events", label: "분석 사건", value: "24", unit: "건", changePct: 9, lowerIsBetter: null },
     ],
-    reactionMs: [520, 110, 310, 240],
-    eventCount: 24,
   },
   "90d": {
     label: "최근 90일",
@@ -163,8 +141,6 @@ export const periods: Record<PeriodKey, PeriodData> = {
       { key: "distance", label: "주행 거리", value: "3,642", unit: "km", changePct: 2, lowerIsBetter: null },
       { key: "events", label: "분석 사건", value: "71", unit: "건", changePct: 12, lowerIsBetter: null },
     ],
-    reactionMs: [560, 120, 345, 265],
-    eventCount: 71,
   },
 };
 
@@ -174,22 +150,10 @@ export function overallScore(subScores: SubScore[]): number {
   return Math.round(subScores.reduce((sum, item) => sum + item.score * item.weight, 0) / 100);
 }
 
-export function scoreHeadline(score: number): string {
-  if (score >= 80) return "습관이 좋아요!";
-  if (score >= 60) return "조금만 더 다듬어요";
-  return "함께 점검해 봐요";
-}
-
-// 색은 validate_palette.js로 CVD 분리를 확인한 값이다. 칸 안의 글자색은 배경 밝기에 맞췄다.
-const reactionBase = [
-  { key: "recognize", label: "위험 인지 → 가속 해제 시작", span: "T0–T1", color: "#2563EB", onColor: "#FFFFFF" },
-  { key: "release", label: "가속 페달 완전 해제", span: "T1–T2", color: "#14A98A", onColor: "#10223F" },
-  { key: "transition", label: "페달 전환", span: "T2–T4", color: "#E8863A", onColor: "#10223F" },
-  { key: "rise", label: "제동력 80% 도달", span: "T4–T5", color: "#8B5CF6", onColor: "#FFFFFF" },
-];
-
-export function reactionPhases(ms: PeriodData["reactionMs"]): ReactionPhase[] {
-  return reactionBase.map((item, index) => ({ ...item, ms: ms[index] }));
+export function scoreBand(score: number): string {
+  if (score >= 80) return "양호";
+  if (score >= 60) return "보통";
+  return "주의";
 }
 
 export const weekly = {
@@ -202,27 +166,6 @@ export const mileage = { drivenKm: 1284, goalKm: 2000 };
 
 export const dataQuality = { sync: "양호", missingRatePct: 0.4 };
 
-export const alerts: Alert[] = [
-  {
-    title: "페달 전환 지연",
-    when: "오늘 08:38",
-    body: "가속 페달에서 브레이크까지 580ms가 걸렸어요. 최근 30일 평균은 310ms예요.",
-    severity: "alert",
-  },
-  {
-    title: "페달 중첩",
-    when: "어제 18:12",
-    body: "두 페달을 0.6초 동안 함께 밟았어요. 영상에서 발 위치를 확인해 보세요.",
-    severity: "alert",
-  },
-  {
-    title: "급제동",
-    when: "어제 08:21",
-    body: "최대 −0.46g로 감속했어요. 앞차와의 거리를 조금 더 두면 줄일 수 있어요.",
-    severity: "caution",
-  },
-];
-
 export const trips: Trip[] = [
   { date: "11월 1일 (일)", time: "오전 8:38", minutes: 30, distanceKm: 18.4, score: 84, events: 2, sync: "양호" },
   { date: "10월 31일 (토)", time: "오후 5:52", minutes: 45, distanceKm: 21.7, score: 79, events: 3, sync: "양호" },
@@ -230,10 +173,10 @@ export const trips: Trip[] = [
   { date: "10월 30일 (금)", time: "오후 6:11", minutes: 38, distanceKm: 20.5, score: 86, events: 2, sync: "양호" },
 ];
 
-export const habitTips: Record<HabitKey, { title: string; body: string }> = {
-  accel: { title: "급가속", body: "출발할 때 페달을 2초에 걸쳐 나눠 밟으면 급가속 횟수를 줄이기 쉬워요." },
-  braking: { title: "급제동", body: "앞차의 움직임을 일찍 보고 가속 페달을 먼저 떼면 강한 제동이 줄어들어요." },
-  overlap: { title: "페달 중첩", body: "두 페달을 함께 밟은 순간은 오조작 신호일 수 있어요. 해당 구간 영상을 확인해 보세요." },
-  transition: { title: "페달 전환", body: "뒤꿈치를 축으로 발을 옮기면 가속 페달에서 브레이크로 더 빠르게 넘어갈 수 있어요." },
-  reaction: { title: "제동 반응", body: "위험을 본 뒤 브레이크에 닿기까지의 시간이에요. 전방 시야를 넓게 두면 도움이 돼요." },
+export const habitTips: Record<HabitKey, string> = {
+  accel: "출발할 때 페달을 2초에 걸쳐 나누어 밟으면 급가속 횟수를 줄일 수 있습니다.",
+  braking: "앞차의 움직임을 일찍 확인하고 가속 페달을 먼저 떼면 강한 제동이 줄어듭니다.",
+  overlap: "두 페달을 함께 밟은 순간은 오조작 신호일 수 있습니다. 해당 구간을 사건 분석에서 확인하시기 바랍니다.",
+  transition: "뒤꿈치를 축으로 발을 옮기면 가속 페달에서 브레이크로 더 빠르게 넘어갈 수 있습니다.",
+  reaction: "위험을 인지한 뒤 브레이크에 닿기까지의 시간입니다. 전방 시야를 넓게 유지하면 도움이 됩니다.",
 };
