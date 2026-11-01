@@ -55,7 +55,26 @@ export type Trip = {
   sync: "양호" | "주의";
 };
 
-export const driver = { id: "DRV-0142", vehicle: "VEH-07" };
+export const driver = {
+  id: "DRV-0142",
+  vehicle: "VEH-07",
+  vehicleModel: "현대 아이오닉 5",
+  trim: "롱레인지 2WD · 2025",
+  plate: "12가 ••42",
+};
+
+export const inspection = {
+  period: "2026.10.20 – 2026.11.20",
+  nextDate: "11월 20일",
+  daysLeft: 19,
+  lastChecked: "2026년 10월 20일",
+};
+
+export const devices = [
+  { id: "CAM-F01", label: "전방 블랙박스", battery: 82, storage: 68, status: "연결 양호", detail: "1080p · 30fps" },
+  { id: "CAM-P01", label: "페달 블랙박스", battery: 76, storage: 54, status: "연결 양호", detail: "720p · 60fps" },
+  { id: "PED-S01", label: "페달 센서", battery: 91, storage: 32, status: "수집 중", detail: "500Hz · 2채널" },
+];
 
 const subScoreBase = [
   { key: "responsiveness", label: "반응성", description: "상황 확인부터 브레이크 접촉까지", weight: 35 },

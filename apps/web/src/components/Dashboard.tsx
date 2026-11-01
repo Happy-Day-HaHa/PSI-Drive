@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { ChevronIcon, PinIcon } from "@/components/Icons";
+import { DeviceOverview } from "@/components/DeviceOverview";
 import { PedalEventIcon, pedalActionLabel } from "@/components/PedalEventIcon";
 import { ChartLegend, LineChart, type Series } from "@/components/LineChart";
 import { RadarChart } from "@/components/RadarChart";
@@ -155,6 +156,8 @@ export function Dashboard() {
           </div>
         </div>
       </section>
+
+      <DeviceOverview />
 
       <ScoreExplanation score={score} subScores={period.subScores} events={events} />
 

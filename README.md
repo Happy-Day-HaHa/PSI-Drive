@@ -67,6 +67,8 @@ npm ci
 npm run dev   # http://localhost:3000
 ```
 
+첫 화면은 데모 로그인 페이지이며, 미리 입력된 계정으로 로그인하면 /dashboard에서 운전 점수와 차량·기기 상태를 확인할 수 있습니다. 현재 로그인은 정적 화면 흐름을 검증하기 위한 데모이며 실제 인증 서버와는 아직 연결되지 않았습니다.
+
 ## 배포
 
 `main`에 푸시하면 Cloudflare Pages가 자동으로 빌드해 https://psi-drive.pages.dev 에 배포합니다.

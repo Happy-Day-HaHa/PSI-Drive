@@ -1,5 +1,5 @@
-import { Dashboard } from "@/components/Dashboard";
+import { LoginScreen } from "@/components/LoginScreen";
 
-export default function DashboardPage() {
-  return <Dashboard />;
+export default function LoginPage() {
+  return <LoginScreen />;
 }

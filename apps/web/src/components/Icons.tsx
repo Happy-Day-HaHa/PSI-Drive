@@ -55,6 +55,24 @@ export const PinIcon = (p: P) => (
     <circle cx="12" cy="10" r="2.5" />
   </Icon>
 );
+export const CameraIcon = (p: P) => (
+  <Icon {...p}>
+    <path d="M4 7.5h3l1.5-2h7l1.5 2h3v11H4z" />
+    <circle cx="12" cy="13" r="3.5" />
+  </Icon>
+);
+export const CarIcon = (p: P) => (
+  <Icon {...p}>
+    <path d="m5 10 2-4h10l2 4 1.5 2v5H3.5v-5z" />
+    <path d="M6 17v2M18 17v2M6.5 13h.01M17.5 13h.01" />
+  </Icon>
+);
+export const BatteryIcon = (p: P) => (
+  <Icon {...p}>
+    <rect x="3" y="7" width="17" height="10" rx="2" />
+    <path d="M21 10v4M7 10v4M11 10v4M15 10v4" />
+  </Icon>
+);
 
 export function PsiLogo() {
   return (

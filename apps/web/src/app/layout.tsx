@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
-import { AppShell } from "@/components/AppShell";
+import { RouteShell } from "@/components/RouteShell";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -22,7 +22,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         />
       </head>
       <body>
-        <AppShell>{children}</AppShell>
+        <RouteShell>{children}</RouteShell>
       </body>
     </html>
   );

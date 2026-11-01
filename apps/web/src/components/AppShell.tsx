@@ -7,7 +7,7 @@ import { BarsIcon, FlagIcon, HomeIcon, PsiLogo } from "@/components/Icons";
 import { dataQuality, driver, mileage } from "@/lib/sample-data";
 
 const navItems = [
-  { label: "대시보드", href: "/", icon: HomeIcon },
+  { label: "대시보드", href: "/dashboard", icon: HomeIcon },
   { label: "페달 습관", href: "/pedal", icon: BarsIcon },
   { label: "주행 돌아보기", href: "/events", icon: FlagIcon },
 ];
@@ -23,7 +23,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-dvh">
       <aside className="sticky top-0 hidden h-dvh w-[244px] shrink-0 flex-col bg-navy px-3 py-5 text-white shadow-[8px_0_30px_rgba(9,25,46,0.08)] lg:flex">
-        <Link href="/" aria-label="PSI 스튜디오 홈" className="px-3">
+        <Link href="/dashboard" aria-label="PSI Studio 홈" className="px-3">
           <PsiLogo />
         </Link>
         <div className="mx-3 mt-5 flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.055] px-3 py-2.5">
@@ -84,18 +84,20 @@ export function AppShell({ children }: { children: ReactNode }) {
               동기화 {dataQuality.sync} · 결측률 {dataQuality.missingRatePct}%
             </p>
           </div>
+          <Link href="/" className="inline-flex text-xs font-medium text-white/55 transition hover:text-white">로그아웃</Link>
         </div>
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-30 border-b border-white/10 bg-navy/95 text-white shadow-[0_4px_18px_rgba(8,25,46,0.12)] backdrop-blur-md lg:hidden">
           <div className="flex min-h-16 items-center justify-between px-4">
-            <Link href="/" aria-label="PSI 스튜디오 홈">
+            <Link href="/dashboard" aria-label="PSI Studio 홈">
               <PsiLogo />
             </Link>
-            <span className="rounded-full border border-white/12 bg-white/[0.07] px-2.5 py-1.5 text-[10px] font-semibold text-white/75">
-              {driver.id}
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="rounded-full border border-white/12 bg-white/[0.07] px-2.5 py-1.5 text-[10px] font-semibold text-white/75">{driver.id}</span>
+              <Link href="/" className="text-[10px] font-semibold text-white/55">로그아웃</Link>
+            </div>
           </div>
         </header>
         <main className="mx-auto w-full max-w-[1360px] flex-1 space-y-5 px-4 py-5 pb-24 sm:px-8 sm:py-8 sm:pb-24 lg:pb-8">{children}</main>
