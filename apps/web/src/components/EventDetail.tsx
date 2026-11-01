@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { FootView } from "@/components/FootView";
-import { MobilePedalSync } from "@/components/MobilePedalSync";
+import { MobileDriveWorkspace } from "@/components/MobileDriveWorkspace";
 import { PedalEventIcon, pedalActionLabel } from "@/components/PedalEventIcon";
 import { PauseIcon, PinIcon, PlayIcon } from "@/components/Icons";
 import { ChartLegend } from "@/components/LineChart";
@@ -112,7 +112,34 @@ export function EventDetail({ event }: { event: PedalEvent }) {
 
   return (
     <div className="min-w-0 space-y-5">
-      <Panel>
+      <MobileDriveWorkspace
+        event={event}
+        accel={accel}
+        brake={brake}
+        foot={foot}
+        playheadMs={playheadMs}
+        durationMs={durationMs}
+        elapsed={elapsed}
+        playing={playing}
+        rate={rate}
+        steps={steps}
+        activeKey={currentStep?.key ?? null}
+        selectedKey={highlight}
+        onToggle={() => {
+          if (playheadMs >= durationMs) setPlayheadMs(0);
+          setHighlight(null);
+          setPlaying((current) => !current);
+        }}
+        onScrub={(ms) => {
+          setPlaying(false);
+          setHighlight(null);
+          setPlayheadMs(ms);
+        }}
+        onRate={setRate}
+        onJump={jumpTo}
+      />
+
+      <Panel className="hidden xl:block">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0">
             <p className="text-[13px] text-muted">
@@ -169,53 +196,12 @@ export function EventDetail({ event }: { event: PedalEvent }) {
         </dl>
       </Panel>
 
-      <Panel>
+      <Panel className="hidden xl:block">
         <PanelHeader
           title="압력 센서 기록"
           description="재생하거나 그래프를 눌러 시점을 옮기면 발 위치와 페달 압력이 함께 움직입니다."
           action={<ChartLegend series={[{ name: "가속 페달", color: ACCEL_COLOR }, { name: "브레이크", color: BRAKE_COLOR }]} />}
         />
-        <div className="xl:hidden">
-          <MobilePedalSync
-            accel={accel}
-            brake={brake}
-            foot={foot}
-            accelSeries={series.accel}
-            brakeSeries={series.brake}
-            playheadMs={playheadMs}
-            durationMs={durationMs}
-            stepLabel={currentStep ? `${currentStep.key} · ${stepInfo[currentStep.key].title}` : "장면 직전 주행"}
-          />
-          <div className="mt-3 flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => {
-                if (playheadMs >= durationMs) setPlayheadMs(0);
-                setHighlight(null);
-                setPlaying((current) => !current);
-              }}
-              className="flex size-10 shrink-0 items-center justify-center rounded-full bg-brand text-white"
-              aria-label={playing ? "일시정지" : "재생"}
-            >
-              {playing ? <PauseIcon className="size-4" /> : <PlayIcon className="size-4" />}
-            </button>
-            <input
-              type="range"
-              min={0}
-              max={durationMs}
-              step={SAMPLE_DT_MS}
-              value={Math.round(playheadMs)}
-              onChange={(input) => {
-                setPlaying(false);
-                setPlayheadMs(Number(input.target.value));
-              }}
-              aria-label="동시 보기 재생 위치"
-              className="min-w-0 flex-1 accent-brand"
-            />
-            <span className="w-[74px] text-right text-[11px] font-semibold text-muted tabular-nums">{elapsed >= 0 ? "+" : "−"}{Math.abs(elapsed)}ms</span>
-          </div>
-          <p className="mt-2 text-[11px] leading-relaxed text-muted">재생하거나 슬라이더를 움직이면 발 위치와 두 페달 압력이 같은 시간축에서 함께 움직입니다.</p>
-        </div>
         <div className="hidden grid-cols-1 gap-6 xl:grid xl:grid-cols-[280px_minmax(0,1fr)]">
           <div className="rounded-xl bg-canvas p-3 sm:p-4">
             <FootView accel={accel} brake={brake} foot={foot} />
@@ -357,7 +343,7 @@ export function EventDetail({ event }: { event: PedalEvent }) {
         )}
       </Panel>
 
-      <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+      <div className="hidden gap-5 xl:grid xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
         <Panel>
           <PanelHeader title="발 움직임 단계" description="항목을 누르면 위 그래프의 해당 시점으로 이동합니다." />
           <ol>
