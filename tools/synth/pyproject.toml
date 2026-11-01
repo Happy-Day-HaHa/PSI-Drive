@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "psi-synth"
+version = "0.1.0"
+description = "PSI Drive Kit synthetic session generator with known ground truth"
+requires-python = ">=3.11"
+dependencies = ["numpy>=2", "pandas>=3", "pyyaml>=6", "imageio-ffmpeg>=0.5"]
+
+[project.scripts]
+psi-synth = "psi_synth.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "psi-signal"
+version = "0.1.0"
+description = "PSI Drive Kit ingest parsers and signal processing"
+requires-python = ">=3.11"
+dependencies = ["numpy>=2", "pandas>=3"]
+
+[project.optional-dependencies]
+video = ["imageio-ffmpeg>=0.5"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
