@@ -3,9 +3,10 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import { EventDetail } from "@/components/EventDetail";
+import { PinIcon } from "@/components/Icons";
 import { PedalEventIcon, pedalActionLabel } from "@/components/PedalEventIcon";
 import { PageHeader, SampleBadge } from "@/components/ui";
-import { eventTypeLabels, formatMs, pedalSamples, type EventType, type PedalEvent } from "@/lib/pedal";
+import { eventLocation, eventTypeLabels, formatMs, pedalSamples, type EventType, type PedalEvent } from "@/lib/pedal";
 
 const filters: { key: EventType | "all"; label: string }[] = [
   { key: "all", label: "전체" },
@@ -80,7 +81,11 @@ export function EventsExplorer() {
                           {event.score !== null && <span className="text-[13px] font-bold">{event.score}점</span>}
                         </span>
                         <span className="mt-0.5 block text-[11px] font-medium text-brand">{pedalActionLabel(event.type)}</span>
-                        <span className="mt-0.5 block text-xs text-muted">{event.date} · {keyFigure(event)}</span>
+                        <span className="mt-1 block text-xs text-muted">{event.date} · {event.time}</span>
+                        <span className="mt-1 flex items-center gap-1 text-[11px] text-muted">
+                          <PinIcon className="size-3 shrink-0" />{eventLocation(event)}
+                        </span>
+                        <span className="mt-1 block text-[11px] font-medium text-ink">{keyFigure(event)}</span>
                       </span>
                     </span>
                   </button>

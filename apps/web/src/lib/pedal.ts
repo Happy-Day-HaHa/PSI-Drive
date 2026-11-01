@@ -71,6 +71,25 @@ export const eventTypeLabels: Record<EventType, string> = {
   overlap: "페달 중첩",
 };
 
+const eventLocations: Record<string, string> = {
+  E01: "서울 성동구 · 성수사거리",
+  E02: "서울 송파구 · 잠실대교 남단",
+  E03: "서울 강남구 · 학동역 교차로",
+  E04: "서울 서초구 · 양재시민의숲",
+  E05: "서울 광진구 · 어린이대공원 앞",
+  E06: "서울 용산구 · 한남오거리",
+  E07: "서울 마포구 · 공덕오거리",
+  E08: "서울 영등포구 · 여의도공원",
+  E09: "서울 종로구 · 광화문광장",
+  E10: "서울 중구 · 서울역 서부",
+  E11: "서울 성북구 · 길음뉴타운",
+  E12: "서울 동작구 · 보라매공원",
+};
+
+export function eventLocation(event: Pick<PedalEvent, "id">): string {
+  return eventLocations[event.id] ?? "위치 정보 확인 중";
+}
+
 export const stepInfo: Record<string, { title: string; body: string; source: string }> = {
   T0: { title: "주의 상황 확인", body: "전방 영상에서 대응이 필요한 상황이 나타난 시점입니다.", source: "전방 영상" },
   T1: { title: "가속 페달 해제 시작", body: "가속 페달에서 힘을 빼기 시작했습니다.", source: "압력 센서" },

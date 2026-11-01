@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { FootView } from "@/components/FootView";
 import { MobilePedalSync } from "@/components/MobilePedalSync";
 import { PedalEventIcon, pedalActionLabel } from "@/components/PedalEventIcon";
-import { PauseIcon, PlayIcon } from "@/components/Icons";
+import { PauseIcon, PinIcon, PlayIcon } from "@/components/Icons";
 import { ChartLegend } from "@/components/LineChart";
 import { TimeChart } from "@/components/TimeChart";
 import { Panel, PanelHeader, Stat } from "@/components/ui";
@@ -15,6 +15,7 @@ import {
   compareToAverage,
   eventFindings,
   eventHeadline,
+  eventLocation,
   eventTypeLabels,
   formatMs,
   pedalSamples,
@@ -28,6 +29,14 @@ const findingTone = {
   watch: { label: "살펴볼 점", className: "bg-caution-soft text-caution" },
   info: { label: "참고", className: "bg-canvas text-muted" },
 };
+
+function interpolateSample(values: number[], playheadMs: number) {
+  const position = playheadMs / SAMPLE_DT_MS;
+  const before = Math.min(Math.floor(position), values.length - 1);
+  const after = Math.min(before + 1, values.length - 1);
+  const progress = position - before;
+  return values[before] + (values[after] - values[before]) * progress;
+}
 
 function comparisonStat(label: string, value: number, average: number) {
   const comparison = compareToAverage(value, average);
@@ -71,9 +80,11 @@ export function EventDetail({ event }: { event: PedalEvent }) {
     return () => cancelAnimationFrame(frame);
   }, [playing, rate, durationMs]);
 
-  const index = Math.min(Math.round(playheadMs / SAMPLE_DT_MS), series.accel.length - 1);
-  const accel = series.accel[index];
-  const brake = series.brake[index];
+  const accel = interpolateSample(series.accel, playheadMs);
+  const brake = interpolateSample(series.brake, playheadMs);
+  const foot = interpolateSample(series.foot, playheadMs);
+  const speed = interpolateSample(series.speedKmh, playheadMs);
+  const decel = interpolateSample(series.decelG, playheadMs);
   const elapsed = Math.round(playheadMs - zeroMs);
   const zeroName = zeroMark ? stepInfo[zeroMark.key].title : "시작";
   const steps = [...marks].sort((a, b) => a.ms - b.ms);
@@ -108,6 +119,9 @@ export function EventDetail({ event }: { event: PedalEvent }) {
               {event.id} · {event.date} {event.time}
             </p>
             <h2 className="mt-1 text-xl font-bold tracking-tight">{eventTypeLabels[event.type]}</h2>
+            <p className="mt-1.5 flex items-center gap-1.5 text-[13px] font-medium text-muted">
+              <PinIcon className="size-4 text-brand" />{eventLocation(event)}
+            </p>
             <div className="mt-2 flex items-center gap-2 text-xs font-semibold text-brand">
               <PedalEventIcon type={event.type} className="h-10 w-[61px]" />
               <span>
@@ -165,7 +179,7 @@ export function EventDetail({ event }: { event: PedalEvent }) {
           <MobilePedalSync
             accel={accel}
             brake={brake}
-            foot={series.foot[index]}
+            foot={foot}
             accelSeries={series.accel}
             brakeSeries={series.brake}
             playheadMs={playheadMs}
@@ -204,7 +218,7 @@ export function EventDetail({ event }: { event: PedalEvent }) {
         </div>
         <div className="hidden grid-cols-1 gap-6 xl:grid xl:grid-cols-[280px_minmax(0,1fr)]">
           <div className="rounded-xl bg-canvas p-3 sm:p-4">
-            <FootView accel={accel} brake={brake} foot={series.foot[index]} />
+            <FootView accel={accel} brake={brake} foot={foot} />
             <div className="mt-3 border-t border-line pt-3">
               <p className="text-xs text-muted">현재 단계</p>
               {currentStep ? (
@@ -221,11 +235,11 @@ export function EventDetail({ event }: { event: PedalEvent }) {
             <dl className="mt-3 grid grid-cols-2 gap-2 border-t border-line pt-3 text-[13px]">
               <div>
                 <dt className="text-muted">속도</dt>
-                <dd className="font-bold tabular-nums">{Math.round(series.speedKmh[index])} km/h</dd>
+                <dd className="font-bold tabular-nums">{Math.round(speed)} km/h</dd>
               </div>
               <div>
                 <dt className="text-muted">종가속도</dt>
-                <dd className="font-bold tabular-nums">{series.decelG[index].toFixed(2)} g</dd>
+                <dd className="font-bold tabular-nums">{decel.toFixed(2)} g</dd>
               </div>
             </dl>
           </div>

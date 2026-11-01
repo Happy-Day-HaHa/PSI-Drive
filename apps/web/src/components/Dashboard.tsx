@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { ChevronIcon } from "@/components/Icons";
+import { ChevronIcon, PinIcon } from "@/components/Icons";
 import { PedalEventIcon, pedalActionLabel } from "@/components/PedalEventIcon";
 import { ChartLegend, LineChart, type Series } from "@/components/LineChart";
 import { RadarChart } from "@/components/RadarChart";
@@ -10,7 +10,7 @@ import { ScoreRing } from "@/components/ScoreRing";
 import { ScoreExplanation } from "@/components/ScoreExplanation";
 import { SegmentBar, type Segment } from "@/components/SegmentBar";
 import { PageHeader, Panel, PanelHeader, SampleBadge } from "@/components/ui";
-import { ACCEL_COLOR, BRAKE_COLOR, eventAlerts, eventTypeLabels, formatMs, pedalSamples, type PedalEvent } from "@/lib/pedal";
+import { ACCEL_COLOR, BRAKE_COLOR, eventAlerts, eventLocation, eventTypeLabels, formatMs, pedalSamples, type PedalEvent } from "@/lib/pedal";
 import {
   habitTips,
   overallScore,
@@ -105,18 +105,22 @@ export function Dashboard() {
       />
 
       <section className="overflow-hidden rounded-2xl border border-line/90 bg-white shadow-[0_12px_34px_rgba(15,31,54,0.05)]">
-        <div className="p-5 sm:p-6">
-          <div className="flex flex-wrap items-end justify-between gap-3">
-            <div>
-              <p className="text-[11px] font-bold tracking-[0.14em] text-brand uppercase">나의 운전 점수</p>
-              <h2 className="mt-1.5 text-xl font-bold tracking-tight sm:text-2xl">
-                {period.label} {score}점
-                <span className="ml-2 text-sm font-semibold text-good">{period.compareLabel}보다 +{period.scoreChange}점</span>
-              </h2>
-            </div>
-            <p className="text-xs text-muted">기간을 눌러 바로 비교해 보세요</p>
+        <div className="grid items-center gap-4 p-5 sm:p-7 lg:grid-cols-[300px_minmax(0,1fr)] lg:gap-8">
+          <div className="flex flex-col items-center border-b border-line/80 pb-6 lg:border-r lg:border-b-0 lg:pb-0 lg:pr-8">
+            <p className="mb-3 text-[11px] font-bold tracking-[0.16em] text-brand uppercase">나의 운전 점수</p>
+            <ScoreRing score={score} large />
+            <p className="mt-4 text-xl font-bold">{scoreBand(score)}</p>
+            <p className="mt-1 text-sm font-semibold text-good">{period.compareLabel} 대비 +{period.scoreChange}점</p>
           </div>
-          <div className="mt-5 grid grid-cols-3 gap-2 sm:gap-3" role="group" aria-label="점수 조회 기간">
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-end justify-between gap-2">
+              <div>
+                <p className="text-xs font-semibold text-muted">{period.label}</p>
+                <h2 className="mt-1 text-xl font-bold tracking-tight sm:text-2xl">점수 흐름을 한눈에 비교해 보세요</h2>
+              </div>
+              <p className="text-xs text-muted">기간을 누르면 바로 바뀝니다</p>
+            </div>
+            <div className="mt-4 grid grid-cols-3 gap-2 sm:gap-3" role="group" aria-label="점수 조회 기간">
             {periodOrder.map((key) => {
               const item = periods[key];
               const itemScore = overallScore(item.subScores);
@@ -142,12 +146,13 @@ export function Dashboard() {
                 </button>
               );
             })}
+            </div>
+            <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 rounded-xl bg-[#f8fafc] px-4 py-3 text-xs">
+              <span><b className="text-ink">{best.label} {best.score}점</b> · 가장 안정적이에요</span>
+              <span className="text-muted"><b className="text-caution">{weakest.label} {weakest.score}점</b> · 조금 더 살펴보세요</span>
+              <span className="text-muted">평균 페달 전환 <b className="text-ink">{averages.transitionMs}ms</b></span>
+            </div>
           </div>
-        </div>
-        <div className="flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-line/80 bg-[#f8fafc] px-5 py-3 text-xs sm:px-6">
-          <span><b className="text-ink">{best.label} {best.score}점</b> · 가장 안정적이에요</span>
-          <span className="text-muted"><b className="text-caution">{weakest.label} {weakest.score}점</b> · 조금 더 살펴보세요</span>
-          <span className="text-muted">평균 페달 전환 <b className="text-ink">{averages.transitionMs}ms</b></span>
         </div>
       </section>
 
@@ -260,6 +265,7 @@ export function Dashboard() {
                       </span>
                     </span>
                     <span className="mt-0.5 block text-[13px] leading-relaxed text-muted">{alert.body}</span>
+                    <span className="mt-1 flex items-center gap-1 text-[11px] text-muted"><PinIcon className="size-3" />{eventLocation(alert.event)}</span>
                   </span>
                   <ChevronIcon className="mt-1 size-4 shrink-0 text-muted" />
                 </Link>
@@ -300,6 +306,7 @@ export function Dashboard() {
                       <span>
                         <span className="block font-semibold group-hover:underline">{eventTypeLabels[event.type]}</span>
                         <span className="mt-0.5 block text-[11px] font-medium text-brand">{pedalActionLabel(event.type)}</span>
+                        <span className="mt-1 flex items-center gap-1 text-[11px] text-muted"><PinIcon className="size-3" />{eventLocation(event)}</span>
                       </span>
                     </Link>
                   </td>
