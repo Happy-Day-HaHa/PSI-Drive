@@ -57,11 +57,38 @@ export function MobileDriveWorkspace({
 }) {
   const visibleKey = selectedKey ?? activeKey;
   const rows = useRef(new Map<string, HTMLButtonElement>());
+  const timeline = useRef<HTMLOListElement>(null);
+  const userScrolling = useRef(false);
+  const releaseScrollTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const activeIndex = Math.max(0, steps.findIndex((mark) => mark.key === visibleKey));
+
+  function markUserScrolling() {
+    userScrolling.current = true;
+    if (releaseScrollTimer.current) clearTimeout(releaseScrollTimer.current);
+    releaseScrollTimer.current = setTimeout(() => {
+      userScrolling.current = false;
+    }, 900);
+  }
 
   useEffect(() => {
-    if (!visibleKey) return;
-    rows.current.get(visibleKey)?.scrollIntoView({ block: "nearest", behavior: "smooth" });
-  }, [visibleKey]);
+    const container = timeline.current;
+    const target = visibleKey ? rows.current.get(visibleKey) : null;
+    if (!container || !target || (userScrolling.current && !selectedKey)) return;
+
+    const containerRect = container.getBoundingClientRect();
+    const targetRect = target.getBoundingClientRect();
+    const safeTop = containerRect.top + 10;
+    const safeBottom = containerRect.bottom - 10;
+    if (targetRect.top < safeTop || targetRect.bottom > safeBottom) {
+      const targetCenter = targetRect.top + targetRect.height / 2;
+      const containerCenter = containerRect.top + containerRect.height / 2;
+      container.scrollBy({ top: targetCenter - containerCenter, behavior: "smooth" });
+    }
+  }, [playing, selectedKey, visibleKey]);
+
+  useEffect(() => () => {
+    if (releaseScrollTimer.current) clearTimeout(releaseScrollTimer.current);
+  }, []);
 
   return (
     <section id="drive-workspace" className="sticky top-[72px] z-10 grid h-[calc(100dvh-9.25rem)] min-h-[520px] scroll-mt-[72px] grid-rows-[auto_auto_auto_minmax(0,1fr)] overflow-hidden rounded-[22px] border border-[#203c61] bg-[#091a30] shadow-[0_22px_52px_rgba(5,20,39,.24)] xl:hidden">
@@ -134,9 +161,15 @@ export function MobileDriveWorkspace({
             <h3 className="text-sm font-bold">이 장면의 시간 흐름</h3>
             <p className="mt-0.5 text-[10px] text-muted">단계를 누르면 해당 시점으로 바로 이동해요.</p>
           </div>
-          <span className="rounded-full bg-[#eef4fb] px-2 py-1 text-[10px] font-bold text-brand">{steps.length}단계</span>
+          <span className="rounded-full bg-[#eef4fb] px-2.5 py-1 text-[10px] font-bold text-brand tabular-nums">{activeIndex + 1} / {steps.length}</span>
         </div>
-        <ol className="timeline-scroll min-h-0 overflow-y-auto overscroll-contain px-2 py-1.5">
+        <ol
+          ref={timeline}
+          onPointerDown={markUserScrolling}
+          onTouchStart={markUserScrolling}
+          onWheel={markUserScrolling}
+          className="timeline-scroll min-h-0 overflow-y-auto overscroll-contain px-2 py-1.5"
+        >
           {steps.map((mark, index) => {
             const info = stepInfo[mark.key];
             const tone = markTone[mark.key] ?? markTone.T7;

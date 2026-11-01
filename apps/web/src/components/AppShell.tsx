@@ -3,14 +3,14 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
-import { BarsIcon, CarIcon, FlagIcon, HomeIcon, PsiLogo } from "@/components/Icons";
+import { BarsIcon, FlagIcon, HomeIcon, PsiLogo, UserIcon } from "@/components/Icons";
 import { dataQuality, driver, mileage } from "@/lib/sample-data";
 
 const navItems = [
   { label: "홈", href: "/dashboard", icon: HomeIcon },
   { label: "운전 습관", href: "/pedal", icon: BarsIcon },
   { label: "주행 기록", href: "/events", icon: FlagIcon },
-  { label: "내 차량", href: "/dashboard#vehicle", icon: CarIcon },
+  { label: "마이페이지", href: "/profile", icon: UserIcon },
 ];
 
 function isActive(pathname: string, href: string) {

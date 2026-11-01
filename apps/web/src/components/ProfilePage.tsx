@@ -1,0 +1,100 @@
+import Link from "next/link";
+import { BarsIcon, CarIcon, ChevronIcon, UserIcon } from "@/components/Icons";
+import { DeviceOverview } from "@/components/DeviceOverview";
+import { driver, inspection } from "@/lib/sample-data";
+
+const preferences = [
+  { label: "주간 운전 리포트", value: "매주 월요일", detail: "지난 한 주의 점수 변화와 운전 습관을 알려드려요." },
+  { label: "주행 알림", value: "켜짐", detail: "새 주행 기록이 준비되면 알려드려요." },
+  { label: "데이터 보관", value: "최근 90일", detail: "연결된 기기의 주행 데이터를 안전하게 보관해요." },
+];
+
+export function ProfilePage() {
+  return (
+    <div className="space-y-5">
+      <header className="overflow-hidden rounded-[24px] bg-[linear-gradient(135deg,#0b1e36_0%,#173f73_68%,#2869b8_100%)] px-5 py-6 text-white shadow-[0_18px_42px_rgba(11,30,54,.18)] sm:px-8 sm:py-8">
+        <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-4">
+            <span className="flex size-16 shrink-0 items-center justify-center rounded-[20px] border border-white/15 bg-white/10 text-blue-100 shadow-inner backdrop-blur sm:size-20">
+              <UserIcon className="size-8 sm:size-10" />
+            </span>
+            <div>
+              <p className="text-[11px] font-bold tracking-[.14em] text-blue-200 uppercase">My PSI Studio</p>
+              <h1 className="mt-1 text-2xl font-extrabold tracking-[-.02em] sm:text-3xl">나의 운전 공간</h1>
+              <p className="mt-1.5 text-xs text-white/65 sm:text-sm">{driver.id} · 2026년 10월부터 함께하고 있어요</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-2 sm:min-w-[270px]">
+            <div className="rounded-xl border border-white/10 bg-white/[.08] px-3.5 py-3 backdrop-blur">
+              <p className="text-[10px] text-white/55">내 차량</p>
+              <p className="mt-1 truncate text-sm font-bold">{driver.vehicleModel}</p>
+            </div>
+            <div className="rounded-xl border border-white/10 bg-white/[.08] px-3.5 py-3 backdrop-blur">
+              <p className="text-[10px] text-white/55">다음 점검</p>
+              <p className="mt-1 text-sm font-bold">D-{inspection.daysLeft}</p>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <section aria-labelledby="quick-title" className="rounded-2xl border border-line/90 bg-white p-4 shadow-[0_10px_28px_rgba(15,31,54,.04)] sm:p-5">
+        <div className="flex items-end justify-between gap-3">
+          <div>
+            <p className="text-[11px] font-bold tracking-[.12em] text-brand uppercase">바로가기</p>
+            <h2 id="quick-title" className="mt-1 text-lg font-bold">필요한 내용을 빠르게 확인해요</h2>
+          </div>
+        </div>
+        <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3">
+          <Link href="/dashboard" className="group flex min-h-20 items-center gap-3 rounded-xl bg-[#f4f7fb] p-3.5 transition hover:bg-[#eaf2fb]">
+            <span className="flex size-9 items-center justify-center rounded-lg bg-white text-brand shadow-sm"><BarsIcon className="size-5" /></span>
+            <span className="text-xs font-bold sm:text-sm">내 점수 보기</span>
+          </Link>
+          <Link href="/events" className="group flex min-h-20 items-center gap-3 rounded-xl bg-[#f4f7fb] p-3.5 transition hover:bg-[#eaf2fb]">
+            <span className="flex size-9 items-center justify-center rounded-lg bg-white text-brand shadow-sm"><CarIcon className="size-5" /></span>
+            <span className="text-xs font-bold sm:text-sm">최근 주행 보기</span>
+          </Link>
+          <div className="col-span-2 flex min-h-20 items-center justify-between rounded-xl bg-good-soft/70 p-3.5 sm:col-span-1">
+            <div><p className="text-[10px] font-semibold text-good">연결 상태</p><p className="mt-1 text-xs font-bold sm:text-sm">모든 기기 정상</p></div>
+            <span className="size-2.5 rounded-full bg-good shadow-[0_0_0_5px_rgba(18,114,79,.1)]" />
+          </div>
+        </div>
+      </section>
+
+      <div>
+        <div className="mb-3 px-1">
+          <p className="text-[11px] font-bold tracking-[.12em] text-brand uppercase">Vehicle & Device</p>
+          <h2 className="mt-1 text-xl font-extrabold">내 차량과 연결 기기</h2>
+          <p className="mt-1 text-xs text-muted">차량 정보와 블랙박스·센서 상태를 한곳에서 확인할 수 있어요.</p>
+        </div>
+        <DeviceOverview />
+      </div>
+
+      <section className="grid gap-4 lg:grid-cols-[minmax(0,1.45fr)_minmax(280px,.55fr)]">
+        <div className="rounded-2xl border border-line/90 bg-white p-5 shadow-[0_10px_28px_rgba(15,31,54,.04)] sm:p-6">
+          <p className="text-[11px] font-bold tracking-[.12em] text-brand uppercase">내 설정</p>
+          <h2 className="mt-1 text-lg font-bold">알림과 데이터</h2>
+          <div className="mt-4 divide-y divide-line/80">
+            {preferences.map((item) => (
+              <div key={item.label} className="flex items-center gap-3 py-3.5 first:pt-1 last:pb-1">
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-bold">{item.label}</p>
+                  <p className="mt-0.5 truncate text-[11px] text-muted">{item.detail}</p>
+                </div>
+                <span className="shrink-0 rounded-full bg-[#eef4fb] px-2.5 py-1 text-[11px] font-bold text-brand">{item.value}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="rounded-2xl border border-line/90 bg-white p-5 shadow-[0_10px_28px_rgba(15,31,54,.04)] sm:p-6">
+          <p className="text-[11px] font-bold tracking-[.12em] text-brand uppercase">계정</p>
+          <h2 className="mt-1 text-lg font-bold">내 정보 관리</h2>
+          <div className="mt-4 space-y-1">
+            <div className="flex items-center justify-between rounded-xl px-2 py-3 text-sm"><span>운전자 ID</span><b className="text-xs">{driver.id}</b></div>
+            <div className="flex items-center justify-between rounded-xl px-2 py-3 text-sm"><span>데이터 및 개인정보</span><ChevronIcon className="size-4 text-muted" /></div>
+            <Link href="/" className="flex items-center justify-between rounded-xl px-2 py-3 text-sm text-muted transition hover:bg-canvas hover:text-ink"><span>로그아웃</span><ChevronIcon className="size-4" /></Link>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}

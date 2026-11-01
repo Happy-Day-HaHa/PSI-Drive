@@ -34,6 +34,12 @@ export const FlagIcon = (p: P) => (
     <path d="M6 21V4M6 4.5h11l-2.5 4 2.5 4H6" />
   </Icon>
 );
+export const UserIcon = (p: P) => (
+  <Icon {...p}>
+    <circle cx="12" cy="8" r="3.5" />
+    <path d="M5 20c.5-4 3.1-6 7-6s6.5 2 7 6" />
+  </Icon>
+);
 export const ChevronIcon = (p: P) => (
   <Icon {...p}>
     <path d="m9 6 6 6-6 6" />
