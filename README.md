@@ -67,6 +67,18 @@ npm ci
 npm run dev   # http://localhost:3000
 ```
 
+## 배포
+
+`main`에 푸시하면 Cloudflare Pages가 자동으로 빌드해 https://psi-drive.pages.dev 에 배포합니다.
+
+| Pages 설정 | 값 |
+|---|---|
+| 루트 디렉터리 | `apps/web` |
+| 빌드 명령 | `npm run build:pages` |
+| 출력 디렉터리 | `out` |
+
+정적 배포라 지금은 웹 화면만 올라갑니다. API와 워커는 별도 호스팅이 필요합니다.
+
 ## 전체 서비스 실행
 
 ```bash
