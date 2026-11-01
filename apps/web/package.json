@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "build:pages": "NEXT_OUTPUT=export next build"
   },
   "dependencies": {
     "next": "16.4.3",
