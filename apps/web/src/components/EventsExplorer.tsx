@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import { EventDetail } from "@/components/EventDetail";
+import { PedalEventIcon, pedalActionLabel } from "@/components/PedalEventIcon";
 import { PageHeader, SampleBadge } from "@/components/ui";
 import { eventTypeLabels, formatMs, pedalSamples, type EventType, type PedalEvent } from "@/lib/pedal";
 
@@ -53,8 +54,11 @@ export function EventsExplorer() {
         ))}
       </div>
       <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[272px_minmax(0,1fr)]">
-        <nav aria-label="사건 목록" className="overflow-hidden rounded-xl border border-line bg-card lg:sticky lg:top-6">
-          <p className="border-b border-line px-4 py-2.5 text-xs text-muted">{visible.length}건</p>
+        <nav aria-label="사건 목록" className="overflow-hidden rounded-2xl border border-line bg-card shadow-[0_12px_32px_rgba(15,31,54,0.04)] lg:sticky lg:top-6">
+          <div className="border-b border-line px-4 py-3">
+            <p className="text-[11px] font-bold tracking-[0.12em] text-muted uppercase">Detected events</p>
+            <p className="mt-0.5 text-sm font-semibold">{visible.length}건의 페달 사건</p>
+          </div>
           <ul className="flex max-h-[420px] flex-col divide-y divide-line overflow-y-auto lg:max-h-[calc(100dvh-180px)]">
             {visible.map((event) => {
               const active = event.id === selected.id;
@@ -68,14 +72,17 @@ export function EventsExplorer() {
                       active ? "border-brand bg-track/70" : "border-transparent hover:bg-canvas"
                     }`}
                   >
-                    <span className="flex items-baseline justify-between gap-2">
-                      <span className="text-sm font-semibold">{eventTypeLabels[event.type]}</span>
-                      {event.score !== null && <span className="text-[13px] font-bold">{event.score}점</span>}
+                    <span className="flex gap-2.5">
+                      <PedalEventIcon type={event.type} className="h-[44px] w-[67px] shrink-0" />
+                      <span className="min-w-0 flex-1">
+                        <span className="flex items-baseline justify-between gap-2">
+                          <span className="text-sm font-semibold">{eventTypeLabels[event.type]}</span>
+                          {event.score !== null && <span className="text-[13px] font-bold">{event.score}점</span>}
+                        </span>
+                        <span className="mt-0.5 block text-[11px] font-medium text-brand">{pedalActionLabel(event.type)}</span>
+                        <span className="mt-0.5 block text-xs text-muted">{event.date} · {keyFigure(event)}</span>
+                      </span>
                     </span>
-                    <span className="mt-0.5 block text-xs text-muted">
-                      {event.date} {event.time}
-                    </span>
-                    <span className="mt-0.5 block text-xs text-muted">{keyFigure(event)}</span>
                   </button>
                 </li>
               );

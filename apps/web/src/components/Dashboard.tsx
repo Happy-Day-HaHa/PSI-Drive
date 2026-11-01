@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { ChevronIcon } from "@/components/Icons";
+import { PedalEventIcon, pedalActionLabel } from "@/components/PedalEventIcon";
 import { ChartLegend, LineChart, type Series } from "@/components/LineChart";
 import { RadarChart } from "@/components/RadarChart";
 import { ScoreRing } from "@/components/ScoreRing";
@@ -103,6 +104,43 @@ export function Dashboard() {
           </div>
         }
       />
+
+      <section className="relative overflow-hidden rounded-2xl bg-[linear-gradient(120deg,#0b1e36_0%,#173f73_62%,#1c5794_100%)] p-5 text-white shadow-[0_18px_40px_rgba(11,30,54,0.16)] sm:p-7">
+        <div aria-hidden className="absolute -top-20 -right-16 size-64 rounded-full border border-white/10 bg-white/[0.035]" />
+        <div aria-hidden className="absolute -right-4 -bottom-24 size-52 rounded-full border border-white/10" />
+        <div className="relative grid gap-6 lg:grid-cols-[minmax(0,1.55fr)_minmax(390px,1fr)] lg:items-end">
+          <div>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="rounded-full bg-emerald-300/15 px-2.5 py-1 text-[11px] font-bold text-emerald-200">안정 추세</span>
+              <span className="text-xs text-white/55">2026년 11월 1일 기준</span>
+            </div>
+            <p className="mt-4 text-[11px] font-semibold tracking-[0.16em] text-blue-200 uppercase">Driver performance brief</p>
+            <h2 className="mt-2 max-w-2xl text-2xl leading-snug font-bold tracking-[-0.025em] sm:text-[30px]">
+              페달 안전성은 우수하고,<br className="hidden sm:block" /> 전환 반응은 개선 여지가 있습니다.
+            </h2>
+            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/68">
+              선택 기간 종합 점수는 {score}점입니다. 가장 안정적인 항목은 {best.label}({best.score}점), 우선 살펴볼 항목은 {weakest.label}({weakest.score}점)입니다.
+            </p>
+          </div>
+          <dl className="grid grid-cols-3 overflow-hidden rounded-xl border border-white/12 bg-white/[0.07] backdrop-blur-sm">
+            <div className="p-4">
+              <dt className="text-[11px] text-white/55">종합 점수</dt>
+              <dd className="mt-1 text-2xl font-bold tabular-nums">{score}<span className="ml-0.5 text-xs font-medium text-white/55">점</span></dd>
+              <p className="mt-1 text-[11px] text-emerald-200">+{period.scoreChange}점 상승</p>
+            </div>
+            <div className="border-l border-white/12 p-4">
+              <dt className="text-[11px] text-white/55">평균 전환</dt>
+              <dd className="mt-1 text-2xl font-bold tabular-nums">{averages.transitionMs}<span className="ml-0.5 text-xs font-medium text-white/55">ms</span></dd>
+              <p className="mt-1 text-[11px] text-white/55">가속 → 브레이크</p>
+            </div>
+            <div className="border-l border-white/12 p-4">
+              <dt className="text-[11px] text-white/55">주의 사건</dt>
+              <dd className="mt-1 text-2xl font-bold tabular-nums">{alerts.length}<span className="ml-0.5 text-xs font-medium text-white/55">건</span></dd>
+              <p className="mt-1 text-[11px] text-amber-200">상세 확인 권장</p>
+            </div>
+          </dl>
+        </div>
+      </section>
 
       <Panel>
         <div className="grid grid-cols-1 gap-8 xl:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
@@ -223,7 +261,7 @@ export function Dashboard() {
           <table className="w-full min-w-[560px] text-left text-sm">
             <thead>
               <tr className="border-b border-line text-xs text-muted">
-                <th scope="col" className="py-2 pr-4 font-medium">유형</th>
+                <th scope="col" className="py-2 pr-4 font-medium">발 · 페달 동작</th>
                 <th scope="col" className="py-2 pr-4 font-medium">일시</th>
                 <th scope="col" className="py-2 pr-4 font-medium">주요 지표</th>
                 <th scope="col" className="py-2 pr-4 text-right font-medium">최대 제동</th>
@@ -233,9 +271,13 @@ export function Dashboard() {
             <tbody>
               {events.slice(0, 5).map((event) => (
                 <tr key={event.id} className="border-b border-line last:border-b-0 hover:bg-canvas">
-                  <td className="py-2.5 pr-4 font-semibold">
-                    <Link href={`/events?id=${event.id}`} className="hover:underline">
-                      {eventTypeLabels[event.type]}
+                  <td className="py-2.5 pr-4">
+                    <Link href={`/events?id=${event.id}`} className="group flex min-w-[220px] items-center gap-2.5">
+                      <PedalEventIcon type={event.type} className="h-11 w-[68px] shrink-0" />
+                      <span>
+                        <span className="block font-semibold group-hover:underline">{eventTypeLabels[event.type]}</span>
+                        <span className="mt-0.5 block text-[11px] font-medium text-brand">{pedalActionLabel(event.type)}</span>
+                      </span>
                     </Link>
                   </td>
                   <td className="py-2.5 pr-4 whitespace-nowrap text-muted">

@@ -1,13 +1,13 @@
 @import "tailwindcss";
 
 @theme {
-  --color-brand: #1b3a6b;
-  --color-brand-hover: #15305a;
-  --color-data: #2563eb;
+  --color-brand: #173f73;
+  --color-brand-hover: #102f59;
+  --color-data: #2672d8;
   --color-track: #e6eaf1;
   --color-compare: #a3afc2;
-  --color-navy: #12233f;
-  --color-canvas: #f4f5f8;
+  --color-navy: #0b1e36;
+  --color-canvas: #f3f6fa;
   --color-card: #ffffff;
   --color-ink: #152033;
   --color-muted: #566072;
@@ -25,9 +25,22 @@ html {
 }
 
 body {
-  background: var(--color-canvas);
+  background:
+    radial-gradient(circle at 80% -10%, rgba(38, 114, 216, 0.08), transparent 28rem),
+    var(--color-canvas);
   color: var(--color-ink);
   font-family: var(--font-sans);
   word-break: keep-all;
   -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: rgba(38, 114, 216, 0.18);
+}
+
+button,
+a,
+select,
+input {
+  -webkit-tap-highlight-color: transparent;
 }

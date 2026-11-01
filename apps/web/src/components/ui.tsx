@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 
 export function Panel({ children, className = "", id }: { children: ReactNode; className?: string; id?: string }) {
   return (
-    <section id={id} className={`scroll-mt-20 rounded-xl border border-line bg-card p-5 sm:p-6 ${className}`}>
+    <section id={id} className={`scroll-mt-20 rounded-2xl border border-line/90 bg-card p-5 shadow-[0_1px_2px_rgba(15,31,54,0.03),0_12px_32px_rgba(15,31,54,0.035)] sm:p-6 ${className}`}>
       {children}
     </section>
   );
@@ -22,9 +22,10 @@ export function PanelHeader({ title, description, action }: { title: string; des
 
 export function PageHeader({ title, description, action }: { title: string; description: string; action?: ReactNode }) {
   return (
-    <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3 border-b border-line pb-5">
+    <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3 border-b border-line/80 pb-5">
       <div className="min-w-0">
-        <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
+        <p className="mb-1.5 text-[11px] font-bold tracking-[0.16em] text-brand uppercase">PSI Driver Intelligence</p>
+        <h1 className="text-2xl font-bold tracking-[-0.025em] sm:text-[28px]">{title}</h1>
         <p className="mt-1.5 max-w-3xl text-sm leading-relaxed text-muted">{description}</p>
       </div>
       {action}

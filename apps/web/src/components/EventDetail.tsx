@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { FootView } from "@/components/FootView";
+import { PedalEventIcon, pedalActionLabel } from "@/components/PedalEventIcon";
 import { PauseIcon, PlayIcon } from "@/components/Icons";
 import { ChartLegend } from "@/components/LineChart";
 import { TimeChart } from "@/components/TimeChart";
@@ -106,6 +107,13 @@ export function EventDetail({ event }: { event: PedalEvent }) {
               {event.id} · {event.date} {event.time}
             </p>
             <h2 className="mt-1 text-xl font-bold tracking-tight">{eventTypeLabels[event.type]}</h2>
+            <div className="mt-2 flex items-center gap-2 text-xs font-semibold text-brand">
+              <PedalEventIcon type={event.type} className="h-10 w-[61px]" />
+              <span>
+                <span className="block text-[10px] tracking-[0.1em] text-muted uppercase">Detected foot action</span>
+                {pedalActionLabel(event.type)}
+              </span>
+            </div>
           </div>
           {event.score !== null && (
             <div className="rounded-lg border border-line px-3.5 py-2 text-right">
