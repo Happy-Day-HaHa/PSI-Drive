@@ -50,7 +50,7 @@ export function MobilePedalSync({
           <span className="size-2 rounded-full" style={{ background: statusColor }} />{status}
         </span>
       </div>
-      <svg viewBox="0 0 360 190" className="w-full" role="img" aria-label={`현재 ${status}. 시간에 따른 가속 페달과 브레이크 압력 동시 보기`}>
+      <svg viewBox="0 0 360 190" className="mobile-pedal-visual w-full" role="img" aria-label={`현재 ${status}. 시간에 따른 가속 페달과 브레이크 압력 동시 보기`}>
         <rect x="10" y="12" width="124" height="164" rx="12" fill="#edf3f8" />
         <text x="22" y="29" fontSize="9" fontWeight="700" fill="#64748b">발 위치</text>
         <rect x="44" y="42" width="28" height="50" rx="5" fill="#fff" stroke="#aab6c5" />

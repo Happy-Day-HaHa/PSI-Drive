@@ -91,7 +91,7 @@ export function MobileDriveWorkspace({
   }, []);
 
   return (
-    <section id="drive-workspace" className="sticky top-[72px] z-10 grid h-[calc(100dvh-9.25rem)] min-h-[520px] scroll-mt-[72px] grid-rows-[auto_auto_auto_minmax(0,1fr)] overflow-hidden rounded-[22px] border border-[#203c61] bg-[#091a30] shadow-[0_22px_52px_rgba(5,20,39,.24)] xl:hidden">
+    <section id="drive-workspace" className="grid h-full min-h-0 grid-rows-[auto_auto_auto_minmax(0,1fr)] overflow-hidden rounded-[20px] border border-[#203c61] bg-[#091a30] shadow-[0_18px_42px_rgba(5,20,39,.22)] xl:hidden">
       <header className="flex items-start justify-between gap-3 border-b border-white/10 bg-[linear-gradient(120deg,#0b203b,#173f73)] px-4 py-3 text-white">
         <div className="min-w-0">
           <div className="flex items-center gap-2">
@@ -110,7 +110,7 @@ export function MobileDriveWorkspace({
         </div>
       </header>
 
-      <div className="min-h-0 bg-[#eef3f8] p-2.5">
+      <div className="min-h-0 overflow-hidden bg-[#eef3f8] p-2">
         <MobilePedalSync
           accel={accel}
           brake={brake}

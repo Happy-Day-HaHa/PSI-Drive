@@ -111,7 +111,7 @@ export function EventDetail({ event }: { event: PedalEvent }) {
   };
 
   return (
-    <div className="min-w-0 space-y-5">
+    <div className="h-full min-h-0 min-w-0 space-y-5 overflow-hidden xl:h-auto xl:overflow-visible">
       <MobileDriveWorkspace
         event={event}
         accel={accel}

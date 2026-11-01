@@ -61,3 +61,18 @@ input {
   border-radius: 999px;
   background: #c8d3e0;
 }
+
+.event-strip-scroll {
+  overscroll-behavior-inline: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  touch-action: pan-x;
+}
+
+.event-strip-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.mobile-pedal-visual {
+  height: clamp(112px, 19dvh, 168px);
+}

@@ -20,6 +20,7 @@ function isActive(pathname: string, href: string) {
 
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
+  const isDriveReview = pathname === "/events";
   const percent = Math.round((mileage.drivenKm / mileage.goalKm) * 100);
   return (
     <div className="flex min-h-dvh">
@@ -101,8 +102,16 @@ export function AppShell({ children }: { children: ReactNode }) {
             </div>
           </div>
         </header>
-        <main className="mx-auto w-full max-w-[1360px] flex-1 space-y-5 px-4 py-5 pb-24 sm:px-8 sm:py-8 sm:pb-24 lg:pb-8">{children}</main>
-        <footer className="mx-auto w-full max-w-[1320px] px-4 pb-28 text-xs leading-relaxed text-muted sm:px-8 lg:pb-8">
+        <main
+          className={`mx-auto w-full max-w-[1360px] flex-1 ${
+            isDriveReview
+              ? "h-[calc(100dvh-4rem)] min-h-0 overflow-hidden overscroll-none px-2 pt-2 pb-[5.75rem] sm:px-4 sm:pt-3 lg:h-dvh lg:px-5 lg:py-5 xl:h-auto xl:overflow-visible xl:overscroll-auto xl:px-8 xl:py-8"
+              : "space-y-5 px-4 py-5 pb-24 sm:px-8 sm:py-8 sm:pb-24 lg:pb-8"
+          }`}
+        >
+          {children}
+        </main>
+        <footer className={`mx-auto w-full max-w-[1320px] px-4 pb-28 text-xs leading-relaxed text-muted sm:px-8 lg:pb-8 ${isDriveReview ? "hidden xl:block" : ""}`}>
           점수와 지표는 운전 행동을 설명하는 자료이며, 사고 원인이나 법적 과실을 판정하지 않습니다. 현재 화면의 수치는 실제 측정값이 아닌 샘플 및 합성 데이터입니다.
         </footer>
         <nav aria-label="모바일 주 메뉴" className="fixed inset-x-3 bottom-3 z-40 grid grid-cols-4 overflow-hidden rounded-2xl border border-white/10 bg-navy/95 p-1.5 text-white shadow-[0_12px_32px_rgba(5,18,34,0.28)] backdrop-blur-xl lg:hidden">

@@ -39,19 +39,43 @@ export function EventsExplorer() {
 
   const select = (id: string) => {
     router.replace(`/events?id=${id}`, { scroll: false });
-    if (window.innerWidth < 1280) {
-      requestAnimationFrame(() => document.getElementById("drive-workspace")?.scrollIntoView({ behavior: "smooth", block: "start" }));
-    }
   };
 
   return (
-    <>
-      <PageHeader
-        title="주행 기록"
-        description="운전 중 발이 어떤 순서로 움직였고 페달을 얼마나 세게 밟았는지, 기억하기 쉬운 장면별로 돌아봅니다."
-        action={<SampleBadge />}
-      />
-      <div className="flex flex-nowrap gap-1.5 overflow-x-auto pb-1" role="group" aria-label="주행 장면 유형 필터">
+    <div className="grid h-full min-h-0 grid-rows-[auto_minmax(0,1fr)] gap-2 xl:block xl:h-auto xl:space-y-5">
+      <nav aria-label="모바일 주행 장면 선택" className="min-w-0 xl:hidden">
+        <ul className="event-strip-scroll flex gap-1.5 overflow-x-auto pb-0.5">
+          {events.map((event) => {
+            const active = event.id === selected.id;
+            const level = eventLevel(event);
+            return (
+              <li key={event.id} className="shrink-0">
+                <button
+                  type="button"
+                  aria-current={active ? "true" : undefined}
+                  onClick={() => select(event.id)}
+                  className={`flex h-11 items-center gap-2 rounded-xl border px-3 text-left shadow-sm transition-colors ${active ? "border-brand bg-brand text-white" : "border-line bg-white text-ink"}`}
+                >
+                  <span>
+                    <span className="block text-[11px] font-bold leading-none">{eventTypeLabels[event.type]}</span>
+                    <span className={`mt-1 block text-[9px] leading-none ${active ? "text-white/65" : "text-muted"}`}>{event.date} · {event.time}</span>
+                  </span>
+                  {event.score !== null && <span className={`rounded-full px-1.5 py-0.5 text-[9px] font-bold ${active ? "bg-white/15 text-white" : level.className}`}>{event.score}점</span>}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
+
+      <div className="hidden xl:block">
+        <PageHeader
+          title="주행 기록"
+          description="운전 중 발이 어떤 순서로 움직였고 페달을 얼마나 세게 밟았는지, 기억하기 쉬운 장면별로 돌아봅니다."
+          action={<SampleBadge />}
+        />
+      </div>
+      <div className="hidden flex-nowrap gap-1.5 overflow-x-auto pb-1 xl:flex" role="group" aria-label="주행 장면 유형 필터">
         {filters.map((item) => (
           <button
             key={item.key}
@@ -66,23 +90,23 @@ export function EventsExplorer() {
           </button>
         ))}
       </div>
-      <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[272px_minmax(0,1fr)]">
-        <nav aria-label="주행 장면 목록" className="min-w-0 overflow-hidden rounded-2xl border border-line bg-card shadow-[0_12px_32px_rgba(15,31,54,0.04)] lg:sticky lg:top-6">
-          <div className="hidden border-b border-line px-4 py-3 lg:block">
+      <div className="grid min-h-0 grid-cols-1 items-start gap-5 overflow-hidden xl:grid-cols-[272px_minmax(0,1fr)] xl:overflow-visible">
+        <nav aria-label="주행 장면 목록" className="hidden min-w-0 overflow-hidden rounded-2xl border border-line bg-card shadow-[0_12px_32px_rgba(15,31,54,0.04)] xl:sticky xl:top-6 xl:block">
+          <div className="border-b border-line px-4 py-3">
             <p className="text-[11px] font-bold tracking-[0.12em] text-muted uppercase">Detected events</p>
             <p className="mt-0.5 text-sm font-semibold">{visible.length}개의 주행 장면</p>
           </div>
-          <ul className="flex snap-x gap-2 overflow-x-auto p-2 lg:max-h-[calc(100dvh-180px)] lg:snap-none lg:flex-col lg:gap-0 lg:divide-y lg:divide-line lg:overflow-x-hidden lg:overflow-y-auto lg:p-0">
+          <ul className="max-h-[calc(100dvh-180px)] divide-y divide-line overflow-y-auto">
             {visible.map((event) => {
               const active = event.id === selected.id;
               const level = eventLevel(event);
               return (
-                <li key={event.id} className="w-[252px] shrink-0 snap-start lg:w-auto lg:shrink">
+                <li key={event.id}>
                   <button
                     type="button"
                     aria-current={active ? "true" : undefined}
                     onClick={() => select(event.id)}
-                    className={`block h-full w-full rounded-xl border px-3 py-3 text-left transition-colors lg:rounded-none lg:border-y-0 lg:border-r-0 lg:border-l-[3px] lg:px-3.5 ${
+                    className={`block h-full w-full border-y-0 border-r-0 border-l-[3px] px-3.5 py-3 text-left transition-colors ${
                       active ? "border-brand bg-track/70" : "border-line bg-white hover:bg-canvas lg:border-transparent"
                     }`}
                   >
@@ -109,6 +133,6 @@ export function EventsExplorer() {
         </nav>
         <EventDetail key={selected.id} event={selected} />
       </div>
-    </>
+    </div>
   );
 }
