@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { EventDetail } from "@/components/EventDetail";
 import { PinIcon } from "@/components/Icons";
 import { PedalEventIcon, pedalActionLabel } from "@/components/PedalEventIcon";
@@ -33,6 +33,8 @@ export function EventsExplorer() {
   const router = useRouter();
   const params = useSearchParams();
   const [filter, setFilter] = useState<EventType | "all">("all");
+  const mobileStrip = useRef<HTMLUListElement>(null);
+  const mobileEventButtons = useRef(new Map<string, HTMLButtonElement>());
   const events = pedalSamples.events;
   const visible = useMemo(() => (filter === "all" ? events : events.filter((event) => event.type === filter)), [events, filter]);
   const selected = events.find((event) => event.id === params.get("id")) ?? events.find((event) => event.type === "pedestrian") ?? events[0];
@@ -41,21 +43,35 @@ export function EventsExplorer() {
     router.replace(`/events?id=${id}`, { scroll: false });
   };
 
+  useEffect(() => {
+    const container = mobileStrip.current;
+    const target = mobileEventButtons.current.get(selected.id);
+    if (!container || !target) return;
+    const nextLeft = target.offsetLeft - container.clientWidth / 2 + target.offsetWidth / 2;
+    container.scrollTo({ left: Math.max(0, nextLeft), behavior: "smooth" });
+  }, [selected.id]);
+
   return (
     <div className="grid h-full min-h-0 grid-rows-[auto_minmax(0,1fr)] gap-2 xl:block xl:h-auto xl:space-y-5">
-      <nav aria-label="모바일 주행 장면 선택" className="min-w-0 xl:hidden">
-        <ul className="event-strip-scroll flex gap-1.5 overflow-x-auto pb-0.5">
+      <nav aria-label="모바일 주행 장면 선택" className="mobile-event-strip min-w-0 xl:hidden">
+        <ul ref={mobileStrip} className="event-strip-scroll flex gap-1.5 overflow-x-auto pb-0.5">
           {events.map((event) => {
             const active = event.id === selected.id;
             const level = eventLevel(event);
             return (
               <li key={event.id} className="shrink-0">
                 <button
+                  ref={(node) => {
+                    if (node) mobileEventButtons.current.set(event.id, node);
+                    else mobileEventButtons.current.delete(event.id);
+                  }}
                   type="button"
                   aria-current={active ? "true" : undefined}
+                  aria-label={`${eventTypeLabels[event.type]}, ${event.date} ${event.time}, ${eventLocation(event)}`}
                   onClick={() => select(event.id)}
-                  className={`flex h-11 items-center gap-2 rounded-xl border px-3 text-left shadow-sm transition-colors ${active ? "border-brand bg-brand text-white" : "border-line bg-white text-ink"}`}
+                  className={`relative flex h-11 items-center gap-2 rounded-xl border px-3 text-left shadow-sm transition-all ${active ? "border-brand bg-brand text-white shadow-[0_5px_14px_rgba(23,63,115,.22)]" : "border-line bg-white text-ink active:bg-canvas"}`}
                 >
+                  {active && <span aria-hidden className="absolute inset-x-3 -bottom-px h-0.5 rounded-full bg-blue-200" />}
                   <span>
                     <span className="block text-[11px] font-bold leading-none">{eventTypeLabels[event.type]}</span>
                     <span className={`mt-1 block text-[9px] leading-none ${active ? "text-white/65" : "text-muted"}`}>{event.date} · {event.time}</span>

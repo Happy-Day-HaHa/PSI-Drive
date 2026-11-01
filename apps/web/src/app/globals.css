@@ -76,3 +76,60 @@ input {
 .mobile-pedal-visual {
   height: clamp(112px, 19dvh, 168px);
 }
+
+.playhead-range {
+  height: 6px;
+  appearance: none;
+  border-radius: 999px;
+}
+
+.playhead-range::-webkit-slider-thumb {
+  width: 18px;
+  height: 18px;
+  appearance: none;
+  border: 3px solid #ffffff;
+  border-radius: 999px;
+  background: #6da8ff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.playhead-range::-moz-range-thumb {
+  width: 13px;
+  height: 13px;
+  border: 3px solid #ffffff;
+  border-radius: 999px;
+  background: #6da8ff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+@media (max-height: 720px) and (max-width: 1279px) {
+  .mobile-workspace-meta {
+    padding-block: 8px;
+  }
+
+  .mobile-workspace-location,
+  .mobile-control-helper,
+  .mobile-timeline-helper,
+  .timeline-pressure {
+    display: none;
+  }
+
+  .mobile-pedal-visual {
+    height: 104px;
+  }
+
+  .mobile-pedal-frame-header {
+    padding-block: 5px;
+  }
+}
+
+@media (max-height: 560px) and (orientation: landscape) and (max-width: 1279px) {
+  .mobile-event-strip,
+  .mobile-pedal-frame-header {
+    display: none;
+  }
+
+  .mobile-pedal-visual {
+    height: 76px;
+  }
+}
