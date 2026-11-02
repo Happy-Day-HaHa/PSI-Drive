@@ -76,3 +76,10 @@ def test_histograms_cover_every_event(samples):
     transition_total = sum(item["value"] for item in samples["transitionHistogram"])
     assert transition_total == samples["scope"]["hazardEvents"]
     assert sum(item["value"] for item in samples["accelHistogram"]) == pytest.approx(100.0, abs=0.5)
+
+
+def test_motion_thresholds_are_exported_and_match_event_examples(samples):
+    thresholds = samples["thresholds"]
+    assert thresholds == {"hardAccelG": 0.3, "hardBrakeG": -0.4}
+    assert any(max(event["series"]["decelG"]) >= thresholds["hardAccelG"] for event in samples["events"])
+    assert any(min(event["series"]["decelG"]) <= thresholds["hardBrakeG"] for event in samples["events"])

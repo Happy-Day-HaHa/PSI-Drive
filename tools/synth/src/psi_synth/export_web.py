@@ -256,6 +256,10 @@ def build_samples() -> dict:
     return {
         "source": "psi_synth 합성 세션의 정답값",
         "configVersion": th.config_version,
+        "thresholds": {
+            "hardAccelG": config["habits"]["hard_accel_g"],
+            "hardBrakeG": config["habits"]["hard_brake_g"],
+        },
         "scope": {
             "sessions": len(sessions),
             "distanceKm": round(distance_km, 1),

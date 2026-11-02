@@ -170,6 +170,18 @@ export function EventDetail({ event }: { event: PedalEvent }) {
           )}
         </div>
         <p className="mt-3 max-w-3xl text-[15px] leading-relaxed">{eventHeadline(event)}</p>
+        <div className="mt-4 overflow-hidden rounded-xl border border-[#dbe7f7] bg-[linear-gradient(110deg,#f4f8fe,#ffffff)]">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#dbe7f7] px-4 py-2.5">
+            <div className="flex items-center gap-2"><p className="text-xs font-bold">차량 움직임</p>{analysis.motionTags.map((tag) => <span key={tag} className={`rounded-full px-2.5 py-1 text-[10px] font-bold ${tag === "급감속" ? "bg-[#feecef] text-alert" : tag === "급가속" ? "bg-[#eaf2fd] text-data" : "bg-canvas text-muted"}`}>{tag}</span>)}</div>
+            <p className="text-[10px] text-muted">판정 기준: 급가속 ≥ +{pedalSamples.thresholds.hardAccelG.toFixed(2)}g · 급감속 ≤ {pedalSamples.thresholds.hardBrakeG.toFixed(2)}g</p>
+          </div>
+          <dl className="grid grid-cols-2 divide-x divide-y divide-[#e7eef7] sm:grid-cols-4 sm:divide-y-0">
+            <div className="px-4 py-3"><dt className="text-[10px] text-muted">장면 내 최대 가속</dt><dd className="mt-1 text-base font-bold text-data tabular-nums">+{analysis.maxAccelerationG.toFixed(2)}g</dd></div>
+            <div className="px-4 py-3"><dt className="text-[10px] text-muted">장면 내 최대 감속</dt><dd className="mt-1 text-base font-bold text-alert tabular-nums">−{analysis.maxDecelerationG.toFixed(2)}g</dd></div>
+            <div className="px-4 py-3"><dt className="text-[10px] text-muted">속도 변화</dt><dd className="mt-1 text-base font-bold tabular-nums">{analysis.speedChangeKmh >= 0 ? "+" : ""}{analysis.speedChangeKmh.toFixed(1)}<span className="ml-0.5 text-[10px] font-medium text-muted">km/h</span></dd></div>
+            <div className="px-4 py-3"><dt className="text-[10px] text-muted">최대 페달 입력</dt><dd className="mt-1 text-xs font-bold tabular-nums"><span className="text-data">가속 {Math.round(analysis.maxAccelPedalPct)}%</span><span className="mx-1.5 text-line">/</span><span className="text-alert">제동 {Math.round(analysis.maxBrakePedalPct)}%</span></dd></div>
+          </dl>
+        </div>
         <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
           <div className="rounded-xl bg-canvas px-3 py-2.5"><p className="text-[10px] text-muted">이벤트 분류</p><p className="mt-1 text-xs font-bold">{analysis.category} · {analysis.subtype}</p></div>
           <div className="rounded-xl bg-canvas px-3 py-2.5"><p className="text-[10px] text-muted">전방 상황 출처</p><p className="mt-1 text-xs font-bold">{analysis.frontSource}</p></div>

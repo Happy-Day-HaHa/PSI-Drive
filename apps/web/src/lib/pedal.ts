@@ -37,6 +37,7 @@ export type HistogramBin = { label: string; value: number };
 
 type Samples = {
   configVersion: string;
+  thresholds: { hardAccelG: number; hardBrakeG: number };
   scope: { sessions: number; distanceKm: number; drivingMinutes: number; hazardEvents: number; hardBrakes: number; hardAccels: number };
   averages: {
     recognitionMs: number;
@@ -60,6 +61,7 @@ type Samples = {
 };
 
 export const pedalSamples = samples as unknown as Samples;
+export const motionThresholds = pedalSamples.thresholds;
 export const SAMPLE_DT_MS = 20;
 export const ACCEL_COLOR = "#246CE2";
 export const BRAKE_COLOR = "#E24054";

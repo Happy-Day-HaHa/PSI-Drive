@@ -1,4 +1,6 @@
-import { SAMPLE_DT_MS, eventTypeLabels, type PedalEvent } from "@/lib/pedal";
+import { SAMPLE_DT_MS, eventTypeLabels, motionThresholds, type PedalEvent } from "@/lib/pedal";
+
+export type MotionTag = "급가속" | "급감속" | "일반 가감속";
 
 export type EventAnalysis = {
   category: "복합 이벤트" | "차량 움직임" | "페달 조작";
@@ -8,6 +10,12 @@ export type EventAnalysis = {
   severity: "높은 주의" | "살펴보기" | "정보";
   durationMs: number;
   maxJerkGPerS: number;
+  maxAccelerationG: number;
+  maxDecelerationG: number;
+  speedChangeKmh: number;
+  maxAccelPedalPct: number;
+  maxBrakePedalPct: number;
+  motionTags: MotionTag[];
   sources: string[];
   relationship: string;
   confidence: null;
@@ -29,6 +37,15 @@ export function analyzeEvent(event: PedalEvent): EventAnalysis {
     const jerk = Math.abs(event.series.decelG[index] - event.series.decelG[index - 1]) / (SAMPLE_DT_MS / 1000);
     maxJerkGPerS = Math.max(maxJerkGPerS, jerk);
   }
+  const maxAccelerationG = Math.max(0, ...event.series.decelG);
+  const minimumAccelerationG = Math.min(0, ...event.series.decelG);
+  const maxDecelerationG = Math.abs(minimumAccelerationG);
+  const motionTags: MotionTag[] = [];
+  if (maxAccelerationG >= motionThresholds.hardAccelG) motionTags.push("급가속");
+  if (minimumAccelerationG <= motionThresholds.hardBrakeG) motionTags.push("급감속");
+  if (motionTags.length === 0) motionTags.push("일반 가감속");
+  const speedStartKmh = event.series.speedKmh[0] ?? event.stats.speedStartKmh;
+  const speedEndKmh = event.series.speedKmh[event.series.speedKmh.length - 1] ?? event.stats.speedEndKmh;
 
   const isComposite = event.type === "pedestrian" || event.type === "lead_brake";
   const isOverlap = event.type === "overlap";
@@ -40,6 +57,12 @@ export function analyzeEvent(event: PedalEvent): EventAnalysis {
     severity: event.score !== null && event.score < 70 ? "높은 주의" : event.score !== null && event.score < 85 ? "살펴보기" : "정보",
     durationMs,
     maxJerkGPerS,
+    maxAccelerationG,
+    maxDecelerationG,
+    speedChangeKmh: speedEndKmh - speedStartKmh,
+    maxAccelPedalPct: Math.min(100, Math.max(0, ...event.series.accel)),
+    maxBrakePedalPct: Math.min(100, Math.max(0, ...event.series.brake)),
+    motionTags,
     sources: isComposite ? ["전방 시나리오", "페달 센서", "풋웰 영상", "IMU"] : isOverlap ? ["페달 센서", "풋웰 영상", "IMU"] : ["페달 센서", "IMU"],
     relationship: isComposite ? "전방 사건 관측 → 가속 해제 → 발 이동 → 브레이크 접촉 → 차량 감속" : isOverlap ? "가속 입력 유지 → 브레이크 입력 → 두 페달 중첩 → 입력 해제" : "가속 해제 → 타력 주행 → 브레이크 접촉 → 차량 감속",
     confidence: null,

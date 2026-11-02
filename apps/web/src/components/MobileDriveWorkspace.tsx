@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { PauseIcon, PinIcon, PlayIcon } from "@/components/Icons";
 import { MobilePedalSync } from "@/components/MobilePedalSync";
+import { analyzeEvent } from "@/lib/event-analysis";
 import { SAMPLE_DT_MS, eventLocation, eventTypeLabels, formatMs, stepInfo, type PedalEvent } from "@/lib/pedal";
 
 type Mark = PedalEvent["marks"][number];
@@ -67,6 +68,7 @@ export function MobileDriveWorkspace({
   onRate: (rate: number) => void;
   onJump: (key: string, ms: number) => void;
 }) {
+  const analysis = analyzeEvent(event);
   const visibleKey = selectedKey ?? activeKey;
   const rows = useRef(new Map<string, HTMLButtonElement>());
   const timeline = useRef<HTMLOListElement>(null);
@@ -131,7 +133,10 @@ export function MobileDriveWorkspace({
             <span className="rounded-full bg-blue-300/15 px-2 py-0.5 text-[9px] font-bold tracking-[.13em] text-blue-200 uppercase">PSI Motion Lens</span>
             <span className="text-[10px] text-white/45">{event.id}</span>
           </div>
-          <h2 className="mt-1.5 truncate text-base font-bold">{eventTypeLabels[event.type]}</h2>
+          <div className="mt-1.5 flex min-w-0 items-center gap-1.5">
+            <h2 className="truncate text-base font-bold">{eventTypeLabels[event.type]}</h2>
+            {analysis.motionTags.map((tag) => <span key={tag} className={`shrink-0 rounded-full px-2 py-0.5 text-[9px] font-bold ${tag === "급감속" ? "bg-[#ef5365] text-white" : tag === "급가속" ? "bg-[#6da8ff] text-[#071a32]" : "bg-white/10 text-white/65"}`}>{tag}</span>)}
+          </div>
           <p className="mobile-workspace-location mt-1 flex items-center gap-1 truncate text-[11px] text-white/60">
             <PinIcon className="size-3 shrink-0 text-blue-300" />{eventLocation(event)}
           </p>
