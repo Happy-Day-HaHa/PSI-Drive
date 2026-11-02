@@ -75,6 +75,7 @@ export function DeviceOverview() {
                   <div className={`h-full rounded-full ${tone.bar}`} style={{ width: `${device.battery}%` }} />
                 </div>
                 <p className="mt-2 text-[10px] text-muted">저장공간 {device.storage}% 사용</p>
+                <p className="mt-1 text-[10px] text-muted">마지막 동기화 {device.lastSync}</p>
               </article>
             );
           })}

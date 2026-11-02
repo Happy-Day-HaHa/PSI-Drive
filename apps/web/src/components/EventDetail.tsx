@@ -23,7 +23,7 @@ import {
   type PedalEvent,
 } from "@/lib/pedal";
 
-const RATES = [0.25, 0.5, 1];
+const RATES = [0.5, 1, 1.5];
 const findingTone = {
   good: { label: "잘한 점", className: "bg-good-soft text-good" },
   watch: { label: "살펴볼 점", className: "bg-caution-soft text-caution" },

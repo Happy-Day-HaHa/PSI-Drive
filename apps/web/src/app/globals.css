@@ -1,21 +1,21 @@
 @import "tailwindcss";
 
 @theme {
-  --color-brand: #173f73;
-  --color-brand-hover: #102f59;
-  --color-data: #2672d8;
+  --color-brand: #246ce2;
+  --color-brand-hover: #1957bb;
+  --color-data: #246ce2;
   --color-track: #e6eaf1;
   --color-compare: #a3afc2;
-  --color-navy: #0b1e36;
-  --color-canvas: #f3f6fa;
+  --color-navy: #0b1d35;
+  --color-canvas: #f3f6fb;
   --color-card: #ffffff;
   --color-ink: #152033;
   --color-muted: #566072;
   --color-line: #e2e6ec;
-  --color-good: #12724f;
+  --color-good: #10875f;
   --color-good-soft: #dff3ea;
-  --color-alert: #c23343;
-  --color-caution: #9a5b00;
+  --color-alert: #e24054;
+  --color-caution: #bd7209;
   --color-caution-soft: #fbefd9;
   --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", "Segoe UI", sans-serif;
 }
@@ -43,6 +43,22 @@ a,
 select,
 input {
   -webkit-tap-highlight-color: transparent;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-data);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 .timeline-scroll {

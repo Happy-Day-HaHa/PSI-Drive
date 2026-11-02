@@ -184,7 +184,7 @@ export function MobileDriveWorkspace({
         <div className="mobile-control-helper mt-2 flex items-center justify-between gap-3">
           <p className="text-[10px] text-white/45">발·가속·브레이크가 같은 시간축으로 움직여요</p>
           <div className="flex rounded-md bg-white/8 p-0.5">
-            {[0.25, 0.5, 1].map((value) => (
+            {[0.5, 1, 1.5].map((value) => (
               <button key={value} type="button" onClick={() => onRate(value)} className={`rounded px-2 py-1 text-[9px] font-bold ${rate === value ? "bg-white text-navy" : "text-white/55"}`}>{value}×</button>
             ))}
           </div>

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Histogram } from "@/components/Histogram";
+import { ChevronIcon } from "@/components/Icons";
 import { ChartLegend, LineChart, type Series } from "@/components/LineChart";
 import { SegmentBar, type Segment } from "@/components/SegmentBar";
 import { PageHeader, Panel, PanelHeader, SampleBadge, Stat } from "@/components/ui";
@@ -46,6 +47,8 @@ export function PedalHabits() {
 
   const hazards = events.filter((event) => event.score !== null);
   const slowest = hazards.reduce((best, event) => ((event.metrics.transitionMs ?? 0) > (best.metrics.transitionMs ?? 0) ? event : best));
+  const overlapEvent = events.find((event) => event.type === "overlap");
+  const hardestBrake = hazards.reduce((best, event) => event.stats.peakDecelG > best.stats.peakDecelG ? event : best);
 
   return (
     <>
@@ -54,6 +57,31 @@ export function PedalHabits() {
         description={`압력 센서 기록으로 페달을 얼마나 부드럽고 빠르게 조작하는지 살펴봅니다. 주행 ${scope.drivingMinutes}분, 주의 장면 ${scope.hazardEvents}개 기준입니다.`}
         action={<SampleBadge />}
       />
+
+      <section className="grid gap-3 md:grid-cols-3" aria-label="운전 습관 분석 시작점">
+        <Link href={`/events?id=${slowest.id}`} className="group rounded-2xl border border-[#f0dfc8] bg-[#fffaf3] p-4 transition hover:-translate-y-0.5 hover:shadow-[0_12px_28px_rgba(15,31,54,.07)] motion-reduce:transform-none">
+          <div className="flex items-center justify-between"><span className="rounded-full bg-caution-soft px-2 py-1 text-[10px] font-bold text-caution">먼저 확인</span><ChevronIcon className="size-4 text-caution transition group-hover:translate-x-0.5" /></div>
+          <p className="mt-3 text-xs font-semibold text-muted">가장 길었던 페달 전환</p>
+          <p className="mt-1 text-2xl font-extrabold tabular-nums">{formatMs(slowest.metrics.transitionMs ?? 0)}</p>
+          <p className="mt-1 text-[11px] text-muted">평균 {formatMs(averages.transitionMs)} · 발 이동 과정 재생</p>
+        </Link>
+        <Link href={`/events?id=${hardestBrake.id}`} className="group rounded-2xl border border-[#f3d9df] bg-[#fff8fa] p-4 transition hover:-translate-y-0.5 hover:shadow-[0_12px_28px_rgba(15,31,54,.07)] motion-reduce:transform-none">
+          <div className="flex items-center justify-between"><span className="rounded-full bg-[#feecef] px-2 py-1 text-[10px] font-bold text-alert">강한 제동</span><ChevronIcon className="size-4 text-alert transition group-hover:translate-x-0.5" /></div>
+          <p className="mt-3 text-xs font-semibold text-muted">가장 큰 감속</p>
+          <p className="mt-1 text-2xl font-extrabold tabular-nums">{hardestBrake.stats.peakDecelG.toFixed(2)}g</p>
+          <p className="mt-1 text-[11px] text-muted">최대 제동 {Math.round(hardestBrake.stats.peakBrakePct)}% · 압력 변화 확인</p>
+        </Link>
+        {overlapEvent ? (
+          <Link href={`/events?id=${overlapEvent.id}`} className="group rounded-2xl border border-[#e7def7] bg-[#faf8ff] p-4 transition hover:-translate-y-0.5 hover:shadow-[0_12px_28px_rgba(15,31,54,.07)] motion-reduce:transform-none">
+            <div className="flex items-center justify-between"><span className="rounded-full bg-[#f1eafe] px-2 py-1 text-[10px] font-bold text-[#6d28d9]">페달 중첩</span><ChevronIcon className="size-4 text-[#6d28d9] transition group-hover:translate-x-0.5" /></div>
+            <p className="mt-3 text-xs font-semibold text-muted">두 페달을 함께 밟은 시간</p>
+            <p className="mt-1 text-2xl font-extrabold tabular-nums">{formatMs(overlapEvent.metrics.overlapMs ?? 0)}</p>
+            <p className="mt-1 text-[11px] text-muted">발 위치와 두 압력을 동시에 확인</p>
+          </Link>
+        ) : (
+          <div className="rounded-2xl border border-[#d8eadf] bg-[#f4faf6] p-4"><span className="rounded-full bg-good-soft px-2 py-1 text-[10px] font-bold text-good">양호</span><p className="mt-3 text-sm font-bold">페달 중첩이 없어요</p><p className="mt-1 text-[11px] text-muted">현재 분석 범위에서 두 페달 동시 입력이 감지되지 않았습니다.</p></div>
+        )}
+      </section>
 
       <Panel>
         <dl className="grid grid-cols-2 gap-x-6 gap-y-5 lg:grid-cols-4 lg:divide-x lg:divide-line [&>div]:lg:pl-6 [&>div:first-child]:lg:pl-0">
@@ -70,7 +98,7 @@ export function PedalHabits() {
       </Panel>
 
       <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
-        <Panel>
+        <Panel id="accel-pattern">
           <PanelHeader title="가속 페달을 밟는 세기" description="가속 페달을 밟고 있던 시간이 압력 구간별로 어떻게 나뉘는지 보여 줍니다." />
           <Histogram bins={accelHistogram} color={ACCEL_COLOR} valueSuffix="%" xTitle="가속 페달 압력 (%)" ariaLabel="가속 페달 압력 분포" />
           <Insight>
@@ -124,6 +152,21 @@ export function PedalHabits() {
         <SegmentBar segments={reactionSegments} unit="ms" ariaLabel="주의 장면 반응 시간 구성" />
         <p className="mt-3 text-xs text-muted">T0는 전방 영상에서 표시한 시점이므로 약 ±17ms의 불확실성이 있습니다.</p>
       </Panel>
+
+      <section className="rounded-2xl border border-[#d7e5f8] bg-[linear-gradient(135deg,#f8fbff,#edf4ff)] p-5 sm:p-6">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div><p className="text-[11px] font-bold tracking-[.13em] text-brand uppercase">Next drive guide</p><h2 className="mt-1 text-xl font-extrabold">다음 주행에서 한 가지만 바꿔보세요</h2><p className="mt-1 text-xs text-muted">현재 샘플 범위에서 확인 가능한 조작 패턴을 바탕으로 제안합니다.</p></div>
+          <span className="rounded-full border border-[#c6d9f4] bg-white px-3 py-1.5 text-[11px] font-bold text-brand">주행 후 다시 비교</span>
+        </div>
+        <div className="mt-5 grid gap-3 md:grid-cols-2">
+          <article className="rounded-xl bg-white p-4 shadow-[0_8px_22px_rgba(15,31,54,.045)]">
+            <div className="flex items-start gap-3"><span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-caution text-xs font-extrabold text-white">1</span><div><h3 className="text-sm font-bold">발 이동을 조금 일찍 시작하기</h3><p className="mt-1 text-xs leading-relaxed text-muted">가속 페달을 완전히 뗀 뒤 뒤꿈치를 축으로 브레이크 쪽으로 이동해 보세요. 다음 기록에서 전환 시간 변화를 비교할 수 있어요.</p><Link href={`/events?id=${slowest.id}`} className="mt-3 inline-flex items-center gap-0.5 text-xs font-bold text-brand">현재 장면 다시 보기<ChevronIcon className="size-3" /></Link></div></div>
+          </article>
+          <article className="rounded-xl bg-white p-4 shadow-[0_8px_22px_rgba(15,31,54,.045)]">
+            <div className="flex items-start gap-3"><span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-data text-xs font-extrabold text-white">2</span><div><h3 className="text-sm font-bold">브레이크 전에 먼저 가속 해제하기</h3><p className="mt-1 text-xs leading-relaxed text-muted">앞차의 속도 변화를 일찍 확인하고 가속 입력을 먼저 줄이면 강한 제동 압력을 낮추는 데 도움이 됩니다.</p><Link href={`/events?id=${hardestBrake.id}`} className="mt-3 inline-flex items-center gap-0.5 text-xs font-bold text-brand">강한 제동 과정 보기<ChevronIcon className="size-3" /></Link></div></div>
+          </article>
+        </div>
+      </section>
     </>
   );
 }

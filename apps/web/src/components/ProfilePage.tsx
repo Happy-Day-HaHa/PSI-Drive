@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { BarsIcon, CarIcon, ChevronIcon, UserIcon } from "@/components/Icons";
 import { DeviceOverview } from "@/components/DeviceOverview";
-import { driver, inspection } from "@/lib/sample-data";
+import { SampleBadge } from "@/components/ui";
+import { dataHealth, driver, inspection } from "@/lib/sample-data";
 
 const preferences = [
   { label: "주간 운전 리포트", value: "매주 월요일", detail: "지난 한 주의 점수 변화와 운전 습관을 알려드려요." },
@@ -19,7 +20,7 @@ export function ProfilePage() {
               <UserIcon className="size-8 sm:size-10" />
             </span>
             <div>
-              <p className="text-[11px] font-bold tracking-[.14em] text-blue-200 uppercase">My PSI Studio</p>
+              <div className="flex items-center gap-2"><p className="text-[11px] font-bold tracking-[.14em] text-blue-200 uppercase">My PSI Studio</p><span className="rounded border border-white/15 bg-white/10 px-1.5 py-0.5 text-[9px] font-bold text-white/70">데모 계정</span></div>
               <h1 className="mt-1 text-2xl font-extrabold tracking-[-.02em] sm:text-3xl">나의 운전 공간</h1>
               <p className="mt-1.5 text-xs text-white/65 sm:text-sm">{driver.id} · 2026년 10월부터 함께하고 있어요</p>
             </div>
@@ -69,6 +70,25 @@ export function ProfilePage() {
         <DeviceOverview />
       </div>
 
+      <section className="overflow-hidden rounded-2xl border border-line/90 bg-white shadow-[0_10px_28px_rgba(15,31,54,.04)]">
+        <div className="flex flex-wrap items-start justify-between gap-3 border-b border-line/80 px-5 py-4 sm:px-6">
+          <div><div className="flex items-center gap-2"><p className="text-[11px] font-bold tracking-[.12em] text-brand uppercase">Data health</p><SampleBadge /></div><h2 className="mt-1 text-lg font-bold">분석 데이터 상태</h2><p className="mt-1 text-xs text-muted">측정된 범위와 누락 여부를 먼저 확인할 수 있어요.</p></div>
+          <span className="flex items-center gap-1.5 rounded-full bg-good-soft px-2.5 py-1 text-[11px] font-bold text-good"><span className="size-2 rounded-full bg-good" />분석 가능</span>
+        </div>
+        <div className="grid md:grid-cols-[minmax(0,1.2fr)_minmax(260px,.8fr)]">
+          <div className="grid grid-cols-2 gap-px bg-line/80 md:grid-cols-4">
+            <div className="bg-white p-4 sm:p-5"><p className="text-[10px] text-muted">마지막 동기화</p><p className="mt-1 text-sm font-bold">11월 1일</p><p className="mt-0.5 text-[10px] text-muted">오후 7:43</p></div>
+            <div className="bg-white p-4 sm:p-5"><p className="text-[10px] text-muted">센서 수집률</p><p className="mt-1 text-xl font-extrabold text-good tabular-nums">{dataHealth.sensorCoveragePct}%</p><div className="mt-2 h-1.5 overflow-hidden rounded-full bg-track"><div className="h-full rounded-full bg-good" style={{ width: `${dataHealth.sensorCoveragePct}%` }} /></div></div>
+            <div className="bg-white p-4 sm:p-5"><p className="text-[10px] text-muted">영상 수집률</p><p className="mt-1 text-xl font-extrabold text-brand tabular-nums">{dataHealth.videoCoveragePct}%</p><div className="mt-2 h-1.5 overflow-hidden rounded-full bg-track"><div className="h-full rounded-full bg-data" style={{ width: `${dataHealth.videoCoveragePct}%` }} /></div></div>
+            <div className="bg-white p-4 sm:p-5"><p className="text-[10px] text-muted">저장 데이터</p><p className="mt-1 text-sm font-bold tabular-nums">{dataHealth.storageUsedGb}GB</p><p className="mt-0.5 text-[10px] text-muted">전체 {dataHealth.storageTotalGb}GB</p></div>
+          </div>
+          <div className="border-t border-line/80 bg-[#fffaf3] p-5 md:border-t-0 md:border-l sm:p-6">
+            <div className="flex items-start gap-3"><span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-caution-soft font-bold text-caution">!</span><div><p className="text-sm font-bold">영상 누락 구간 {dataHealth.missingSegments}개</p><p className="mt-1 text-xs leading-relaxed text-muted">10월 18일 페달 영상 약 14초가 포함되지 않았어요. 해당 구간은 센서 데이터만 분석에 사용됩니다.</p></div></div>
+            <dl className="mt-4 border-t border-[#eadcc8] pt-3 text-[11px]"><div className="flex justify-between gap-3"><dt className="text-muted">분석 가능 기간</dt><dd className="font-semibold">{dataHealth.analysisRange}</dd></div><div className="mt-2 flex justify-between gap-3"><dt className="text-muted">전체 동기화</dt><dd className="font-semibold">{dataHealth.lastSync}</dd></div></dl>
+          </div>
+        </div>
+      </section>
+
       <section className="grid gap-4 lg:grid-cols-[minmax(0,1.45fr)_minmax(280px,.55fr)]">
         <div className="rounded-2xl border border-line/90 bg-white p-5 shadow-[0_10px_28px_rgba(15,31,54,.04)] sm:p-6">
           <p className="text-[11px] font-bold tracking-[.12em] text-brand uppercase">내 설정</p>
@@ -90,7 +110,7 @@ export function ProfilePage() {
           <h2 className="mt-1 text-lg font-bold">내 정보 관리</h2>
           <div className="mt-4 space-y-1">
             <div className="flex items-center justify-between rounded-xl px-2 py-3 text-sm"><span>운전자 ID</span><b className="text-xs">{driver.id}</b></div>
-            <div className="flex items-center justify-between rounded-xl px-2 py-3 text-sm"><span>데이터 및 개인정보</span><ChevronIcon className="size-4 text-muted" /></div>
+            <details className="group rounded-xl px-2 py-3 text-sm open:bg-canvas"><summary className="flex cursor-pointer list-none items-center justify-between marker:hidden"><span>데이터 및 개인정보</span><ChevronIcon className="size-4 text-muted transition group-open:rotate-90" /></summary><p className="mt-3 border-t border-line pt-3 text-[11px] leading-relaxed text-muted">현재 화면은 샘플 계정입니다. 실제 서비스 연결 시 영상 보관 기간, 분석 동의 범위, 데이터 내려받기와 삭제 기능을 이 영역에서 관리합니다.</p></details>
             <Link href="/" className="flex items-center justify-between rounded-xl px-2 py-3 text-sm text-muted transition hover:bg-canvas hover:text-ink"><span>로그아웃</span><ChevronIcon className="size-4" /></Link>
           </div>
         </div>

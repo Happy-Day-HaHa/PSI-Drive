@@ -14,7 +14,7 @@ const explanation: Record<string, { cause: string; cta: string; href: string; co
     cause: "브레이크 접촉 후 제동력 상승이 다소 늦었던 구간이 반영됐습니다.",
     cta: "제동 과정 확인하기",
     href: "/events",
-    color: "#c23343",
+    color: "#e24054",
   },
   safety: {
     cause: "짧은 페달 중첩 1건이 감지됐지만 전체 영향은 낮았습니다.",
@@ -26,7 +26,7 @@ const explanation: Record<string, { cause: string; cta: string; href: string; co
     cause: "급가속 3회와 가속 압력 변동이 점수에 반영됐습니다.",
     cta: "페달 습관 확인하기",
     href: "/pedal",
-    color: "#2672d8",
+    color: "#246ce2",
   },
 };
 

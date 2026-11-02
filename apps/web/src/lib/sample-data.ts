@@ -72,10 +72,20 @@ export const inspection = {
 };
 
 export const devices = [
-  { id: "CAM-F01", label: "전방 블랙박스", battery: 82, storage: 68, status: "연결 양호", detail: "1080p · 30fps" },
-  { id: "CAM-P01", label: "페달 블랙박스", battery: 76, storage: 54, status: "연결 양호", detail: "720p · 60fps" },
-  { id: "PED-S01", label: "페달 센서", battery: 91, storage: 32, status: "수집 중", detail: "500Hz · 2채널" },
+  { id: "CAM-F01", label: "전방 블랙박스", battery: 82, storage: 68, status: "연결 양호", detail: "1080p · 30fps", lastSync: "11월 1일 19:42" },
+  { id: "CAM-P01", label: "페달 블랙박스", battery: 76, storage: 54, status: "연결 양호", detail: "720p · 60fps", lastSync: "11월 1일 19:42" },
+  { id: "PED-S01", label: "페달 센서", battery: 91, storage: 32, status: "수집 중", detail: "500Hz · 2채널", lastSync: "11월 1일 19:43" },
 ];
+
+export const dataHealth = {
+  lastSync: "2026년 11월 1일 오후 7:43",
+  analysisRange: "2026년 10월 3일 – 11월 1일",
+  sensorCoveragePct: 99.6,
+  videoCoveragePct: 96.8,
+  missingSegments: 1,
+  storageUsedGb: 18.6,
+  storageTotalGb: 30,
+};
 
 const subScoreBase = [
   { key: "responsiveness", label: "반응성", description: "상황 확인부터 브레이크 접촉까지", weight: 35 },

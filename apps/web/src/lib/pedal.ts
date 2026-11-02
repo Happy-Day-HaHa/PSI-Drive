@@ -61,8 +61,8 @@ type Samples = {
 
 export const pedalSamples = samples as unknown as Samples;
 export const SAMPLE_DT_MS = 20;
-export const ACCEL_COLOR = "#2563EB";
-export const BRAKE_COLOR = "#DC2626";
+export const ACCEL_COLOR = "#246CE2";
+export const BRAKE_COLOR = "#E24054";
 
 export const eventTypeLabels: Record<EventType, string> = {
   pedestrian: "보행자 대응",

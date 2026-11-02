@@ -5,10 +5,11 @@ import { useState } from "react";
 import { DeviceOverview } from "@/components/DeviceOverview";
 import { ChevronIcon, PinIcon } from "@/components/Icons";
 import { ChartLegend, LineChart, type Series } from "@/components/LineChart";
+import { PedalEventIcon } from "@/components/PedalEventIcon";
 import { ScoreExplanation } from "@/components/ScoreExplanation";
 import { ScoreRing } from "@/components/ScoreRing";
 import { SampleBadge } from "@/components/ui";
-import { pedalSamples } from "@/lib/pedal";
+import { eventLocation, eventTypeLabels, formatMs, pedalSamples } from "@/lib/pedal";
 import { driver, overallScore, periodOrder, periods, trips, type PeriodKey } from "@/lib/sample-data";
 
 const periodShort: Record<PeriodKey, string> = { "7d": "주", "30d": "월", "90d": "3개월" };
@@ -32,12 +33,18 @@ export function Dashboard() {
   const score = overallScore(period.subScores);
   const { averages, events } = pedalSamples;
   const metrics = Object.fromEntries(period.metrics.map((item) => [item.key, item]));
+  const priorityEvent = [...events].filter((event) => event.score !== null).sort((a, b) => (a.score ?? 100) - (b.score ?? 100))[0] ?? events[0];
+  const overlapEvent = events.find((event) => event.type === "overlap") ?? priorityEvent;
+  const strongestBrake = [...events].sort((a, b) => b.stats.peakDecelG - a.stats.peakDecelG)[0];
+  const slowestTransition = [...events]
+    .filter((event) => event.metrics.transitionMs !== undefined)
+    .sort((a, b) => (b.metrics.transitionMs ?? 0) - (a.metrics.transitionMs ?? 0))[0] ?? priorityEvent;
   const habits = [
-    { label: "급가속", value: `${metrics.accel.value}${metrics.accel.unit}`, note: "출발과 가속이 한결 부드러워요", status: "양호", color: "#2672d8", symbol: "↗" },
-    { label: "급제동", value: `${metrics.brake.value}${metrics.brake.unit}`, note: "앞차와 여유를 잘 유지했어요", status: "양호", color: "#dc5a67", symbol: "!" },
-    { label: "페달 동시 입력", value: `${metrics.overlap.value}${metrics.overlap.unit}`, note: Number(metrics.overlap.value) === 0 ? "겹쳐 밟은 순간이 없어요" : "한 장면을 함께 확인해 봐요", status: Number(metrics.overlap.value) === 0 ? "아주 좋음" : "살펴보기", color: "#7c3aed", symbol: "⇄" },
-    { label: "평균 페달 전환", value: `${averages.transitionMs}ms`, note: "가속에서 브레이크까지", status: averages.transitionMs <= 350 ? "양호" : "보통", color: "#e8863a", symbol: "◷" },
-    { label: "주행 거리", value: `${metrics.distance.value}${metrics.distance.unit}`, note: `${metrics.time.value}${metrics.time.unit} 동안 주행`, status: "기록됨", color: "#149879", symbol: "⌁" },
+    { label: "급가속", value: `${metrics.accel.value}${metrics.accel.unit}`, note: "출발과 가속이 한결 부드러워요", status: "양호", color: "#246ce2", symbol: "↗", href: "/pedal#accel-pattern" },
+    { label: "급제동", value: `${metrics.brake.value}${metrics.brake.unit}`, note: "가장 강했던 제동 장면 확인", status: "양호", color: "#e24054", symbol: "!", href: `/events?id=${strongestBrake.id}` },
+    { label: "페달 동시 입력", value: `${metrics.overlap.value}${metrics.overlap.unit}`, note: Number(metrics.overlap.value) === 0 ? "겹쳐 밟은 순간이 없어요" : "한 장면을 함께 확인해 봐요", status: Number(metrics.overlap.value) === 0 ? "아주 좋음" : "살펴보기", color: "#7c3aed", symbol: "⇄", href: `/events?id=${overlapEvent.id}` },
+    { label: "평균 페달 전환", value: `${averages.transitionMs}ms`, note: "가속에서 브레이크까지", status: averages.transitionMs <= 350 ? "양호" : "보통", color: "#e8863a", symbol: "◷", href: `/events?id=${slowestTransition.id}` },
+    { label: "주행 거리", value: `${metrics.distance.value}${metrics.distance.unit}`, note: `${metrics.time.value}${metrics.time.unit} 동안 주행`, status: "기록됨", color: "#149879", symbol: "⌁", href: "/events" },
   ];
   const trendSeries: Series[] = [
     { name: period.currentName, values: period.trendCurrent, color: "var(--color-data)", emphasized: true },
@@ -87,6 +94,14 @@ export function Dashboard() {
           <a href="#score-reason" className="mt-4 inline-flex items-center gap-1 rounded-lg bg-[#eef4fb] px-3 py-2 text-xs font-bold text-brand">
             점수가 이렇게 나온 이유 <ChevronIcon className="size-3.5" />
           </a>
+          <div className="mt-5 grid w-full grid-cols-2 gap-x-4 gap-y-3 border-t border-line/80 pt-4">
+            {period.subScores.map((item) => (
+              <div key={item.key}>
+                <div className="flex items-center justify-between gap-2 text-[10px]"><span className="font-semibold text-muted">{item.label}</span><b className="tabular-nums">{item.score}</b></div>
+                <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-track"><div className="h-full rounded-full bg-data transition-[width] duration-500 motion-reduce:transition-none" style={{ width: `${item.score}%` }} /></div>
+              </div>
+            ))}
+          </div>
         </article>
 
         <article className="rounded-2xl border border-line/90 bg-[linear-gradient(145deg,#ffffff,#f3f7ff)] p-5 shadow-[0_12px_34px_rgba(15,31,54,.05)] sm:p-7">
@@ -94,17 +109,20 @@ export function Dashboard() {
           <h2 className="mt-2 text-xl font-bold tracking-tight sm:text-2xl">안정적인 운전 흐름을 잘 유지하고 있어요</h2>
           <p className="mt-2 text-sm leading-relaxed text-muted">좋아진 부분은 칭찬하고, 조금 더 살펴볼 부분은 부담 없이 알려드릴게요.</p>
           <ul className="mt-6 space-y-3">
-            <li className="flex gap-3 rounded-xl bg-white/80 p-3.5">
+            <li className="grid gap-3 rounded-xl border border-white bg-white/85 p-3.5 shadow-[0_5px_18px_rgba(15,31,54,.035)] sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center">
               <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-good text-sm font-bold text-white">✓</span>
               <span><b className="block text-sm">급가속이 {Math.abs(metrics.accel.changePct)}% 줄었어요</b><span className="mt-0.5 block text-xs text-muted">출발과 속도 조절이 지난 기간보다 부드러워졌어요.</span></span>
+              <Link href="/pedal#accel-pattern" className="ml-10 inline-flex items-center gap-0.5 text-xs font-bold text-brand sm:ml-0">변화 보기<ChevronIcon className="size-3" /></Link>
             </li>
-            <li className="flex gap-3 rounded-xl bg-white/80 p-3.5">
+            <li className="grid gap-3 rounded-xl border border-white bg-white/85 p-3.5 shadow-[0_5px_18px_rgba(15,31,54,.035)] sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center">
               <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-good text-sm font-bold text-white">✓</span>
               <span><b className="block text-sm">페달 안전성이 {period.subScores.find((item) => item.key === "safety")?.score}점이에요</b><span className="mt-0.5 block text-xs text-muted">대부분의 구간에서 두 페달을 분리해 안정적으로 사용했어요.</span></span>
+              <Link href={`/events?id=${overlapEvent.id}`} className="ml-10 inline-flex items-center gap-0.5 text-xs font-bold text-brand sm:ml-0">관련 장면<ChevronIcon className="size-3" /></Link>
             </li>
-            <li className="flex gap-3 rounded-xl bg-white/80 p-3.5">
+            <li className="grid gap-3 rounded-xl border border-[#f4e7d3] bg-[#fffaf3] p-3.5 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center">
               <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-caution text-sm font-bold text-white">!</span>
               <span><b className="block text-sm">페달 전환은 조금 더 여유롭게</b><span className="mt-0.5 block text-xs text-muted">뒤꿈치를 축으로 움직이면 더 편안하게 전환할 수 있어요.</span></span>
+              <Link href={`/events?id=${slowestTransition.id}`} className="ml-10 inline-flex items-center gap-0.5 text-xs font-bold text-caution sm:ml-0">과정 재생<ChevronIcon className="size-3" /></Link>
             </li>
           </ul>
         </article>
@@ -117,7 +135,7 @@ export function Dashboard() {
         </div>
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
           {habits.map((habit) => (
-            <article key={habit.label} className="rounded-2xl border border-line/90 bg-white p-4 shadow-[0_8px_22px_rgba(15,31,54,.035)]">
+            <Link key={habit.label} href={habit.href} className="group rounded-2xl border border-line/90 bg-white p-4 shadow-[0_8px_22px_rgba(15,31,54,.035)] transition hover:-translate-y-0.5 hover:border-[#bfd4f6] hover:shadow-[0_14px_30px_rgba(15,31,54,.08)] active:translate-y-0 motion-reduce:transform-none">
               <div className="flex items-start justify-between gap-2">
                 <span className="flex size-9 items-center justify-center rounded-xl text-lg font-bold" style={{ background: `${habit.color}15`, color: habit.color }}>{habit.symbol}</span>
                 <span className={`rounded-full px-2 py-1 text-[10px] font-bold ${habit.status === "살펴보기" || habit.status === "보통" ? "bg-caution-soft text-caution" : "bg-good-soft text-good"}`}>{habit.status}</span>
@@ -125,7 +143,8 @@ export function Dashboard() {
               <p className="mt-3 text-xs font-semibold text-muted">{habit.label}</p>
               <p className="mt-1 text-[22px] font-bold tracking-tight">{habit.value}</p>
               <p className="mt-1 text-[11px] leading-relaxed text-muted">{habit.note}</p>
-            </article>
+              <span className="mt-3 inline-flex items-center gap-0.5 text-[10px] font-bold text-brand opacity-70 transition group-hover:opacity-100">확인하기<ChevronIcon className="size-3" /></span>
+            </Link>
           ))}
         </div>
       </section>
@@ -152,14 +171,37 @@ export function Dashboard() {
         </section>
       </div>
 
+      <section className="overflow-hidden rounded-2xl border border-[#d9e4f3] bg-[#0b1d35] text-white shadow-[0_18px_38px_rgba(11,29,53,.14)]">
+        <div className="grid lg:grid-cols-[minmax(0,.9fr)_minmax(0,1.1fr)]">
+          <div className="relative flex min-h-52 items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_50%_35%,rgba(36,108,226,.28),transparent_60%)] p-6">
+            <span className="absolute top-4 left-4 rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-bold text-blue-100">우선 확인할 장면</span>
+            <PedalEventIcon type={priorityEvent.type} className="h-32 w-48 drop-shadow-[0_18px_24px_rgba(0,0,0,.28)]" />
+            <div className="absolute inset-x-5 bottom-4 flex items-center justify-between rounded-xl border border-white/10 bg-black/20 px-3 py-2 backdrop-blur">
+              <span className="text-[11px] text-white/65">발 움직임 미리보기</span><span className="flex items-center gap-1.5 text-[10px] font-bold"><span className="size-2 rounded-full bg-[#e24054]" />데모 데이터</span>
+            </div>
+          </div>
+          <div className="p-5 sm:p-7">
+            <p className="text-[11px] font-bold tracking-[.14em] text-blue-200 uppercase">Priority drive moment</p>
+            <div className="mt-2 flex flex-wrap items-center gap-2"><h2 className="text-xl font-extrabold">{eventTypeLabels[priorityEvent.type]}</h2><span className="rounded-full bg-[#e24054]/15 px-2 py-1 text-[10px] font-bold text-[#ff9dac]">살펴보기 · {priorityEvent.score}점</span></div>
+            <p className="mt-2 flex items-center gap-1.5 text-xs text-white/60"><PinIcon className="size-3.5 text-blue-300" />{eventLocation(priorityEvent)} · {priorityEvent.date} {priorityEvent.time}</p>
+            <dl className="mt-5 grid grid-cols-3 gap-2">
+              <div className="rounded-xl bg-white/[.07] p-3"><dt className="text-[10px] text-white/45">최대 감속</dt><dd className="mt-1 text-base font-bold tabular-nums">{priorityEvent.stats.peakDecelG.toFixed(2)}g</dd></div>
+              <div className="rounded-xl bg-white/[.07] p-3"><dt className="text-[10px] text-white/45">페달 전환</dt><dd className="mt-1 text-base font-bold tabular-nums">{formatMs(priorityEvent.metrics.transitionMs ?? 0)}</dd></div>
+              <div className="rounded-xl bg-white/[.07] p-3"><dt className="text-[10px] text-white/45">최대 제동</dt><dd className="mt-1 text-base font-bold tabular-nums">{Math.round(priorityEvent.stats.peakBrakePct)}%</dd></div>
+            </dl>
+            <Link href={`/events?id=${priorityEvent.id}`} className="mt-5 inline-flex min-h-11 items-center gap-1 rounded-xl bg-white px-4 py-2.5 text-sm font-bold text-navy shadow-lg transition hover:bg-blue-50 active:scale-[.98] motion-reduce:transform-none">발 움직임과 압력 함께 보기<ChevronIcon className="size-4" /></Link>
+          </div>
+        </div>
+      </section>
+
       <section className="rounded-2xl border border-line/90 bg-white p-5 shadow-[0_10px_28px_rgba(15,31,54,.04)] sm:p-6">
         <div className="flex items-end justify-between gap-3">
           <div><h2 className="text-lg font-bold">최근 주행 기록</h2><p className="mt-1 text-xs text-muted">언제 어디를 달렸는지 다시 확인해 보세요.</p></div>
           <Link href="/events" className="inline-flex items-center gap-0.5 text-xs font-bold text-brand">전체 보기<ChevronIcon className="size-3.5" /></Link>
         </div>
         <div className="mt-4 grid gap-2">
-          {trips.slice(0, 3).map((trip) => (
-            <Link key={`${trip.date}-${trip.time}`} href="/events" className="group grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 rounded-xl border border-line/80 px-4 py-3 transition hover:bg-[#f8fafc]">
+          {trips.slice(0, 3).map((trip, index) => (
+            <Link key={`${trip.date}-${trip.time}`} href={`/events?id=${events[index % events.length].id}`} className="group grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 rounded-xl border border-line/80 px-4 py-3 transition hover:border-[#c9daf3] hover:bg-[#f8fafc]">
               <span className="min-w-0">
                 <span className="flex flex-wrap items-center gap-x-2 text-sm"><b>{trip.date}</b><span className="text-xs text-muted">{trip.time}</span></span>
                 <span className="mt-1 flex items-center gap-1 text-[11px] text-muted"><PinIcon className="size-3" />{trip.location}</span>
