@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import { FootView } from "@/components/FootView";
-import { CameraSyncPanel } from "@/components/CameraSyncPanel";
 import { MobileDriveWorkspace } from "@/components/MobileDriveWorkspace";
 import { PedalEventIcon, pedalActionLabel } from "@/components/PedalEventIcon";
 import { PauseIcon, PinIcon, PlayIcon } from "@/components/Icons";
@@ -206,7 +205,24 @@ export function EventDetail({ event }: { event: PedalEvent }) {
       </Panel>
 
       <Panel className="hidden xl:block">
-        <CameraSyncPanel event={event} playheadMs={playheadMs} durationMs={durationMs} accel={accel} brake={brake} foot={foot} />
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div><p className="text-[11px] font-bold tracking-[.13em] text-brand uppercase">Composite event flow</p><h2 className="mt-1 text-lg font-bold">상황과 조작의 시간적 흐름</h2><p className="mt-1 text-xs text-muted">영상 재현 없이 수집·계산 가능한 데이터만 표시합니다.</p></div>
+          <span className="rounded-full bg-canvas px-2.5 py-1 text-[10px] font-bold text-muted">전방 영상 미연결</span>
+        </div>
+        <div className="mt-4 overflow-x-auto pb-1">
+          <ol className="flex min-w-[680px] items-center">
+            {steps.map((mark, index) => (
+              <li key={mark.key} className="flex min-w-0 flex-1 items-center">
+                <button type="button" onClick={() => jumpTo(mark.key, mark.ms)} className="group min-w-0 text-left">
+                  <span className={`flex size-7 items-center justify-center rounded-full text-[9px] font-bold transition ${currentStep?.key === mark.key ? "bg-brand text-white shadow-[0_5px_14px_rgba(36,108,226,.22)]" : "bg-canvas text-muted group-hover:bg-[#eaf2ff] group-hover:text-brand"}`}>{mark.key}</span>
+                  <span className="mt-1.5 block truncate text-[10px] font-semibold">{stepInfo[mark.key].title}</span>
+                  <span className="mt-0.5 block text-[9px] text-muted tabular-nums">{formatMs(mark.ms - zeroMs)}</span>
+                </button>
+                {index < steps.length - 1 && <span aria-hidden className="mx-2 h-px flex-1 bg-line" />}
+              </li>
+            ))}
+          </ol>
+        </div>
         <div className="mt-4 grid grid-cols-2 gap-2 border-t border-line pt-4 md:grid-cols-4">
           <div className="rounded-lg bg-[#f8fafc] p-3"><p className="text-[10px] text-muted">장면 지속 시간</p><p className="mt-1 text-sm font-bold tabular-nums">{formatMs(analysis.durationMs)}</p></div>
           <div className="rounded-lg bg-[#f8fafc] p-3"><p className="text-[10px] text-muted">시작 → 종료 속도</p><p className="mt-1 text-sm font-bold tabular-nums">{Math.round(stats.speedStartKmh)} → {Math.round(stats.speedEndKmh)}km/h</p></div>

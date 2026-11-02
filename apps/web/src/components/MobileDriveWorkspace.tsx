@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import { PauseIcon, PinIcon, PlayIcon } from "@/components/Icons";
-import { ForwardSceneView } from "@/components/CameraSyncPanel";
 import { MobilePedalSync } from "@/components/MobilePedalSync";
 import { SAMPLE_DT_MS, eventLocation, eventTypeLabels, formatMs, stepInfo, type PedalEvent } from "@/lib/pedal";
 
@@ -74,7 +73,6 @@ export function MobileDriveWorkspace({
   const userScrolling = useRef(false);
   const releaseScrollTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [scrollEdges, setScrollEdges] = useState({ top: false, bottom: true });
-  const [cameraView, setCameraView] = useState<"pedal" | "front">("pedal");
   const foundIndex = steps.findIndex((mark) => mark.key === visibleKey);
   const activeIndex = Math.max(0, foundIndex);
   const playProgress = Math.min(100, Math.max(0, (playheadMs / Math.max(durationMs, 1)) * 100));
@@ -147,24 +145,16 @@ export function MobileDriveWorkspace({
       </header>
 
       <div className="min-h-0 overflow-hidden bg-[#eef3f8] p-2">
-        <div className="mobile-camera-tabs mb-1.5 grid grid-cols-2 rounded-lg bg-[#dfe8f1] p-0.5" role="group" aria-label="카메라 화면 선택">
-          <button type="button" aria-pressed={cameraView === "pedal"} onClick={() => setCameraView("pedal")} className={`min-h-8 rounded-md px-2 text-[10px] font-bold transition ${cameraView === "pedal" ? "bg-white text-brand shadow-sm" : "text-muted"}`}>발·센서</button>
-          <button type="button" aria-pressed={cameraView === "front"} onClick={() => setCameraView("front")} className={`min-h-8 rounded-md px-2 text-[10px] font-bold transition ${cameraView === "front" ? "bg-white text-brand shadow-sm" : "text-muted"}`}>전방 장면</button>
-        </div>
-        {cameraView === "pedal" ? (
-          <MobilePedalSync
-            accel={accel}
-            brake={brake}
-            foot={foot}
-            accelSeries={event.series.accel}
-            brakeSeries={event.series.brake}
-            playheadMs={playheadMs}
-            durationMs={durationMs}
-            stepLabel={activeKey ? `${activeKey} · ${stepInfo[activeKey].title}` : "장면 직전 주행"}
-          />
-        ) : (
-          <ForwardSceneView event={event} playheadMs={playheadMs} durationMs={durationMs} className="mobile-pedal-visual" />
-        )}
+        <MobilePedalSync
+          accel={accel}
+          brake={brake}
+          foot={foot}
+          accelSeries={event.series.accel}
+          brakeSeries={event.series.brake}
+          playheadMs={playheadMs}
+          durationMs={durationMs}
+          stepLabel={activeKey ? `${activeKey} · ${stepInfo[activeKey].title}` : "장면 직전 주행"}
+        />
       </div>
 
       <div className="border-y border-white/8 bg-[#0d223e] px-3 py-2.5 text-white">
