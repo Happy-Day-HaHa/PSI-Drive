@@ -121,24 +121,24 @@ export function EventsExplorer() {
           action={<SampleBadge />}
         />
       </div>
-      <div className="hidden rounded-2xl border border-line/90 bg-white p-3 shadow-[0_8px_22px_rgba(15,31,54,.035)] xl:grid xl:grid-cols-[minmax(0,1fr)_auto] xl:items-center xl:gap-3">
-        <div className="flex min-w-0 flex-wrap gap-1.5">
-          <div className="flex flex-wrap gap-1" role="group" aria-label="주행 장면 유형 필터">
+      <div className="hidden rounded-2xl border border-line/90 bg-white p-4 shadow-[0_8px_22px_rgba(15,31,54,.035)] xl:grid xl:grid-cols-[minmax(0,1fr)_auto] xl:items-center xl:gap-4">
+        <div className="flex min-w-0 flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-1.5" role="group" aria-label="주행 장면 유형 필터">
             {filters.map((item) => (
-              <button key={item.key} type="button" aria-pressed={filter === item.key} onClick={() => setFilter(item.key)} className={`shrink-0 rounded-full border px-3 py-1.5 text-[11px] font-semibold whitespace-nowrap transition-colors ${filter === item.key ? "border-brand bg-brand text-white" : "border-line bg-card text-muted hover:text-ink"}`}>{item.label}</button>
+              <button key={item.key} type="button" aria-pressed={filter === item.key} onClick={() => setFilter(item.key)} className={`inline-flex min-h-10 shrink-0 items-center justify-center rounded-full border px-4 text-center text-[12px] leading-none font-semibold whitespace-nowrap transition-colors ${filter === item.key ? "border-brand bg-brand text-white shadow-sm" : "border-line bg-card text-muted hover:border-[#cbd8e8] hover:text-ink"}`}>{item.label}</button>
             ))}
           </div>
-          <span className="mx-1 h-7 w-px bg-line" aria-hidden />
-          <div className="flex flex-wrap gap-1" role="group" aria-label="데이터 출처 필터">
-            {sourceFilters.map((item) => <button key={item.key} type="button" aria-pressed={sourceFilter === item.key} onClick={() => setSourceFilter(item.key)} className={`rounded-full px-3 py-1.5 text-[11px] font-semibold transition ${sourceFilter === item.key ? "bg-[#eaf2ff] text-brand" : "text-muted hover:bg-canvas"}`}>{item.label}</button>)}
+          <span className="mx-1 h-8 w-px bg-line" aria-hidden />
+          <div className="flex flex-wrap items-center gap-1" role="group" aria-label="데이터 출처 필터">
+            {sourceFilters.map((item) => <button key={item.key} type="button" aria-pressed={sourceFilter === item.key} onClick={() => setSourceFilter(item.key)} className={`inline-flex min-h-9 items-center justify-center rounded-full px-3 text-center text-[11px] leading-none font-semibold transition ${sourceFilter === item.key ? "bg-[#eaf2ff] text-brand" : "text-muted hover:bg-canvas"}`}>{item.label}</button>)}
           </div>
-          <div className="flex flex-wrap gap-1" role="group" aria-label="주의 수준 필터">
-            {severityFilters.map((item) => <button key={item.key} type="button" aria-pressed={severityFilter === item.key} onClick={() => setSeverityFilter(item.key)} className={`rounded-full px-3 py-1.5 text-[11px] font-semibold transition ${severityFilter === item.key ? "bg-caution-soft text-caution" : "text-muted hover:bg-canvas"}`}>{item.label}</button>)}
+          <div className="flex flex-wrap items-center gap-1" role="group" aria-label="주의 수준 필터">
+            {severityFilters.map((item) => <button key={item.key} type="button" aria-pressed={severityFilter === item.key} onClick={() => setSeverityFilter(item.key)} className={`inline-flex min-h-9 items-center justify-center rounded-full px-3 text-center text-[11px] leading-none font-semibold transition ${severityFilter === item.key ? "bg-caution-soft text-caution" : "text-muted hover:bg-canvas"}`}>{item.label}</button>)}
           </div>
         </div>
-        <label className="relative block"><span className="sr-only">이벤트 검색</span><input type="search" value={query} onChange={(input) => setQuery(input.target.value)} placeholder="장면·위치 검색" className="h-9 w-44 rounded-lg border border-line bg-canvas px-3 text-xs outline-none placeholder:text-muted/70 focus:border-brand focus:bg-white" /></label>
+        <label className="relative block"><span className="sr-only">이벤트 검색</span><input type="search" value={query} onChange={(input) => setQuery(input.target.value)} placeholder="장면·위치 검색" className="h-10 w-52 rounded-xl border border-line bg-canvas px-3 text-xs outline-none placeholder:text-muted/70 focus:border-brand focus:bg-white" /></label>
       </div>
-      <div className="grid min-h-0 grid-cols-1 items-start gap-5 overflow-hidden xl:grid-cols-[272px_minmax(0,1fr)] xl:overflow-visible">
+      <div className="grid min-h-0 grid-cols-1 items-start gap-5 overflow-hidden xl:grid-cols-[380px_minmax(0,1fr)] xl:overflow-visible">
         <nav aria-label="주행 장면 목록" className="hidden min-w-0 overflow-hidden rounded-2xl border border-line bg-card shadow-[0_12px_32px_rgba(15,31,54,0.04)] xl:sticky xl:top-6 xl:block">
           <div className="border-b border-line px-4 py-3">
             <p className="text-[11px] font-bold tracking-[0.12em] text-muted uppercase">Detected events</p>
@@ -158,24 +158,24 @@ export function EventsExplorer() {
                     type="button"
                     aria-current={active ? "true" : undefined}
                     onClick={() => select(event.id)}
-                    className={`block h-full w-full border-y-0 border-r-0 border-l-[3px] px-3.5 py-3 text-left transition-colors ${
+                    className={`block h-full w-full border-y-0 border-r-0 border-l-[3px] px-4 py-4 text-left transition-colors ${
                       active ? "border-brand bg-track/70" : "border-line bg-white hover:bg-canvas lg:border-transparent"
                     }`}
                   >
-                    <span className="flex gap-2.5">
-                      <PedalEventIcon type={event.type} className="h-[44px] w-[67px] shrink-0" />
+                    <span className="flex items-start gap-3">
+                      <PedalEventIcon type={event.type} className="h-[52px] w-[80px] shrink-0" />
                       <span className="min-w-0 flex-1">
-                        <span className="flex items-baseline justify-between gap-2">
-                          <span className="text-sm font-semibold">{eventTypeLabels[event.type]}</span>
-                          <span className={`rounded-full px-1.5 py-0.5 text-[9px] font-bold ${level.className}`}>{level.label}{event.score !== null ? ` · ${event.score}점` : ""}</span>
+                        <span className="flex items-start justify-between gap-3">
+                          <span className="pt-0.5 text-base leading-5 font-bold tracking-[-.01em]">{eventTypeLabels[event.type]}</span>
+                          <span className={`inline-flex min-h-7 min-w-[72px] shrink-0 items-center justify-center rounded-full px-2 text-center text-[10px] leading-none font-bold ${level.className}`}>{level.label}{event.score !== null ? ` · ${event.score}점` : ""}</span>
                         </span>
-                        <span className="mt-0.5 block text-[11px] font-medium text-brand">{analysis.subtype}</span>
-                        <span className="mt-1 inline-flex rounded bg-canvas px-1.5 py-0.5 text-[9px] font-semibold text-muted">{analysis.frontSource}</span>
-                        <span className="mt-1 block text-xs text-muted">{event.date} · {event.time}</span>
-                        <span className="mt-1 flex items-center gap-1 text-[11px] text-muted">
+                        <span className="mt-1 block text-[12px] leading-relaxed font-semibold text-brand">{analysis.subtype}</span>
+                        <span className="mt-2 inline-flex min-h-6 items-center justify-center rounded-md bg-canvas px-2 text-center text-[10px] leading-none font-semibold text-muted">{analysis.frontSource}</span>
+                        <span className="mt-2 block text-[13px] leading-none text-muted">{event.date} · {event.time}</span>
+                        <span className="mt-2 flex items-center gap-1.5 text-[12px] leading-none text-muted">
                           <PinIcon className="size-3 shrink-0" />{eventLocation(event)}
                         </span>
-                        <span className="mt-1 block text-[11px] font-medium text-ink">{keyFigure(event)}</span>
+                        <span className="mt-2 block text-[12px] font-bold text-ink">{keyFigure(event)}</span>
                       </span>
                     </span>
                   </button>
