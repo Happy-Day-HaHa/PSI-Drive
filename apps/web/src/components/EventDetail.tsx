@@ -2,12 +2,14 @@
 
 import { useEffect, useRef, useState } from "react";
 import { FootView } from "@/components/FootView";
+import { CameraSyncPanel } from "@/components/CameraSyncPanel";
 import { MobileDriveWorkspace } from "@/components/MobileDriveWorkspace";
 import { PedalEventIcon, pedalActionLabel } from "@/components/PedalEventIcon";
 import { PauseIcon, PinIcon, PlayIcon } from "@/components/Icons";
 import { ChartLegend } from "@/components/LineChart";
 import { TimeChart } from "@/components/TimeChart";
 import { Panel, PanelHeader, Stat } from "@/components/ui";
+import { analyzeEvent } from "@/lib/event-analysis";
 import {
   ACCEL_COLOR,
   BRAKE_COLOR,
@@ -103,6 +105,7 @@ export function EventDetail({ event }: { event: PedalEvent }) {
   const averages = pedalSamples.averages;
   const isHazard = event.type === "pedestrian" || event.type === "lead_brake";
   const findings = eventFindings(event);
+  const analysis = analyzeEvent(event);
 
   const jumpTo = (key: string, ms: number) => {
     setPlaying(false);
@@ -168,6 +171,12 @@ export function EventDetail({ event }: { event: PedalEvent }) {
           )}
         </div>
         <p className="mt-3 max-w-3xl text-[15px] leading-relaxed">{eventHeadline(event)}</p>
+        <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="rounded-xl bg-canvas px-3 py-2.5"><p className="text-[10px] text-muted">이벤트 분류</p><p className="mt-1 text-xs font-bold">{analysis.category} · {analysis.subtype}</p></div>
+          <div className="rounded-xl bg-canvas px-3 py-2.5"><p className="text-[10px] text-muted">전방 상황 출처</p><p className="mt-1 text-xs font-bold">{analysis.frontSource}</p></div>
+          <div className="rounded-xl bg-canvas px-3 py-2.5"><p className="text-[10px] text-muted">탐지 신뢰도</p><p className="mt-1 text-xs font-bold text-caution">미산출 · 검증 필요</p></div>
+          <div className="rounded-xl bg-canvas px-3 py-2.5"><p className="text-[10px] text-muted">사용 데이터</p><p className="mt-1 truncate text-xs font-bold">{analysis.sources.join(" · ")}</p></div>
+        </div>
         <dl className="mt-5 grid grid-cols-2 gap-x-6 gap-y-5 border-t border-line pt-5 md:grid-cols-4">
           {isHazard && (
             <>
@@ -194,6 +203,17 @@ export function EventDetail({ event }: { event: PedalEvent }) {
             </>
           )}
         </dl>
+      </Panel>
+
+      <Panel className="hidden xl:block">
+        <CameraSyncPanel event={event} playheadMs={playheadMs} durationMs={durationMs} accel={accel} brake={brake} foot={foot} />
+        <div className="mt-4 grid grid-cols-2 gap-2 border-t border-line pt-4 md:grid-cols-4">
+          <div className="rounded-lg bg-[#f8fafc] p-3"><p className="text-[10px] text-muted">장면 지속 시간</p><p className="mt-1 text-sm font-bold tabular-nums">{formatMs(analysis.durationMs)}</p></div>
+          <div className="rounded-lg bg-[#f8fafc] p-3"><p className="text-[10px] text-muted">시작 → 종료 속도</p><p className="mt-1 text-sm font-bold tabular-nums">{Math.round(stats.speedStartKmh)} → {Math.round(stats.speedEndKmh)}km/h</p></div>
+          <div className="rounded-lg bg-[#f8fafc] p-3"><p className="text-[10px] text-muted">최대 Jerk</p><p className="mt-1 text-sm font-bold tabular-nums">{analysis.maxJerkGPerS.toFixed(2)}g/s</p><p className="mt-0.5 text-[9px] text-muted">합성 IMU 계산값</p></div>
+          <div className="rounded-lg bg-[#f8fafc] p-3"><p className="text-[10px] text-muted">데이터 품질</p><p className="mt-1 text-sm font-bold text-good">{analysis.quality}</p><p className="mt-0.5 text-[9px] text-muted">실제 동기화 오차 미산출</p></div>
+        </div>
+        <p className="mt-4 rounded-xl border border-[#dbe7f7] bg-[#f5f9ff] px-4 py-3 text-xs leading-relaxed text-muted"><b className="text-ink">시간적 연관 흐름:</b> {analysis.relationship}. 이 흐름은 관측된 데이터의 순서를 설명하며 운전자의 의도나 사고 원인을 확정하지 않습니다.</p>
       </Panel>
 
       <Panel className="hidden xl:block">

@@ -4,8 +4,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { EventDetail } from "@/components/EventDetail";
 import { PinIcon } from "@/components/Icons";
-import { PedalEventIcon, pedalActionLabel } from "@/components/PedalEventIcon";
+import { PedalEventIcon } from "@/components/PedalEventIcon";
 import { PageHeader, SampleBadge } from "@/components/ui";
+import { analyzeEvent } from "@/lib/event-analysis";
 import { eventLocation, eventTypeLabels, formatMs, pedalSamples, type EventType, type PedalEvent } from "@/lib/pedal";
 
 const filters: { key: EventType | "all"; label: string }[] = [
@@ -15,6 +16,19 @@ const filters: { key: EventType | "all"; label: string }[] = [
   { key: "routine", label: eventTypeLabels.routine },
   { key: "overlap", label: eventTypeLabels.overlap },
 ];
+
+const sourceFilters = [
+  { key: "all", label: "모든 출처" },
+  { key: "front", label: "전방 상황 포함" },
+  { key: "composite", label: "복합 이벤트" },
+  { key: "pedal", label: "페달 중심" },
+] as const;
+
+const severityFilters = [
+  { key: "all", label: "모든 수준" },
+  { key: "attention", label: "살펴보기 이상" },
+  { key: "info", label: "정보" },
+] as const;
 
 function keyFigure(event: PedalEvent) {
   if (event.type === "overlap") return `중첩 ${formatMs(event.metrics.overlapMs ?? 0)}`;
@@ -33,10 +47,26 @@ export function EventsExplorer() {
   const router = useRouter();
   const params = useSearchParams();
   const [filter, setFilter] = useState<EventType | "all">("all");
+  const [sourceFilter, setSourceFilter] = useState<(typeof sourceFilters)[number]["key"]>("all");
+  const [severityFilter, setSeverityFilter] = useState<(typeof severityFilters)[number]["key"]>("all");
+  const [query, setQuery] = useState("");
   const mobileStrip = useRef<HTMLUListElement>(null);
   const mobileEventButtons = useRef(new Map<string, HTMLButtonElement>());
   const events = pedalSamples.events;
-  const visible = useMemo(() => (filter === "all" ? events : events.filter((event) => event.type === filter)), [events, filter]);
+  const visible = useMemo(() => events.filter((event) => {
+    const analysis = analyzeEvent(event);
+    const typeMatch = filter === "all" || event.type === filter;
+    const sourceMatch = sourceFilter === "all"
+      || (sourceFilter === "front" && analysis.frontSource !== "미수집")
+      || (sourceFilter === "composite" && analysis.category === "복합 이벤트")
+      || (sourceFilter === "pedal" && analysis.category === "페달 조작");
+    const severityMatch = severityFilter === "all"
+      || (severityFilter === "attention" && analysis.severity !== "정보")
+      || (severityFilter === "info" && analysis.severity === "정보");
+    const normalizedQuery = query.trim().toLowerCase();
+    const queryMatch = !normalizedQuery || `${event.id} ${eventTypeLabels[event.type]} ${analysis.subtype} ${eventLocation(event)}`.toLowerCase().includes(normalizedQuery);
+    return typeMatch && sourceMatch && severityMatch && queryMatch;
+  }), [events, filter, query, severityFilter, sourceFilter]);
   const selected = events.find((event) => event.id === params.get("id")) ?? events.find((event) => event.type === "pedestrian") ?? events[0];
 
   const select = (id: string) => {
@@ -91,20 +121,22 @@ export function EventsExplorer() {
           action={<SampleBadge />}
         />
       </div>
-      <div className="hidden flex-nowrap gap-1.5 overflow-x-auto pb-1 xl:flex" role="group" aria-label="주행 장면 유형 필터">
-        {filters.map((item) => (
-          <button
-            key={item.key}
-            type="button"
-            aria-pressed={filter === item.key}
-            onClick={() => setFilter(item.key)}
-            className={`shrink-0 rounded-full border px-3 py-1.5 text-[12px] font-semibold whitespace-nowrap transition-colors ${
-              filter === item.key ? "border-brand bg-brand text-white" : "border-line bg-card text-muted hover:text-ink"
-            }`}
-          >
-            {item.label}
-          </button>
-        ))}
+      <div className="hidden rounded-2xl border border-line/90 bg-white p-3 shadow-[0_8px_22px_rgba(15,31,54,.035)] xl:grid xl:grid-cols-[minmax(0,1fr)_auto] xl:items-center xl:gap-3">
+        <div className="flex min-w-0 flex-wrap gap-1.5">
+          <div className="flex flex-wrap gap-1" role="group" aria-label="주행 장면 유형 필터">
+            {filters.map((item) => (
+              <button key={item.key} type="button" aria-pressed={filter === item.key} onClick={() => setFilter(item.key)} className={`shrink-0 rounded-full border px-3 py-1.5 text-[11px] font-semibold whitespace-nowrap transition-colors ${filter === item.key ? "border-brand bg-brand text-white" : "border-line bg-card text-muted hover:text-ink"}`}>{item.label}</button>
+            ))}
+          </div>
+          <span className="mx-1 h-7 w-px bg-line" aria-hidden />
+          <div className="flex flex-wrap gap-1" role="group" aria-label="데이터 출처 필터">
+            {sourceFilters.map((item) => <button key={item.key} type="button" aria-pressed={sourceFilter === item.key} onClick={() => setSourceFilter(item.key)} className={`rounded-full px-3 py-1.5 text-[11px] font-semibold transition ${sourceFilter === item.key ? "bg-[#eaf2ff] text-brand" : "text-muted hover:bg-canvas"}`}>{item.label}</button>)}
+          </div>
+          <div className="flex flex-wrap gap-1" role="group" aria-label="주의 수준 필터">
+            {severityFilters.map((item) => <button key={item.key} type="button" aria-pressed={severityFilter === item.key} onClick={() => setSeverityFilter(item.key)} className={`rounded-full px-3 py-1.5 text-[11px] font-semibold transition ${severityFilter === item.key ? "bg-caution-soft text-caution" : "text-muted hover:bg-canvas"}`}>{item.label}</button>)}
+          </div>
+        </div>
+        <label className="relative block"><span className="sr-only">이벤트 검색</span><input type="search" value={query} onChange={(input) => setQuery(input.target.value)} placeholder="장면·위치 검색" className="h-9 w-44 rounded-lg border border-line bg-canvas px-3 text-xs outline-none placeholder:text-muted/70 focus:border-brand focus:bg-white" /></label>
       </div>
       <div className="grid min-h-0 grid-cols-1 items-start gap-5 overflow-hidden xl:grid-cols-[272px_minmax(0,1fr)] xl:overflow-visible">
         <nav aria-label="주행 장면 목록" className="hidden min-w-0 overflow-hidden rounded-2xl border border-line bg-card shadow-[0_12px_32px_rgba(15,31,54,0.04)] xl:sticky xl:top-6 xl:block">
@@ -113,9 +145,13 @@ export function EventsExplorer() {
             <p className="mt-0.5 text-sm font-semibold">{visible.length}개의 주행 장면</p>
           </div>
           <ul className="max-h-[calc(100dvh-180px)] divide-y divide-line overflow-y-auto">
+            {visible.length === 0 && (
+              <li className="p-5 text-center"><p className="text-sm font-bold">조건에 맞는 장면이 없어요</p><p className="mt-1 text-[11px] leading-relaxed text-muted">다른 유형이나 주의 수준을 선택해 보세요.</p><button type="button" onClick={() => { setFilter("all"); setSourceFilter("all"); setSeverityFilter("all"); setQuery(""); }} className="mt-3 rounded-lg bg-brand px-3 py-2 text-xs font-bold text-white">필터 초기화</button></li>
+            )}
             {visible.map((event) => {
               const active = event.id === selected.id;
               const level = eventLevel(event);
+              const analysis = analyzeEvent(event);
               return (
                 <li key={event.id}>
                   <button
@@ -133,7 +169,8 @@ export function EventsExplorer() {
                           <span className="text-sm font-semibold">{eventTypeLabels[event.type]}</span>
                           <span className={`rounded-full px-1.5 py-0.5 text-[9px] font-bold ${level.className}`}>{level.label}{event.score !== null ? ` · ${event.score}점` : ""}</span>
                         </span>
-                        <span className="mt-0.5 block text-[11px] font-medium text-brand">{pedalActionLabel(event.type)}</span>
+                        <span className="mt-0.5 block text-[11px] font-medium text-brand">{analysis.subtype}</span>
+                        <span className="mt-1 inline-flex rounded bg-canvas px-1.5 py-0.5 text-[9px] font-semibold text-muted">{analysis.frontSource}</span>
                         <span className="mt-1 block text-xs text-muted">{event.date} · {event.time}</span>
                         <span className="mt-1 flex items-center gap-1 text-[11px] text-muted">
                           <PinIcon className="size-3 shrink-0" />{eventLocation(event)}
