@@ -33,7 +33,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <span className="relative inline-flex size-2 rounded-full bg-emerald-300" />
           </span>
           <span className="text-xs font-medium text-white/80">주행 기록 연결됨</span>
-          <span className="ml-auto text-[10px] text-white/45">LIVE</span>
+            <span className="ml-auto text-[10px] font-semibold text-white/65">LIVE</span>
         </div>
         <nav aria-label="주 메뉴" className="mt-8 space-y-1">
           {navItems.map(({ label, href, icon: Icon }) => {
@@ -56,9 +56,9 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div className="mt-auto space-y-2 border-t border-white/12 px-2 pt-4">
           <Link href="/profile" className="flex items-center gap-3 rounded-xl px-2 py-2.5 text-white/70 transition hover:bg-white/6 hover:text-white">
             <span className="flex size-8 items-center justify-center rounded-lg bg-white/8"><UserIcon className="size-4" /></span>
-            <span><b className="block text-xs">마이페이지</b><span className="mt-0.5 block text-[10px] text-white/45">차량과 기기 상태 확인</span></span>
+            <span><b className="block text-xs">마이페이지</b><span className="mt-0.5 block text-[11px] text-white/60">차량과 기기 상태 확인</span></span>
           </Link>
-          <Link href="/" className="inline-flex px-2 py-2 text-[11px] font-medium text-white/45 transition hover:text-white">로그아웃</Link>
+          <Link href="/" className="inline-flex min-h-11 items-center px-2 text-xs font-semibold text-white/65 transition hover:text-white">로그아웃</Link>
         </div>
       </aside>
 
@@ -69,7 +69,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               <PsiLogo />
             </Link>
             <div className="flex items-center gap-2">
-              <Link href="/" className="text-[10px] font-semibold text-white/55">로그아웃</Link>
+              <Link href="/" className="inline-flex min-h-11 items-center px-2 text-xs font-semibold text-white/70">로그아웃</Link>
             </div>
           </div>
         </header>
@@ -93,9 +93,9 @@ export function AppShell({ children }: { children: ReactNode }) {
                 key={href}
                 href={href}
                 aria-current={active ? "page" : undefined}
-                className={`flex min-h-12 flex-col items-center justify-center gap-0.5 rounded-xl text-[10px] font-semibold transition-colors ${active ? "bg-white text-navy shadow-sm" : "text-white/60 active:bg-white/10"}`}
+                className={`flex min-h-14 flex-col items-center justify-center gap-1 rounded-xl text-center text-[11px] font-semibold transition-colors ${active ? "bg-white text-navy shadow-sm" : "text-white/70 active:bg-white/10"}`}
               >
-                <Icon className="size-[18px]" />
+                <Icon className="size-5" />
                 {label}
               </Link>
             );

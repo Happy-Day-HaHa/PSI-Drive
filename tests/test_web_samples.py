@@ -163,8 +163,8 @@ def test_personal_overview_is_shown_after_login_on_dashboard():
         ROOT / "apps" / "web" / "src" / "components" / "Icons.tsx"
     ).read_text(encoding="utf-8")
     assert 'aria-label="내 운전 요약"' in dashboard
-    assert "이번 주 점수" in dashboard
-    assert "{events.length}건" in dashboard
+    assert "{period.label} 점수" in dashboard
+    assert "{metrics.events.value}{metrics.events.unit}" in dashboard
     assert "{devices.length}대 정상" in dashboard
     assert "bg-[linear-gradient" not in icons
     assert "shadow-[inset" not in icons
@@ -180,3 +180,14 @@ def test_brand_logo_uses_the_provided_web_asset():
     assert 'maskImage: \'url("/brand/psi-studio-logo.png")\'' in icons
     assert 'aria-label="PSI Studio"' in icons
     assert "bg-white shadow" not in icons
+
+
+def test_final_mobile_polish_keeps_labels_readable_and_loading_friendly():
+    components = ROOT / "apps" / "web" / "src" / "components"
+    workspace = (components / "MobileDriveWorkspace.tsx").read_text(encoding="utf-8")
+    profile = (components / "ProfilePage.tsx").read_text(encoding="utf-8")
+    events_page = (ROOT / "apps" / "web" / "src" / "app" / "events" / "page.tsx").read_text(encoding="utf-8")
+    assert "text-[9px]" not in workspace
+    assert "현재 설정" in profile
+    assert "fallback={<EventsLoading />}" in events_page
+    assert 'role="status"' in events_page

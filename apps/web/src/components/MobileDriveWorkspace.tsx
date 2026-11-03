@@ -133,21 +133,21 @@ export function MobileDriveWorkspace({
       <header className="mobile-workspace-meta relative flex items-start justify-between gap-3 overflow-hidden border-b border-white/10 bg-[linear-gradient(120deg,#0b203b,#173f73)] px-4 py-3 text-white">
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <span className="rounded-full bg-blue-300/15 px-2 py-0.5 text-[9px] font-bold tracking-[.08em] text-blue-200">발·페달 함께 보기</span>
-            <span className="text-[10px] text-white/45">{event.id}</span>
+            <span className="rounded-full bg-blue-300/15 px-2 py-0.5 text-[10px] font-bold tracking-[.06em] text-blue-200">발·페달 함께 보기</span>
+            <span className="text-[10px] font-medium text-white/65">{event.id}</span>
           </div>
           <div className="mt-1.5 flex min-w-0 items-center gap-1.5">
             <h2 className="truncate text-base font-bold">{eventTypeLabels[event.type]}</h2>
-            {analysis.motionTags.map((tag) => <span key={tag} className={`shrink-0 rounded-full px-2 py-0.5 text-[9px] font-bold ${tag === "급감속" ? "bg-[#ef5365] text-white" : tag === "급가속" ? "bg-[#6da8ff] text-[#071a32]" : "bg-white/10 text-white/65"}`}>{tag}</span>)}
+            {analysis.motionTags.map((tag) => <span key={tag} className={`inline-flex min-h-5 shrink-0 items-center justify-center rounded-full px-2 text-center text-[10px] font-bold ${tag === "급감속" ? "bg-[#ef5365] text-white" : tag === "급가속" ? "bg-[#6da8ff] text-[#071a32]" : "bg-white/10 text-white/75"}`}>{tag}</span>)}
           </div>
           <p className="mobile-workspace-location mt-1 flex items-center gap-1 truncate text-[11px] text-white/60">
             <PinIcon className="size-3 shrink-0 text-blue-300" />{eventLocation(event)}
           </p>
         </div>
         <div className="shrink-0 text-right">
-          <p className="text-[10px] text-white/50">{event.date}</p>
+          <p className="text-[11px] text-white/65">{event.date}</p>
           <p className="mt-0.5 text-xs font-semibold">{event.time}</p>
-          {event.score !== null && <span className="mt-1 inline-block rounded-md bg-white/10 px-2 py-0.5 text-[10px] font-bold">{event.score}점 · {eventStatus(event)}</span>}
+          {event.score !== null && <span className="mt-1 inline-flex min-h-5 items-center justify-center rounded-md bg-white/10 px-2 text-center text-[10px] font-bold">{event.score}점 · {eventStatus(event)}</span>}
         </div>
         <span aria-hidden className="absolute inset-x-0 bottom-0 h-0.5 bg-white/10"><span className="block h-full bg-blue-300 transition-[width] duration-150" style={{ width: `${playProgress}%` }} /></span>
       </header>
@@ -190,10 +190,10 @@ export function MobileDriveWorkspace({
           <span className="w-[70px] text-right text-[11px] font-bold text-blue-200 tabular-nums">{elapsed >= 0 ? "+" : "−"}{Math.abs(elapsed).toLocaleString("ko-KR")}ms</span>
         </div>
         <div className="mobile-control-helper mt-2 flex items-center justify-between gap-3">
-          <p className="text-[10px] text-white/45">발·가속·브레이크가 같은 시간축으로 움직여요</p>
+          <p className="text-[10px] font-medium text-white/65">발·가속·브레이크가 같은 시간축으로 움직여요</p>
           <div className="flex rounded-md bg-white/8 p-0.5">
             {[0.5, 1, 1.5].map((value) => (
-              <button key={value} type="button" onClick={() => onRate(value)} className={`rounded px-2 py-1 text-[9px] font-bold ${rate === value ? "bg-white text-navy" : "text-white/55"}`}>{value}×</button>
+              <button key={value} type="button" onClick={() => onRate(value)} className={`min-h-7 rounded px-2 text-center text-[10px] font-bold ${rate === value ? "bg-white text-navy" : "text-white/70"}`}>{value}×</button>
             ))}
           </div>
         </div>
@@ -203,9 +203,9 @@ export function MobileDriveWorkspace({
         <div className="flex items-center justify-between border-b border-line/80 px-4 py-2.5">
           <div>
             <h3 className="text-sm font-bold">이 장면의 시간 흐름</h3>
-            <p className="mobile-timeline-helper mt-0.5 text-[10px] text-muted">위·아래로 밀거나 단계를 눌러 바로 이동해요.</p>
+            <p className="mobile-timeline-helper mt-0.5 text-[11px] text-muted">위·아래로 밀거나 단계를 눌러 바로 이동해요.</p>
           </div>
-          <span aria-live="polite" className="rounded-full bg-[#eef4fb] px-2.5 py-1 text-[10px] font-bold text-brand tabular-nums">{activeIndex + 1} / {steps.length}</span>
+          <span aria-live="polite" className="inline-flex min-h-7 items-center justify-center rounded-full bg-[#eef4fb] px-2.5 text-center text-[11px] font-bold text-brand tabular-nums">{activeIndex + 1} / {steps.length}</span>
         </div>
         <div className="relative min-h-0 overflow-hidden">
           <ol
@@ -243,18 +243,18 @@ export function MobileDriveWorkspace({
                 >
                   <span className="min-w-0">
                     <span className="flex items-center gap-1.5">
-                      <span className={`rounded px-1.5 py-0.5 text-[9px] font-bold ${tone.chip}`}>{tone.label}</span>
+                      <span className={`inline-flex min-h-5 items-center justify-center rounded px-1.5 text-center text-[10px] font-bold ${tone.chip}`}>{tone.label}</span>
                       <b className="truncate text-xs">{mark.key} · {info.title}</b>
                     </span>
-                    <span className="mt-1 block truncate text-[10px] text-muted">{info.body}</span>
-                    <span className="timeline-pressure mt-1.5 flex items-center gap-2.5 text-[9px] font-semibold tabular-nums">
+                    <span className="mt-1 block truncate text-[11px] text-muted">{info.body}</span>
+                    <span className="timeline-pressure mt-1.5 flex items-center gap-2.5 text-[10px] font-semibold tabular-nums">
                       <span className="text-data"><span className="mr-1 inline-block size-1.5 rounded-full bg-data" />가속 {accelPressure}%</span>
                       <span className="text-alert"><span className="mr-1 inline-block size-1.5 rounded-full bg-alert" />제동 {brakePressure}%</span>
                     </span>
                   </span>
                   <span className="text-right">
                     <b className={`block text-xs tabular-nums ${active ? "text-brand" : "text-ink"}`}>{formatMs(mark.ms)}</b>
-                    {previous && <span className="mt-0.5 block text-[9px] text-muted">+{formatMs(mark.ms - previous.ms)}</span>}
+                    {previous && <span className="mt-0.5 block text-[10px] text-muted">+{formatMs(mark.ms - previous.ms)}</span>}
                   </span>
                 </button>
               </li>

@@ -111,17 +111,17 @@ export function ProfilePage() {
 
       <section className="rounded-2xl border border-line/90 bg-white p-5 shadow-[0_10px_28px_rgba(15,31,54,.04)] sm:p-6">
         <div>
-          <h2 className="text-base font-extrabold sm:text-lg">설정</h2>
-          <p className="mt-1 text-xs text-muted">알림과 계정 정보를 관리해요.</p>
+          <h2 className="text-base font-extrabold sm:text-lg">현재 설정</h2>
+          <p className="mt-1 text-xs text-muted">계정에 적용된 알림과 데이터 보관 상태예요.</p>
         </div>
         <div className="mt-3 divide-y divide-line/80">
           {preferences.map((item) => (
             <div key={item.label} className="flex min-h-16 items-center gap-3 py-3">
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-bold">{item.label}</p>
-                <p className="mt-0.5 truncate text-[11px] text-muted">{item.detail}</p>
+                <p className="mt-0.5 text-xs leading-relaxed text-muted">{item.detail}</p>
               </div>
-              <span className="shrink-0 rounded-full bg-[#eef4fb] px-2.5 py-1 text-[11px] font-bold text-brand">{item.value}</span>
+              <span className="inline-flex min-h-7 shrink-0 items-center justify-center rounded-full bg-[#eef4fb] px-2.5 py-1 text-center text-[11px] font-bold text-brand">{item.value}</span>
             </div>
           ))}
           <details className="group py-1">
@@ -129,7 +129,7 @@ export function ProfilePage() {
               <span>계정 및 개인정보</span>
               <ChevronIcon className="size-4 text-muted transition group-open:rotate-90" />
             </summary>
-            <div className="rounded-xl bg-canvas p-3.5 text-[11px] leading-relaxed text-muted">
+            <div className="rounded-xl bg-canvas p-3.5 text-xs leading-relaxed text-muted">
               <p>운전자 ID <b className="text-ink">{driver.id}</b></p>
               <p className="mt-1.5">실제 서비스에서는 영상 보관 기간, 분석 동의, 데이터 내려받기와 삭제를 관리할 수 있어요.</p>
             </div>
@@ -146,7 +146,7 @@ export function ProfilePage() {
 function DataItem({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-xl bg-canvas p-3">
-      <p className="text-[10px] text-muted">{label}</p>
+      <p className="text-[11px] text-muted">{label}</p>
       <p className="mt-1 text-xs font-bold tabular-nums">{value}</p>
     </div>
   );

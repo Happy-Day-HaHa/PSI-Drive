@@ -62,14 +62,14 @@ export function Dashboard() {
           </h1>
           <p className="mt-2 text-sm text-muted">{driver.vehicleModel} · {driver.id}님의 운전 습관을 정리했어요.</p>
         </div>
-        <div className="flex rounded-xl border border-line bg-white p-1 shadow-sm" role="group" aria-label="조회 기간">
+        <div className="flex w-full rounded-xl border border-line bg-white p-1 shadow-sm sm:w-auto" role="group" aria-label="조회 기간">
           {periodOrder.map((key) => (
             <button
               key={key}
               type="button"
               aria-pressed={periodKey === key}
               onClick={() => setPeriodKey(key)}
-              className={`min-w-14 rounded-lg px-3 py-2 text-xs font-bold transition ${periodKey === key ? "bg-brand text-white shadow-sm" : "text-muted hover:text-ink"}`}
+              className={`min-h-10 min-w-14 flex-1 rounded-lg px-3 py-2 text-center text-xs font-bold transition sm:flex-none ${periodKey === key ? "bg-brand text-white shadow-sm" : "text-muted hover:text-ink"}`}
             >
               {periodShort[key]}
             </button>
@@ -78,16 +78,16 @@ export function Dashboard() {
       </header>
 
       <section aria-label="내 운전 요약" className="grid grid-cols-3 overflow-hidden rounded-2xl bg-navy text-white shadow-[0_12px_28px_rgba(11,29,53,.14)] lg:hidden">
-        <div className="px-3 py-3.5">
-          <p className="text-[9px] text-white/45">이번 주 점수</p>
+        <div className="flex min-h-[78px] flex-col items-center justify-center px-2 py-3 text-center">
+          <p className="text-[10px] font-medium text-white/65">{period.label} 점수</p>
           <p className="mt-1 text-base font-extrabold tabular-nums">{score}점</p>
         </div>
-        <div className="border-l border-white/10 px-3 py-3.5">
-          <p className="text-[9px] text-white/45">확인할 장면</p>
-          <p className="mt-1 text-base font-extrabold tabular-nums">{events.length}건</p>
+        <div className="flex min-h-[78px] flex-col items-center justify-center border-l border-white/10 px-2 py-3 text-center">
+          <p className="text-[10px] font-medium text-white/65">확인할 장면</p>
+          <p className="mt-1 text-base font-extrabold tabular-nums">{metrics.events.value}{metrics.events.unit}</p>
         </div>
-        <div className="border-l border-white/10 px-3 py-3.5">
-          <p className="text-[9px] text-white/45">연결 기기</p>
+        <div className="flex min-h-[78px] flex-col items-center justify-center border-l border-white/10 px-2 py-3 text-center">
+          <p className="text-[10px] font-medium text-white/65">연결 기기</p>
           <p className="mt-1 text-base font-extrabold tabular-nums">{devices.length}대 정상</p>
         </div>
       </section>
@@ -110,7 +110,7 @@ export function Dashboard() {
           <div className="mt-5 grid w-full grid-cols-2 gap-x-4 gap-y-3 border-t border-line/80 pt-4">
             {period.subScores.map((item) => (
               <div key={item.key}>
-                <div className="flex items-center justify-between gap-2 text-[10px]"><span className="font-semibold text-muted">{item.label}</span><b className="tabular-nums">{item.score}</b></div>
+                <div className="flex items-center justify-between gap-2 text-[11px]"><span className="font-semibold text-muted">{item.label}</span><b className="tabular-nums">{item.score}</b></div>
                 <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-track"><div className="h-full rounded-full bg-data transition-[width] duration-500 motion-reduce:transition-none" style={{ width: `${item.score}%` }} /></div>
               </div>
             ))}

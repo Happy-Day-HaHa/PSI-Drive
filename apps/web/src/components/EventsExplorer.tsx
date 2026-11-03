@@ -106,6 +106,7 @@ export function EventsExplorer() {
   return (
     <div className="grid h-full min-h-0 grid-rows-[auto_minmax(0,1fr)] gap-2 lg:block lg:h-auto lg:space-y-5">
       <nav aria-label="모바일 주행 장면 선택" className="mobile-event-strip min-w-0 lg:hidden">
+        <h1 className="sr-only">주행 기록</h1>
         <ul ref={mobileStrip} className="event-strip-scroll flex gap-1.5 overflow-x-auto pb-0.5">
           {events.map((event) => {
             const active = event.id === selected.id;
