@@ -20,7 +20,7 @@ export function LoginScreen() {
           <div aria-hidden className="absolute -top-32 -right-20 size-[360px] rounded-full border border-white/[.08]" />
           <div aria-hidden className="absolute top-[42%] -left-40 size-[420px] rounded-full border border-blue-200/[.08]" />
           <div className="relative flex items-center justify-between gap-4">
-            <PsiLogo />
+            <PsiLogo size="large" />
             <span className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[.07] px-2.5 py-1.5 text-[10px] font-semibold text-white/70 backdrop-blur">
               <span className="size-1.5 rounded-full bg-emerald-300 shadow-[0_0_0_3px_rgba(110,231,183,.12)]" />보안 연결
             </span>

@@ -168,3 +168,14 @@ def test_personal_overview_is_shown_after_login_on_dashboard():
     assert "{devices.length}대 정상" in dashboard
     assert "bg-[linear-gradient" not in icons
     assert "shadow-[inset" not in icons
+
+
+def test_brand_logo_uses_the_provided_web_asset():
+    icons = (
+        ROOT / "apps" / "web" / "src" / "components" / "Icons.tsx"
+    ).read_text(encoding="utf-8")
+    logo = ROOT / "apps" / "web" / "public" / "brand" / "psi-studio-logo.png"
+    assert logo.exists()
+    assert logo.stat().st_size > 10_000
+    assert 'src="/brand/psi-studio-logo.png"' in icons
+    assert 'aria-label="PSI Studio"' in icons
