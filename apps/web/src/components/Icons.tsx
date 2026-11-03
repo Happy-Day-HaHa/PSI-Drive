@@ -83,15 +83,14 @@ export const BatteryIcon = (p: P) => (
 export function PsiLogo() {
   return (
     <span className="inline-flex items-center gap-2.5 text-white">
-      <span className="flex size-9 items-center justify-center rounded-[11px] bg-[linear-gradient(145deg,#3b82f6,#1b4f91)] shadow-[inset_0_1px_0_rgba(255,255,255,.22),0_5px_14px_rgba(0,0,0,.15)]">
-        <svg viewBox="0 0 30 30" className="size-7" fill="none" aria-hidden>
-          <path d="M4 16h5l2.3-4 3.2 11L18.2 7l2.6 11 2-3H26" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-          <circle cx="23.8" cy="7.2" r="1.5" fill="#8de5cd" />
+      <span className="flex size-9 items-center justify-center rounded-[10px] bg-[#2d76df]">
+        <svg viewBox="0 0 30 30" className="size-[26px]" fill="none" aria-hidden>
+          <path d="M4.5 16h5.2l2.4-4.4 3.1 10.8 3.7-15.1 2.5 10.4 1.8-2.7h2.3" stroke="white" strokeWidth="2.15" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </span>
       <span>
-        <span className="block text-[15px] leading-none font-extrabold tracking-[0.04em]">PSI STUDIO</span>
-        <span className="mt-1 block text-[8px] leading-none font-semibold tracking-[0.2em] text-blue-200/80">DRIVING INSIGHT</span>
+        <span className="block text-[14px] leading-none font-extrabold tracking-[0.06em]">PSI STUDIO</span>
+        <span className="mt-1.5 block text-[7px] leading-none font-semibold tracking-[0.24em] text-blue-200/70">DRIVING INSIGHT</span>
       </span>
     </span>
   );

@@ -2,13 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
-import { BatteryIcon, CameraIcon, PsiLogo } from "@/components/Icons";
-
-const overview = [
-  { label: "이번 주 점수", value: "87점" },
-  { label: "확인할 장면", value: "8건" },
-  { label: "연결 기기", value: "3대 정상" },
-];
+import { PsiLogo } from "@/components/Icons";
 
 export function LoginScreen() {
   const router = useRouter();
@@ -23,8 +17,8 @@ export function LoginScreen() {
     <main className="min-h-dvh bg-navy lg:bg-[#e8eef6] lg:p-6">
       <div className="mx-auto grid min-h-dvh max-w-[1180px] overflow-hidden bg-white shadow-[0_28px_80px_rgba(10,29,52,.18)] lg:min-h-[calc(100dvh-48px)] lg:grid-cols-[1.08fr_.92fr] lg:rounded-[28px]">
         <section className="relative overflow-hidden bg-[linear-gradient(145deg,#071a31_0%,#103763_58%,#1f66ae_100%)] px-5 pt-5 pb-14 text-white sm:px-8 sm:pt-7 lg:flex lg:min-h-full lg:flex-col lg:p-10">
-          <div aria-hidden className="absolute -top-32 -right-20 size-[360px] rounded-full border border-white/10 bg-white/[.035]" />
-          <div aria-hidden className="absolute top-[42%] -left-40 size-[420px] rounded-full border border-blue-200/10" />
+          <div aria-hidden className="absolute -top-32 -right-20 size-[360px] rounded-full border border-white/[.08]" />
+          <div aria-hidden className="absolute top-[42%] -left-40 size-[420px] rounded-full border border-blue-200/[.08]" />
           <div className="relative flex items-center justify-between gap-4">
             <PsiLogo />
             <span className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[.07] px-2.5 py-1.5 text-[10px] font-semibold text-white/70 backdrop-blur">
@@ -32,35 +26,16 @@ export function LoginScreen() {
             </span>
           </div>
 
-          <div className="relative mt-9 lg:my-auto lg:max-w-lg">
-            <p className="text-[10px] font-bold tracking-[.2em] text-blue-200 uppercase sm:text-xs">Driving insight, made clear</p>
+          <div className="relative mt-10 pb-5 lg:my-auto lg:max-w-lg lg:pb-0">
+            <p className="text-[10px] font-bold tracking-[.2em] text-blue-200 uppercase sm:text-xs">Driving behavior intelligence</p>
             <h1 className="mt-3 text-[29px] leading-[1.22] font-extrabold tracking-[-.035em] sm:text-4xl lg:mt-4 lg:text-[44px]">
-              운전을 기록하면<br />습관이 선명해집니다.
+              나의 운전을 이해하는<br />가장 선명한 방법.
             </h1>
             <p className="mt-3 max-w-md text-[13px] leading-6 text-white/65 sm:text-sm lg:mt-5 lg:text-[15px] lg:leading-7">
-              점수의 변화부터 발과 페달의 움직임까지,<br className="sm:hidden" /> 필요한 순간을 한곳에서 확인하세요.
+              주행 기록과 페달 움직임을 연결해<br className="sm:hidden" /> 더 편안한 운전 습관을 발견하세요.
             </p>
-
-            <div className="mt-6 grid grid-cols-3 overflow-hidden rounded-2xl border border-white/10 bg-[#071a31]/25 backdrop-blur-sm lg:mt-9">
-              {overview.map((item, index) => (
-                <div key={item.label} className={`px-3 py-3.5 lg:px-4 lg:py-4 ${index > 0 ? "border-l border-white/10" : ""}`}>
-                  <p className="text-[9px] text-white/45 lg:text-[10px]">{item.label}</p>
-                  <p className="mt-1 text-[12px] font-extrabold text-white lg:text-sm">{item.value}</p>
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-4 hidden grid-cols-2 gap-3 lg:grid">
-              <div className="rounded-2xl border border-white/10 bg-white/[.07] p-4 backdrop-blur-sm">
-                <CameraIcon className="size-5 text-blue-200" />
-                <p className="mt-3 text-sm font-bold">주행 장면과 페달 동시 확인</p>
-                <p className="mt-1 text-xs text-white/50">같은 시간축으로 조작 흐름을 확인해요.</p>
-              </div>
-              <div className="rounded-2xl border border-white/10 bg-white/[.07] p-4 backdrop-blur-sm">
-                <BatteryIcon className="size-5 text-emerald-200" />
-                <p className="mt-3 text-sm font-bold">차량과 기기 상태 한눈에</p>
-                <p className="mt-1 text-xs text-white/50">연결 상태와 점검 일정을 놓치지 않아요.</p>
-              </div>
+            <div className="mt-7 hidden items-center gap-3 text-[11px] font-semibold text-white/50 lg:flex">
+              <span>주행 기록</span><span className="size-1 rounded-full bg-blue-300/70" /><span>페달 동기화</span><span className="size-1 rounded-full bg-blue-300/70" /><span>운전 습관</span>
             </div>
           </div>
           <p className="relative hidden text-[10px] tracking-[.08em] text-white/35 lg:block">PSI STUDIO · DRIVER EXPERIENCE PLATFORM</p>

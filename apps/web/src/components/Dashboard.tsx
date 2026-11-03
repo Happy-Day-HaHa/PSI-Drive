@@ -8,7 +8,7 @@ import { ScoreExplanation } from "@/components/ScoreExplanation";
 import { ScoreRing } from "@/components/ScoreRing";
 import { SampleBadge } from "@/components/ui";
 import { pedalSamples } from "@/lib/pedal";
-import { driver, overallScore, periodOrder, periods, trips, type PeriodKey } from "@/lib/sample-data";
+import { devices, driver, overallScore, periodOrder, periods, trips, type PeriodKey } from "@/lib/sample-data";
 
 const periodShort: Record<PeriodKey, string> = { "7d": "주", "30d": "월", "90d": "3개월" };
 
@@ -76,6 +76,21 @@ export function Dashboard() {
           ))}
         </div>
       </header>
+
+      <section aria-label="내 운전 요약" className="grid grid-cols-3 overflow-hidden rounded-2xl bg-navy text-white shadow-[0_12px_28px_rgba(11,29,53,.14)] lg:hidden">
+        <div className="px-3 py-3.5">
+          <p className="text-[9px] text-white/45">이번 주 점수</p>
+          <p className="mt-1 text-base font-extrabold tabular-nums">{score}점</p>
+        </div>
+        <div className="border-l border-white/10 px-3 py-3.5">
+          <p className="text-[9px] text-white/45">확인할 장면</p>
+          <p className="mt-1 text-base font-extrabold tabular-nums">{events.length}건</p>
+        </div>
+        <div className="border-l border-white/10 px-3 py-3.5">
+          <p className="text-[9px] text-white/45">연결 기기</p>
+          <p className="mt-1 text-base font-extrabold tabular-nums">{devices.length}대 정상</p>
+        </div>
+      </section>
 
       <section className="grid gap-4 lg:grid-cols-[minmax(330px,.9fr)_minmax(0,1.25fr)]">
         <article className="flex flex-col items-center justify-center rounded-2xl border border-line/90 bg-white p-5 shadow-[0_12px_34px_rgba(15,31,54,.05)] sm:p-7">

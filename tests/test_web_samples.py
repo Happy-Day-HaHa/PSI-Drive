@@ -150,3 +150,21 @@ def test_login_separates_account_sign_in_from_demo_access():
     assert "암호화 연결" in login
     assert "defaultValue=" not in login
     assert 'type={showPassword ? "text" : "password"}' in login
+    assert "이번 주 점수" not in login
+    assert "확인할 장면" not in login
+    assert "주행 장면과 페달 동시 확인" not in login
+
+
+def test_personal_overview_is_shown_after_login_on_dashboard():
+    dashboard = (
+        ROOT / "apps" / "web" / "src" / "components" / "Dashboard.tsx"
+    ).read_text(encoding="utf-8")
+    icons = (
+        ROOT / "apps" / "web" / "src" / "components" / "Icons.tsx"
+    ).read_text(encoding="utf-8")
+    assert 'aria-label="내 운전 요약"' in dashboard
+    assert "이번 주 점수" in dashboard
+    assert "{events.length}건" in dashboard
+    assert "{devices.length}대 정상" in dashboard
+    assert "bg-[linear-gradient" not in icons
+    assert "shadow-[inset" not in icons
