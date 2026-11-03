@@ -85,15 +85,18 @@ export function PsiLogo({ size = "default" }: { size?: "default" | "large" }) {
     <span
       role="img"
       aria-label="PSI Studio"
-      className={`inline-flex items-center justify-center rounded-xl bg-white shadow-[0_3px_12px_rgba(3,15,30,.12)] ${size === "large" ? "px-3 py-2" : "px-2 py-1.5"}`}
-    >
-      <img
-        src="/brand/psi-studio-logo.png"
-        alt=""
-        width="900"
-        height="303"
-        className={`w-auto object-contain ${size === "large" ? "h-10 sm:h-11" : "h-7"}`}
-      />
-    </span>
+      className={`inline-block shrink-0 ${size === "large" ? "h-[54px] w-[160px] sm:h-[60px] sm:w-[178px]" : "h-9 w-[107px]"}`}
+      style={{
+        WebkitMaskImage: 'url("/brand/psi-studio-logo.png")',
+        maskImage: 'url("/brand/psi-studio-logo.png")',
+        WebkitMaskPosition: "center",
+        maskPosition: "center",
+        WebkitMaskRepeat: "no-repeat",
+        maskRepeat: "no-repeat",
+        WebkitMaskSize: "contain",
+        maskSize: "contain",
+        backgroundImage: "linear-gradient(180deg,#ff292f 0%,#d60006 47%,transparent 47%),linear-gradient(90deg,#d00005 0%,#ff252b 19%,#ffffff 20%,#d9dee5 100%)",
+      }}
+    />
   );
 }

@@ -177,5 +177,6 @@ def test_brand_logo_uses_the_provided_web_asset():
     logo = ROOT / "apps" / "web" / "public" / "brand" / "psi-studio-logo.png"
     assert logo.exists()
     assert logo.stat().st_size > 10_000
-    assert 'src="/brand/psi-studio-logo.png"' in icons
+    assert 'maskImage: \'url("/brand/psi-studio-logo.png")\'' in icons
     assert 'aria-label="PSI Studio"' in icons
+    assert "bg-white shadow" not in icons
