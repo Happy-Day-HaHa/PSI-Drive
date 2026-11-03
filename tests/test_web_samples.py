@@ -125,3 +125,14 @@ def test_dashboard_omits_duplicate_demo_and_device_sections():
     assert "DeviceOverview" not in dashboard
     assert "이번 달 주행거리" not in shell
     assert "데이터 품질" not in shell
+
+
+def test_profile_prioritizes_status_and_hides_technical_details():
+    profile = (
+        ROOT / "apps" / "web" / "src" / "components" / "ProfilePage.tsx"
+    ).read_text(encoding="utf-8")
+    assert "한눈에 보는 상태" in profile
+    assert "데이터 상세 보기" in profile
+    assert "바로가기" not in profile
+    assert "Vehicle & Device" not in profile
+    assert '<details className="group mt-2">' in profile
