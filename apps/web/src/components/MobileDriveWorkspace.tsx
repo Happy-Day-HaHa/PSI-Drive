@@ -218,7 +218,7 @@ export function MobileDriveWorkspace({
               finishUserScrolling(350);
             }}
             onScroll={updateScrollEdges}
-            className="timeline-scroll h-full min-h-0 overflow-y-auto overscroll-contain px-2 py-1.5"
+            className="timeline-scroll h-full min-h-0 overflow-y-auto overscroll-contain px-2 pt-1.5 pb-3"
           >
           {steps.map((mark, index) => {
             const info = stepInfo[mark.key];
@@ -239,7 +239,7 @@ export function MobileDriveWorkspace({
                   type="button"
                   onClick={() => onJump(mark.key, mark.ms)}
                   aria-current={active ? "step" : undefined}
-                  className={`mb-1 grid min-h-[64px] w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-xl border px-3 py-2 text-left transition ${active ? "border-brand bg-[#eef5fd] shadow-[0_5px_16px_rgba(23,63,115,.08)]" : "border-transparent bg-white active:bg-canvas"}`}
+                  className={`grid min-h-[64px] w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-xl border px-3 py-2 text-left transition ${index < steps.length - 1 ? "mb-1" : "mb-0"} ${active ? "border-brand bg-[#eef5fd] shadow-[0_5px_16px_rgba(23,63,115,.08)]" : "border-transparent bg-white active:bg-canvas"}`}
                 >
                   <span className="min-w-0">
                     <span className="flex items-center gap-1.5">

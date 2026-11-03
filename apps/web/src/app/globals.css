@@ -64,9 +64,14 @@ input {
 .timeline-scroll {
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
-  scrollbar-gutter: stable;
   scroll-padding-block: 8px;
   touch-action: pan-y;
+}
+
+@media (min-width: 1024px) {
+  .timeline-scroll {
+    scrollbar-gutter: stable;
+  }
 }
 
 .timeline-scroll::-webkit-scrollbar {

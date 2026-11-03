@@ -105,6 +105,9 @@ def test_mobile_review_keeps_visual_and_timeline_in_separate_scroll_regions():
     assert 'grid-rows-[auto_auto_auto_minmax(0,1fr)]' in workspace
     assert 'timeline-scroll h-full min-h-0 overflow-y-auto overscroll-contain' in workspace
     assert 'h-[calc(100dvh-4rem)] min-h-0 overflow-hidden overscroll-none' in shell
+    assert 'const normalizedPath = pathname.replace(/\\/$/, "") || "/";' in shell
+    assert 'const isDriveReview = normalizedPath === "/events";' in shell
+    assert "safe-area-inset-bottom" in shell
 
 
 def test_score_explanation_uses_the_selected_period_instead_of_fixed_counts():
