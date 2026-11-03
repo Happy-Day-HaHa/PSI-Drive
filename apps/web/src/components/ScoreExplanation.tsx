@@ -1,29 +1,25 @@
 import Link from "next/link";
 import { ChevronIcon } from "@/components/Icons";
 import type { PedalEvent } from "@/lib/pedal";
-import type { SubScore } from "@/lib/sample-data";
+import type { PeriodData, SubScore } from "@/lib/sample-data";
 
-const explanation: Record<string, { cause: string; cta: string; href: string; color: string }> = {
+const explanation: Record<string, { cta: string; href: string; color: string }> = {
   responsiveness: {
-    cause: "가속 해제 후 브레이크 접촉이 평소보다 느린 장면이 있었습니다.",
     cta: "가장 큰 변화 장면 보기",
     href: "/events",
     color: "#e8863a",
   },
   braking: {
-    cause: "브레이크 접촉 후 제동력 상승이 다소 늦었던 구간이 반영됐습니다.",
     cta: "제동 과정 확인하기",
     href: "/events",
     color: "#e24054",
   },
   safety: {
-    cause: "짧은 페달 중첩 1건이 감지됐지만 전체 영향은 낮았습니다.",
     cta: "동시 입력 장면 확인하기",
     href: "/events",
     color: "#7c3aed",
   },
   smoothness: {
-    cause: "급가속 3회와 가속 압력 변동이 점수에 반영됐습니다.",
     cta: "페달 습관 확인하기",
     href: "/pedal",
     color: "#246ce2",
@@ -47,16 +43,27 @@ function eventLink(key: string, events: PedalEvent[]) {
     const event = events.find((item) => item.type === "overlap");
     return event ? `/events?id=${event.id}` : "/events";
   }
+  if (key === "smoothness") {
+    const event = events.find((item) => item.type === "hard_accel");
+    return event ? `/events?id=${event.id}` : "/pedal";
+  }
   return explanation[key]?.href ?? "/";
 }
 
-export function ScoreExplanation({ score, subScores, events }: { score: number; subScores: SubScore[]; events: PedalEvent[] }) {
+export function ScoreExplanation({ score, subScores, events, period }: { score: number; subScores: SubScore[]; events: PedalEvent[]; period: PeriodData }) {
   const deduction = Math.round((100 - score) * 10) / 10;
+  const metrics = Object.fromEntries(period.metrics.map((item) => [item.key, Number(String(item.value).replaceAll(",", ""))]));
+  const causeByKey: Record<string, string> = {
+    responsiveness: `이 기간의 반응성 점수 ${subScores.find((item) => item.key === "responsiveness")?.score ?? 0}점과 페달 전환 기록이 반영됐습니다.`,
+    braking: `급감속 ${metrics.brake ?? 0}회와 제동력이 올라간 과정이 반영됐습니다.`,
+    safety: `페달 동시 입력 ${metrics.overlap ?? 0}회가 페달 안전성에 반영됐습니다.`,
+    smoothness: `급가속 ${metrics.accel ?? 0}회와 가속 압력의 고른 정도가 반영됐습니다.`,
+  };
   return (
     <section className="overflow-hidden rounded-2xl border border-line/90 bg-card shadow-[0_12px_32px_rgba(15,31,54,0.04)]">
       <div className="grid border-b border-line/80 md:grid-cols-[minmax(0,1fr)_240px]">
         <div className="p-5 sm:p-6">
-          <p className="text-[11px] font-bold tracking-[0.14em] text-brand uppercase">Score explanation</p>
+          <p className="text-[11px] font-bold tracking-[0.14em] text-brand">점수 구성</p>
           <h2 className="mt-1.5 text-xl font-bold tracking-tight">내 점수는 왜 {score}점인가요?</h2>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted">
             100점에서 각 운전 습관과 중요도를 반영해 총 {deduction}점이 조정됐습니다. 항목을 누르면 해당 주행 장면과 발 움직임을 바로 확인할 수 있습니다.
@@ -89,7 +96,7 @@ export function ScoreExplanation({ score, subScores, events }: { score: number; 
                   </span>
                 </span>
                 <span>
-                  <span className="block text-[13px] leading-relaxed text-ink">{info.cause}</span>
+                  <span className="block text-[13px] leading-relaxed text-ink">{causeByKey[item.key]}</span>
                   <span className="mt-1 inline-flex items-center gap-0.5 text-xs font-semibold text-brand group-hover:underline">
                     {info.cta}<ChevronIcon className="size-3" />
                   </span>

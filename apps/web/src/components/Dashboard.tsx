@@ -35,13 +35,13 @@ export function Dashboard() {
   const metrics = Object.fromEntries(period.metrics.map((item) => [item.key, item]));
   const priorityEvent = [...events].filter((event) => event.score !== null).sort((a, b) => (a.score ?? 100) - (b.score ?? 100))[0] ?? events[0];
   const overlapEvent = events.find((event) => event.type === "overlap") ?? priorityEvent;
-  const strongestBrake = [...events].sort((a, b) => b.stats.peakDecelG - a.stats.peakDecelG)[0];
+  const strongestDecel = [...events].sort((a, b) => b.stats.peakDecelG - a.stats.peakDecelG)[0];
   const slowestTransition = [...events]
     .filter((event) => event.metrics.transitionMs !== undefined)
     .sort((a, b) => (b.metrics.transitionMs ?? 0) - (a.metrics.transitionMs ?? 0))[0] ?? priorityEvent;
   const habits = [
     { label: "급가속", value: `${metrics.accel.value}${metrics.accel.unit}`, note: "출발과 가속이 한결 부드러워요", status: "양호", color: "#246ce2", symbol: "↗", href: "/pedal#accel-pattern" },
-    { label: "급제동", value: `${metrics.brake.value}${metrics.brake.unit}`, note: "가장 강했던 제동 장면 확인", status: "양호", color: "#e24054", symbol: "!", href: `/events?id=${strongestBrake.id}` },
+    { label: "급감속", value: `${metrics.brake.value}${metrics.brake.unit}`, note: "가장 강했던 감속 장면 확인", status: "양호", color: "#e24054", symbol: "!", href: `/events?id=${strongestDecel.id}` },
     { label: "페달 동시 입력", value: `${metrics.overlap.value}${metrics.overlap.unit}`, note: Number(metrics.overlap.value) === 0 ? "겹쳐 밟은 순간이 없어요" : "한 장면을 함께 확인해 봐요", status: Number(metrics.overlap.value) === 0 ? "아주 좋음" : "살펴보기", color: "#7c3aed", symbol: "⇄", href: `/events?id=${overlapEvent.id}` },
     { label: "평균 페달 전환", value: `${averages.transitionMs}ms`, note: "가속에서 브레이크까지", status: averages.transitionMs <= 350 ? "양호" : "보통", color: "#e8863a", symbol: "◷", href: `/events?id=${slowestTransition.id}` },
     { label: "주행 거리", value: `${metrics.distance.value}${metrics.distance.unit}`, note: `${metrics.time.value}${metrics.time.unit} 동안 주행`, status: "기록됨", color: "#149879", symbol: "⌁", href: "/events" },
@@ -200,8 +200,8 @@ export function Dashboard() {
           <Link href="/events" className="inline-flex items-center gap-0.5 text-xs font-bold text-brand">전체 보기<ChevronIcon className="size-3.5" /></Link>
         </div>
         <div className="mt-4 grid gap-2">
-          {trips.slice(0, 3).map((trip, index) => (
-            <Link key={`${trip.date}-${trip.time}`} href={`/events?id=${events[index % events.length].id}`} className="group grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 rounded-xl border border-line/80 px-4 py-3 transition hover:border-[#c9daf3] hover:bg-[#f8fafc]">
+          {trips.slice(0, 3).map((trip) => (
+            <Link key={trip.eventId} href={`/events?id=${trip.eventId}`} className="group grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 rounded-xl border border-line/80 px-4 py-3 transition hover:border-[#c9daf3] hover:bg-[#f8fafc]">
               <span className="min-w-0">
                 <span className="flex flex-wrap items-center gap-x-2 text-sm"><b>{trip.date}</b><span className="text-xs text-muted">{trip.time}</span></span>
                 <span className="mt-1 flex items-center gap-1 text-[11px] text-muted"><PinIcon className="size-3" />{trip.location}</span>
@@ -221,7 +221,7 @@ export function Dashboard() {
           <span><b className="block text-sm">내 점수가 이렇게 나온 이유</b><span className="mt-1 block text-xs text-muted">항목별 점수와 연결된 주행 장면을 확인할 수 있어요.</span></span>
           <span className="flex size-8 items-center justify-center rounded-full bg-canvas text-brand transition group-open:rotate-90"><ChevronIcon className="size-4" /></span>
         </summary>
-        <div className="border-t border-line/80 p-3 sm:p-5"><ScoreExplanation score={score} subScores={period.subScores} events={events} /></div>
+        <div className="border-t border-line/80 p-3 sm:p-5"><ScoreExplanation score={score} subScores={period.subScores} events={events} period={period} /></div>
       </details>
 
       <div id="vehicle" className="scroll-mt-24">

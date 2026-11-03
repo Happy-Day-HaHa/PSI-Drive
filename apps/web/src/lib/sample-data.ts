@@ -46,6 +46,7 @@ export type PeriodData = {
 };
 
 export type Trip = {
+  eventId: string;
   date: string;
   time: string;
   location: string;
@@ -99,7 +100,7 @@ const withSubScores = (scores: number[]): SubScore[] =>
 
 const habitBase: { key: HabitKey; label: string }[] = [
   { key: "accel", label: "급가속" },
-  { key: "braking", label: "급제동" },
+  { key: "braking", label: "급감속" },
   { key: "overlap", label: "페달 중첩" },
   { key: "transition", label: "페달 전환" },
   { key: "reaction", label: "제동 반응" },
@@ -123,7 +124,7 @@ export const periods: Record<PeriodKey, PeriodData> = {
     habits: withHabits([92, 88, 94, 85, 87]),
     metrics: [
       { key: "accel", label: "급가속", value: "1", unit: "회", changePct: -50, lowerIsBetter: true },
-      { key: "brake", label: "급제동", value: "1", unit: "회", changePct: 0, lowerIsBetter: true },
+      { key: "brake", label: "급감속", value: "1", unit: "회", changePct: 0, lowerIsBetter: true },
       { key: "overlap", label: "페달 중첩", value: "0", unit: "회", changePct: -100, lowerIsBetter: true },
       { key: "time", label: "주행 시간", value: "9.8", unit: "시간", changePct: 5, lowerIsBetter: null },
       { key: "distance", label: "주행 거리", value: "296", unit: "km", changePct: 3, lowerIsBetter: null },
@@ -144,7 +145,7 @@ export const periods: Record<PeriodKey, PeriodData> = {
     habits: withHabits([90, 85, 91, 82, 84]),
     metrics: [
       { key: "accel", label: "급가속", value: "3", unit: "회", changePct: -40, lowerIsBetter: true },
-      { key: "brake", label: "급제동", value: "2", unit: "회", changePct: -50, lowerIsBetter: true },
+      { key: "brake", label: "급감속", value: "2", unit: "회", changePct: -50, lowerIsBetter: true },
       { key: "overlap", label: "페달 중첩", value: "1", unit: "회", changePct: -50, lowerIsBetter: true },
       { key: "time", label: "주행 시간", value: "42.5", unit: "시간", changePct: 8, lowerIsBetter: null },
       { key: "distance", label: "주행 거리", value: "1,284", unit: "km", changePct: 6, lowerIsBetter: null },
@@ -165,7 +166,7 @@ export const periods: Record<PeriodKey, PeriodData> = {
     habits: withHabits([86, 83, 90, 78, 81]),
     metrics: [
       { key: "accel", label: "급가속", value: "11", unit: "회", changePct: -27, lowerIsBetter: true },
-      { key: "brake", label: "급제동", value: "8", unit: "회", changePct: -33, lowerIsBetter: true },
+      { key: "brake", label: "급감속", value: "8", unit: "회", changePct: -33, lowerIsBetter: true },
       { key: "overlap", label: "페달 중첩", value: "4", unit: "회", changePct: -20, lowerIsBetter: true },
       { key: "time", label: "주행 시간", value: "121", unit: "시간", changePct: 4, lowerIsBetter: null },
       { key: "distance", label: "주행 거리", value: "3,642", unit: "km", changePct: 2, lowerIsBetter: null },
@@ -197,10 +198,10 @@ export const mileage = { drivenKm: 1284, goalKm: 2000 };
 export const dataQuality = { sync: "양호", missingRatePct: 0.4 };
 
 export const trips: Trip[] = [
-  { date: "11월 1일 (일)", time: "오전 8:38", location: "성수사거리 → 잠실대교", minutes: 30, distanceKm: 18.4, score: 84, events: 2, sync: "양호" },
-  { date: "10월 31일 (토)", time: "오후 5:52", location: "양재시민의숲 → 한남오거리", minutes: 45, distanceKm: 21.7, score: 79, events: 3, sync: "양호" },
-  { date: "10월 31일 (토)", time: "오전 8:04", location: "공덕오거리 → 광화문", minutes: 32, distanceKm: 18.2, score: 88, events: 1, sync: "주의" },
-  { date: "10월 30일 (금)", time: "오후 6:11", location: "서울역 → 보라매공원", minutes: 38, distanceKm: 20.5, score: 86, events: 2, sync: "양호" },
+  { eventId: "E01", date: "11월 1일 (일)", time: "오전 8:38", location: "성수사거리 → 천호대교", minutes: 30, distanceKm: 18.4, score: 84, events: 2, sync: "양호" },
+  { eventId: "E04", date: "10월 31일 (토)", time: "오후 5:47", location: "양재시민의숲 → 한남오거리", minutes: 45, distanceKm: 21.7, score: 79, events: 3, sync: "양호" },
+  { eventId: "E03", date: "10월 31일 (토)", time: "오전 8:21", location: "학동역 교차로 → 광화문", minutes: 32, distanceKm: 18.2, score: 88, events: 1, sync: "주의" },
+  { eventId: "E06", date: "10월 30일 (금)", time: "오후 7:03", location: "한남오거리 → 서울역", minutes: 38, distanceKm: 20.5, score: 86, events: 2, sync: "양호" },
 ];
 
 export const habitTips: Record<HabitKey, string> = {

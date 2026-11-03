@@ -60,7 +60,8 @@ def _stats(session: SyntheticSession, start: int, end: int) -> dict[str, float]:
     drive = session.drive
     return {
         "peakBrakePct": round(float(drive.brake_pct[start:end].max()), 1),
-        "peakDecelG": round(float(-drive.accel_mps2[start:end].min() / G_MPS2), 2),
+        "peakAccelG": round(float(max(0.0, drive.accel_mps2[start:end].max() / G_MPS2)), 2),
+        "peakDecelG": round(float(max(0.0, -drive.accel_mps2[start:end].min() / G_MPS2)), 2),
         "speedStartKmh": round(float(drive.speed_mps[start] * 3.6), 1),
         "speedEndKmh": round(float(drive.speed_mps[min(end, drive.duration_ms - 1)] * 3.6), 1),
     }
@@ -141,6 +142,29 @@ def _overlap_entry(session: SyntheticSession, span: tuple[int, int]) -> dict:
         "score": None,
         "series": _series(session, start, end),
     }
+
+
+def _hard_accel_entry(session: SyntheticSession, span: tuple[int, int]) -> dict:
+    drive = session.drive
+    begin, finish = span
+    start = max(begin - PADDING_MS, 0)
+    end = min(finish + PADDING_MS, drive.duration_ms)
+    return {
+        "type": "hard_accel",
+        "marks": [{"key": "A0", "ms": begin - start}, {"key": "A1", "ms": finish - start}],
+        "metrics": {"hardAccelMs": finish - begin},
+        "stats": _stats(session, begin, finish),
+        "score": None,
+        "series": _series(session, start, end),
+    }
+
+
+def _true_intervals(condition: np.ndarray) -> list[tuple[int, int]]:
+    padded = np.pad(condition.astype(np.int8), (1, 1))
+    changes = np.diff(padded)
+    starts = np.flatnonzero(changes == 1)
+    ends = np.flatnonzero(changes == -1)
+    return list(zip(starts.tolist(), ends.tolist(), strict=True))
 
 
 def _when(index: int) -> dict[str, str]:
@@ -244,6 +268,9 @@ def build_samples() -> dict:
                     entries.append(routine)
             for span in overlap_spans[:1]:
                 entries.append(_overlap_entry(session, span))
+            hard_accel_spans = _true_intervals(drive.accel_mps2 >= th.hard_accel_g * G_MPS2)
+            for span in hard_accel_spans[:1]:
+                entries.append(_hard_accel_entry(session, span))
 
     entries.sort(key=lambda entry: (entry["series"]["speedKmh"][0], entry["type"]))
     for index, entry in enumerate(entries):

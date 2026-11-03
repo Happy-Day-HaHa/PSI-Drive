@@ -55,7 +55,7 @@ function comparisonStat(label: string, value: number, average: number) {
 export function EventDetail({ event }: { event: PedalEvent }) {
   const { series, marks, metrics, stats } = event;
   const durationMs = (series.accel.length - 1) * SAMPLE_DT_MS;
-  const zeroMark = marks.find((mark) => mark.key === "T0" || mark.key === "T2" || mark.key === "O0");
+  const zeroMark = marks.find((mark) => mark.key === "T0" || mark.key === "T2" || mark.key === "O0" || mark.key === "A0");
   const zeroMs = zeroMark?.ms ?? 0;
   const [playheadMs, setPlayheadMs] = useState(zeroMs);
   const [playing, setPlaying] = useState(false);
@@ -113,7 +113,7 @@ export function EventDetail({ event }: { event: PedalEvent }) {
   };
 
   return (
-    <div className="h-full min-h-0 min-w-0 space-y-5 overflow-hidden xl:h-auto xl:overflow-visible">
+    <div className="h-full min-h-0 min-w-0 space-y-5 overflow-hidden lg:h-auto lg:overflow-visible">
       <MobileDriveWorkspace
         event={event}
         accel={accel}
@@ -141,7 +141,7 @@ export function EventDetail({ event }: { event: PedalEvent }) {
         onJump={jumpTo}
       />
 
-      <Panel className="hidden xl:block">
+      <Panel className="hidden lg:block">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0">
             <p className="text-[13px] text-muted">
@@ -154,7 +154,7 @@ export function EventDetail({ event }: { event: PedalEvent }) {
             <div className="mt-2 flex items-center gap-2 text-xs font-semibold text-brand">
               <PedalEventIcon type={event.type} className="h-10 w-[61px]" />
               <span>
-                <span className="block text-[10px] tracking-[0.1em] text-muted uppercase">Detected foot action</span>
+                <span className="block text-[10px] tracking-[0.08em] text-muted">발과 페달 움직임</span>
                 {pedalActionLabel(event.type)}
               </span>
             </div>
@@ -213,12 +213,20 @@ export function EventDetail({ event }: { event: PedalEvent }) {
               <Stat label="최대 감속" value={stats.peakDecelG.toFixed(2)} unit="g" />
             </>
           )}
+          {event.type === "hard_accel" && (
+            <>
+              <Stat label="기준 초과 시간" value={(metrics.hardAccelMs ?? 0).toLocaleString("ko-KR")} unit="ms" />
+              <Stat label="최대 가속" value={`+${stats.peakAccelG.toFixed(2)}`} unit="g" />
+              <Stat label="시작 속도" value={Math.round(stats.speedStartKmh).toString()} unit="km/h" />
+              <Stat label="종료 속도" value={Math.round(stats.speedEndKmh).toString()} unit="km/h" />
+            </>
+          )}
         </dl>
       </Panel>
 
-      <Panel className="hidden xl:block">
+      <Panel className="hidden lg:block">
         <div className="flex flex-wrap items-start justify-between gap-3">
-          <div><p className="text-[11px] font-bold tracking-[.13em] text-brand uppercase">Composite event flow</p><h2 className="mt-1 text-lg font-bold">상황과 조작의 시간적 흐름</h2><p className="mt-1 text-xs text-muted">영상 재현 없이 수집·계산 가능한 데이터만 표시합니다.</p></div>
+          <div><p className="text-[11px] font-bold tracking-[.13em] text-brand">이 장면의 흐름</p><h2 className="mt-1 text-lg font-bold">상황과 발 움직임을 시간순으로 봐요</h2><p className="mt-1 text-xs text-muted">확인된 센서 기록을 같은 시간축에 맞춰 보여드립니다.</p></div>
           <span className="rounded-full bg-canvas px-2.5 py-1 text-[10px] font-bold text-muted">전방 영상 미연결</span>
         </div>
         <div className="mt-4 overflow-x-auto pb-1">
@@ -238,19 +246,19 @@ export function EventDetail({ event }: { event: PedalEvent }) {
         <div className="mt-4 grid grid-cols-2 gap-2 border-t border-line pt-4 md:grid-cols-4">
           <div className="rounded-lg bg-[#f8fafc] p-3"><p className="text-[10px] text-muted">장면 지속 시간</p><p className="mt-1 text-sm font-bold tabular-nums">{formatMs(analysis.durationMs)}</p></div>
           <div className="rounded-lg bg-[#f8fafc] p-3"><p className="text-[10px] text-muted">시작 → 종료 속도</p><p className="mt-1 text-sm font-bold tabular-nums">{Math.round(stats.speedStartKmh)} → {Math.round(stats.speedEndKmh)}km/h</p></div>
-          <div className="rounded-lg bg-[#f8fafc] p-3"><p className="text-[10px] text-muted">최대 Jerk</p><p className="mt-1 text-sm font-bold tabular-nums">{analysis.maxJerkGPerS.toFixed(2)}g/s</p><p className="mt-0.5 text-[9px] text-muted">합성 IMU 계산값</p></div>
+          <div className="rounded-lg bg-[#f8fafc] p-3"><p className="text-[10px] text-muted">감속 변화 강도</p><p className="mt-1 text-sm font-bold tabular-nums">{analysis.maxJerkGPerS.toFixed(2)}g/s</p><p className="mt-0.5 text-[9px] text-muted">값이 클수록 변화가 빠릅니다</p></div>
           <div className="rounded-lg bg-[#f8fafc] p-3"><p className="text-[10px] text-muted">데이터 품질</p><p className="mt-1 text-sm font-bold text-good">{analysis.quality}</p><p className="mt-0.5 text-[9px] text-muted">실제 동기화 오차 미산출</p></div>
         </div>
         <p className="mt-4 rounded-xl border border-[#dbe7f7] bg-[#f5f9ff] px-4 py-3 text-xs leading-relaxed text-muted"><b className="text-ink">시간적 연관 흐름:</b> {analysis.relationship}. 이 흐름은 관측된 데이터의 순서를 설명하며 운전자의 의도나 사고 원인을 확정하지 않습니다.</p>
       </Panel>
 
-      <Panel className="hidden xl:block">
+      <Panel className="hidden lg:block">
         <PanelHeader
           title="압력 센서 기록"
           description="재생하거나 그래프를 눌러 시점을 옮기면 발 위치와 페달 압력이 함께 움직입니다."
           action={<ChartLegend series={[{ name: "가속 페달", color: ACCEL_COLOR }, { name: "브레이크", color: BRAKE_COLOR }]} />}
         />
-        <div className="hidden grid-cols-1 gap-6 xl:grid xl:grid-cols-[280px_minmax(0,1fr)]">
+        <div className="hidden grid-cols-1 gap-6 lg:grid xl:grid-cols-[280px_minmax(0,1fr)]">
           <div className="rounded-xl bg-canvas p-3 sm:p-4">
             <FootView accel={accel} brake={brake} foot={foot} />
             <div className="mt-3 border-t border-line pt-3">
@@ -391,7 +399,7 @@ export function EventDetail({ event }: { event: PedalEvent }) {
         )}
       </Panel>
 
-      <div className="hidden gap-5 xl:grid xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+      <div className="hidden gap-5 lg:grid lg:grid-cols-1 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
         <Panel>
           <PanelHeader title="발 움직임 단계" description="항목을 누르면 위 그래프의 해당 시점으로 이동합니다." />
           <ol>

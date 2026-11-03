@@ -23,7 +23,7 @@ def test_committed_json_matches_generator(samples):
 
 def test_all_event_types_are_present_with_unique_ids(samples):
     events = samples["events"]
-    assert {event["type"] for event in events} == {"pedestrian", "lead_brake", "routine", "overlap"}
+    assert {event["type"] for event in events} == {"pedestrian", "lead_brake", "routine", "overlap", "hard_accel"}
     assert len({event["id"] for event in events}) == len(events)
 
 
@@ -81,5 +81,37 @@ def test_histograms_cover_every_event(samples):
 def test_motion_thresholds_are_exported_and_match_event_examples(samples):
     thresholds = samples["thresholds"]
     assert thresholds == {"hardAccelG": 0.3, "hardBrakeG": -0.4}
-    assert any(max(event["series"]["decelG"]) >= thresholds["hardAccelG"] for event in samples["events"])
-    assert any(min(event["series"]["decelG"]) <= thresholds["hardBrakeG"] for event in samples["events"])
+    tagged_accels = []
+    tagged_decels = []
+    for event in samples["events"]:
+        marks = sorted(mark["ms"] for mark in event["marks"])
+        start = marks[0] // SAMPLE_DT_MS
+        end = min(len(event["series"]["decelG"]), (marks[-1] + SAMPLE_DT_MS - 1) // SAMPLE_DT_MS + 1)
+        event_values = event["series"]["decelG"][start:end]
+        if max(event_values) >= thresholds["hardAccelG"]:
+            tagged_accels.append(event)
+        if min(event_values) <= thresholds["hardBrakeG"]:
+            tagged_decels.append(event)
+
+    assert [event["type"] for event in tagged_accels] == ["hard_accel"]
+    assert tagged_decels
+    assert all(event["type"] in {"pedestrian", "lead_brake"} for event in tagged_decels)
+
+
+def test_mobile_review_keeps_visual_and_timeline_in_separate_scroll_regions():
+    root = ROOT / "apps" / "web" / "src" / "components"
+    workspace = (root / "MobileDriveWorkspace.tsx").read_text(encoding="utf-8")
+    shell = (root / "AppShell.tsx").read_text(encoding="utf-8")
+    assert 'grid-rows-[auto_auto_auto_minmax(0,1fr)]' in workspace
+    assert 'timeline-scroll h-full min-h-0 overflow-y-auto overscroll-contain' in workspace
+    assert 'h-[calc(100dvh-4rem)] min-h-0 overflow-hidden overscroll-none' in shell
+
+
+def test_score_explanation_uses_the_selected_period_instead_of_fixed_counts():
+    component = (
+        ROOT / "apps" / "web" / "src" / "components" / "ScoreExplanation.tsx"
+    ).read_text(encoding="utf-8")
+    assert "period.metrics" in component
+    assert "급가속 3회" not in component
+    assert "metrics.accel" in component
+    assert "metrics.brake" in component

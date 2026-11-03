@@ -24,7 +24,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const percent = Math.round((mileage.drivenKm / mileage.goalKm) * 100);
   return (
     <div className="flex min-h-dvh">
-      <aside className="sticky top-0 hidden h-dvh w-[244px] shrink-0 flex-col bg-navy px-3 py-5 text-white shadow-[8px_0_30px_rgba(9,25,46,0.08)] lg:flex">
+      <aside className="sticky top-0 hidden h-dvh w-[244px] shrink-0 flex-col bg-navy px-3 py-5 text-white shadow-[8px_0_30px_rgba(9,25,46,0.08)] xl:flex">
         <Link href="/dashboard" aria-label="PSI Studio 홈" className="px-3">
           <PsiLogo />
         </Link>
@@ -91,7 +91,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-30 border-b border-white/10 bg-navy/95 text-white shadow-[0_4px_18px_rgba(8,25,46,0.12)] backdrop-blur-md lg:hidden">
+        <header className="sticky top-0 z-30 border-b border-white/10 bg-navy/95 text-white shadow-[0_4px_18px_rgba(8,25,46,0.12)] backdrop-blur-md xl:hidden">
           <div className="flex min-h-16 items-center justify-between px-4">
             <Link href="/dashboard" aria-label="PSI Studio 홈">
               <PsiLogo />
@@ -105,8 +105,8 @@ export function AppShell({ children }: { children: ReactNode }) {
         <main
           className={`mx-auto w-full max-w-[1360px] flex-1 ${
             isDriveReview
-              ? "h-[calc(100dvh-4rem)] min-h-0 overflow-hidden overscroll-none px-2 pt-2 pb-[5.75rem] sm:px-4 sm:pt-3 lg:h-dvh lg:px-5 lg:py-5 xl:h-auto xl:overflow-visible xl:overscroll-auto xl:px-8 xl:py-8"
-              : "space-y-5 px-4 py-5 pb-24 sm:px-8 sm:py-8 sm:pb-24 lg:pb-8"
+              ? "h-[calc(100dvh-4rem)] min-h-0 overflow-hidden overscroll-none px-2 pt-2 pb-[5.75rem] sm:px-4 sm:pt-3 lg:h-auto lg:overflow-visible lg:overscroll-auto lg:px-6 lg:pt-6 lg:pb-24 xl:px-8 xl:py-8"
+              : "space-y-5 px-4 py-5 pb-24 sm:px-8 sm:py-8 sm:pb-24 xl:pb-8"
           }`}
         >
           {children}
@@ -114,7 +114,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <footer className={`mx-auto w-full max-w-[1320px] px-4 pb-28 text-xs leading-relaxed text-muted sm:px-8 lg:pb-8 ${isDriveReview ? "hidden xl:block" : ""}`}>
           점수와 지표는 운전 행동을 설명하는 자료이며, 사고 원인이나 법적 과실을 판정하지 않습니다. 현재 화면의 수치는 실제 측정값이 아닌 샘플 및 합성 데이터입니다.
         </footer>
-        <nav aria-label="모바일 주 메뉴" className="fixed inset-x-3 bottom-3 z-40 grid grid-cols-4 overflow-hidden rounded-2xl border border-white/10 bg-navy/95 p-1.5 text-white shadow-[0_12px_32px_rgba(5,18,34,0.28)] backdrop-blur-xl lg:hidden">
+        <nav aria-label="모바일 주 메뉴" className="fixed inset-x-3 bottom-3 z-40 grid grid-cols-4 overflow-hidden rounded-2xl border border-white/10 bg-navy/95 p-1.5 text-white shadow-[0_12px_32px_rgba(5,18,34,0.28)] backdrop-blur-xl xl:hidden">
           {navItems.map(({ label, href, icon: Icon }) => {
             const active = isActive(pathname, href);
             return (

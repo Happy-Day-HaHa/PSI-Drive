@@ -1,7 +1,7 @@
 // pedal-samples.json은 psi_synth.export_web이 합성 세션의 정답값으로 생성한다. 손으로 고치지 않는다.
 import samples from "@/lib/pedal-samples.json";
 
-export type EventType = "pedestrian" | "lead_brake" | "routine" | "overlap";
+export type EventType = "pedestrian" | "lead_brake" | "routine" | "overlap" | "hard_accel";
 
 export type EventMetrics = {
   recognitionMs?: number;
@@ -12,6 +12,7 @@ export type EventMetrics = {
   vehicleDelayMs?: number;
   coastMs?: number;
   overlapMs?: number;
+  hardAccelMs?: number;
 };
 
 export type PedalEvent = {
@@ -23,6 +24,7 @@ export type PedalEvent = {
   metrics: EventMetrics;
   stats: {
     peakBrakePct: number;
+    peakAccelG: number;
     peakDecelG: number;
     speedStartKmh: number;
     speedEndKmh: number;
@@ -71,6 +73,7 @@ export const eventTypeLabels: Record<EventType, string> = {
   lead_brake: "선행차 감속 대응",
   routine: "일상 감속",
   overlap: "페달 중첩",
+  hard_accel: "급가속",
 };
 
 const eventLocations: Record<string, string> = {
@@ -86,6 +89,7 @@ const eventLocations: Record<string, string> = {
   E10: "서울 중구 · 서울역 서부",
   E11: "서울 성북구 · 길음뉴타운",
   E12: "서울 동작구 · 보라매공원",
+  E13: "서울 강동구 · 천호대교 남단",
 };
 
 export function eventLocation(event: Pick<PedalEvent, "id">): string {
@@ -103,6 +107,8 @@ export const stepInfo: Record<string, { title: string; body: string; source: str
   T7: { title: "장면 종료", body: "차량이 정지했거나 브레이크를 놓았습니다.", source: "IMU·압력 센서" },
   O0: { title: "페달 중첩 시작", body: "가속 페달을 밟은 채 브레이크 압력이 올랐습니다.", source: "압력 센서" },
   O1: { title: "페달 중첩 종료", body: "두 페달 중 하나의 압력이 해제되었습니다.", source: "압력 센서" },
+  A0: { title: "급가속 시작", body: "종가속도가 설정 기준을 넘어선 시점입니다.", source: "IMU" },
+  A1: { title: "급가속 종료", body: "종가속도가 설정 기준 아래로 돌아온 시점입니다.", source: "IMU" },
 };
 
 export function formatMs(ms: number): string {
@@ -117,6 +123,9 @@ export function compareToAverage(value: number, average: number): { text: string
 
 export function eventHeadline(event: PedalEvent): string {
   const { metrics, stats } = event;
+  if (event.type === "hard_accel") {
+    return `${formatMs(metrics.hardAccelMs ?? 0)} 동안 가속도가 기준을 넘어 최대 +${stats.peakAccelG.toFixed(2)}g까지 올라갔습니다. ${Math.round(stats.speedStartKmh)}km/h에서 ${Math.round(stats.speedEndKmh)}km/h로 속도가 변했습니다.`;
+  }
   if (event.type === "overlap") {
     return `가속 페달을 약 ${Math.round(stats.accelDuringPct ?? 0)}% 밟은 상태에서 브레이크를 최대 ${Math.round(stats.peakBrakePct)}%까지 함께 밟았습니다. 중첩은 ${formatMs(metrics.overlapMs ?? 0)} 동안 이어졌습니다.`;
   }
@@ -132,6 +141,11 @@ export function eventFindings(event: PedalEvent): Finding[] {
   const { metrics, stats } = event;
   const average = pedalSamples.averages;
   const findings: Finding[] = [];
+  if (event.type === "hard_accel") {
+    findings.push({ kind: "watch", text: `가속도가 +${stats.peakAccelG.toFixed(2)}g까지 올라갔습니다. 출발할 때 페달을 조금 더 나누어 밟으면 움직임이 부드러워집니다.` });
+    findings.push({ kind: "info", text: `기준을 넘은 시간은 ${formatMs(metrics.hardAccelMs ?? 0)}입니다.` });
+    return findings;
+  }
   if (event.type === "overlap") {
     findings.push({ kind: "watch", text: "두 페달을 함께 밟으면 제동 거리가 길어질 수 있습니다. 왼발 사용이나 발 위치를 영상으로 확인하시기 바랍니다." });
     findings.push({ kind: "info", text: `이 구간의 감속은 최대 ${stats.peakDecelG.toFixed(2)}g로 크지 않았습니다.` });

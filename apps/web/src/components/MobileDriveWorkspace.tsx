@@ -19,6 +19,8 @@ const markTone: Record<string, { dot: string; chip: string; label: string }> = {
   T7: { dot: "bg-[#94a3b8]", chip: "bg-canvas text-muted", label: "마무리" },
   O0: { dot: "bg-[#7c3aed]", chip: "bg-[#f1eafe] text-[#6d28d9]", label: "동시 입력" },
   O1: { dot: "bg-[#7c3aed]", chip: "bg-[#f1eafe] text-[#6d28d9]", label: "동시 입력" },
+  A0: { dot: "bg-data", chip: "bg-[#eaf2fd] text-data", label: "급가속" },
+  A1: { dot: "bg-good", chip: "bg-good-soft text-good", label: "안정화" },
 };
 
 function pressureAt(values: number[], ms: number) {
@@ -27,6 +29,7 @@ function pressureAt(values: number[], ms: number) {
 }
 
 function eventStatus(event: PedalEvent) {
+  if (event.type === "hard_accel") return "살펴보기";
   if (event.type === "overlap") return "확인 필요";
   if (event.score !== null && event.score < 70) return "주의";
   if (event.score !== null && event.score < 85) return "살펴보기";
@@ -126,11 +129,11 @@ export function MobileDriveWorkspace({
   }, []);
 
   return (
-    <section id="drive-workspace" className="grid h-full min-h-0 grid-rows-[auto_auto_auto_minmax(0,1fr)] overflow-hidden rounded-[20px] border border-[#203c61] bg-[#091a30] shadow-[0_18px_42px_rgba(5,20,39,.22)] xl:hidden">
+    <section id="drive-workspace" className="grid h-full min-h-0 grid-rows-[auto_auto_auto_minmax(0,1fr)] overflow-hidden rounded-[20px] border border-[#203c61] bg-[#091a30] shadow-[0_18px_42px_rgba(5,20,39,.22)] lg:hidden">
       <header className="mobile-workspace-meta relative flex items-start justify-between gap-3 overflow-hidden border-b border-white/10 bg-[linear-gradient(120deg,#0b203b,#173f73)] px-4 py-3 text-white">
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <span className="rounded-full bg-blue-300/15 px-2 py-0.5 text-[9px] font-bold tracking-[.13em] text-blue-200 uppercase">PSI Motion Lens</span>
+            <span className="rounded-full bg-blue-300/15 px-2 py-0.5 text-[9px] font-bold tracking-[.08em] text-blue-200">발·페달 함께 보기</span>
             <span className="text-[10px] text-white/45">{event.id}</span>
           </div>
           <div className="mt-1.5 flex min-w-0 items-center gap-1.5">
