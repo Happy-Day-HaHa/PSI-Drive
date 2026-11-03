@@ -115,3 +115,13 @@ def test_score_explanation_uses_the_selected_period_instead_of_fixed_counts():
     assert "급가속 3회" not in component
     assert "metrics.accel" in component
     assert "metrics.brake" in component
+
+
+def test_dashboard_omits_duplicate_demo_and_device_sections():
+    components = ROOT / "apps" / "web" / "src" / "components"
+    dashboard = (components / "Dashboard.tsx").read_text(encoding="utf-8")
+    shell = (components / "AppShell.tsx").read_text(encoding="utf-8")
+    assert "Priority drive moment" not in dashboard
+    assert "DeviceOverview" not in dashboard
+    assert "이번 달 주행거리" not in shell
+    assert "데이터 품질" not in shell

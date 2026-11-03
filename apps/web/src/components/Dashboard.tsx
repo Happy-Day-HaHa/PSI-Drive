@@ -2,14 +2,12 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { DeviceOverview } from "@/components/DeviceOverview";
 import { ChevronIcon, PinIcon } from "@/components/Icons";
 import { ChartLegend, LineChart, type Series } from "@/components/LineChart";
-import { PedalEventIcon } from "@/components/PedalEventIcon";
 import { ScoreExplanation } from "@/components/ScoreExplanation";
 import { ScoreRing } from "@/components/ScoreRing";
 import { SampleBadge } from "@/components/ui";
-import { eventLocation, eventTypeLabels, formatMs, pedalSamples } from "@/lib/pedal";
+import { pedalSamples } from "@/lib/pedal";
 import { driver, overallScore, periodOrder, periods, trips, type PeriodKey } from "@/lib/sample-data";
 
 const periodShort: Record<PeriodKey, string> = { "7d": "주", "30d": "월", "90d": "3개월" };
@@ -33,12 +31,12 @@ export function Dashboard() {
   const score = overallScore(period.subScores);
   const { averages, events } = pedalSamples;
   const metrics = Object.fromEntries(period.metrics.map((item) => [item.key, item]));
-  const priorityEvent = [...events].filter((event) => event.score !== null).sort((a, b) => (a.score ?? 100) - (b.score ?? 100))[0] ?? events[0];
-  const overlapEvent = events.find((event) => event.type === "overlap") ?? priorityEvent;
+  const anchorEvent = events[0];
+  const overlapEvent = events.find((event) => event.type === "overlap") ?? anchorEvent;
   const strongestDecel = [...events].sort((a, b) => b.stats.peakDecelG - a.stats.peakDecelG)[0];
   const slowestTransition = [...events]
     .filter((event) => event.metrics.transitionMs !== undefined)
-    .sort((a, b) => (b.metrics.transitionMs ?? 0) - (a.metrics.transitionMs ?? 0))[0] ?? priorityEvent;
+    .sort((a, b) => (b.metrics.transitionMs ?? 0) - (a.metrics.transitionMs ?? 0))[0] ?? anchorEvent;
   const habits = [
     { label: "급가속", value: `${metrics.accel.value}${metrics.accel.unit}`, note: "출발과 가속이 한결 부드러워요", status: "양호", color: "#246ce2", symbol: "↗", href: "/pedal#accel-pattern" },
     { label: "급감속", value: `${metrics.brake.value}${metrics.brake.unit}`, note: "가장 강했던 감속 장면 확인", status: "양호", color: "#e24054", symbol: "!", href: `/events?id=${strongestDecel.id}` },
@@ -171,29 +169,6 @@ export function Dashboard() {
         </section>
       </div>
 
-      <section className="overflow-hidden rounded-2xl border border-[#d9e4f3] bg-[#0b1d35] text-white shadow-[0_18px_38px_rgba(11,29,53,.14)]">
-        <div className="grid lg:grid-cols-[minmax(0,.9fr)_minmax(0,1.1fr)]">
-          <div className="relative flex min-h-52 items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_50%_35%,rgba(36,108,226,.28),transparent_60%)] p-6">
-            <span className="absolute top-4 left-4 rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-bold text-blue-100">우선 확인할 장면</span>
-            <PedalEventIcon type={priorityEvent.type} className="h-32 w-48 drop-shadow-[0_18px_24px_rgba(0,0,0,.28)]" />
-            <div className="absolute inset-x-5 bottom-4 flex items-center justify-between rounded-xl border border-white/10 bg-black/20 px-3 py-2 backdrop-blur">
-              <span className="text-[11px] text-white/65">발 움직임 미리보기</span><span className="flex items-center gap-1.5 text-[10px] font-bold"><span className="size-2 rounded-full bg-[#e24054]" />데모 데이터</span>
-            </div>
-          </div>
-          <div className="p-5 sm:p-7">
-            <p className="text-[11px] font-bold tracking-[.14em] text-blue-200 uppercase">Priority drive moment</p>
-            <div className="mt-2 flex flex-wrap items-center gap-2"><h2 className="text-xl font-extrabold">{eventTypeLabels[priorityEvent.type]}</h2><span className="rounded-full bg-[#e24054]/15 px-2 py-1 text-[10px] font-bold text-[#ff9dac]">살펴보기 · {priorityEvent.score}점</span></div>
-            <p className="mt-2 flex items-center gap-1.5 text-xs text-white/60"><PinIcon className="size-3.5 text-blue-300" />{eventLocation(priorityEvent)} · {priorityEvent.date} {priorityEvent.time}</p>
-            <dl className="mt-5 grid grid-cols-3 gap-2">
-              <div className="rounded-xl bg-white/[.07] p-3"><dt className="text-[10px] text-white/45">최대 감속</dt><dd className="mt-1 text-base font-bold tabular-nums">{priorityEvent.stats.peakDecelG.toFixed(2)}g</dd></div>
-              <div className="rounded-xl bg-white/[.07] p-3"><dt className="text-[10px] text-white/45">페달 전환</dt><dd className="mt-1 text-base font-bold tabular-nums">{formatMs(priorityEvent.metrics.transitionMs ?? 0)}</dd></div>
-              <div className="rounded-xl bg-white/[.07] p-3"><dt className="text-[10px] text-white/45">최대 제동</dt><dd className="mt-1 text-base font-bold tabular-nums">{Math.round(priorityEvent.stats.peakBrakePct)}%</dd></div>
-            </dl>
-            <Link href={`/events?id=${priorityEvent.id}`} className="mt-5 inline-flex min-h-11 items-center gap-1 rounded-xl bg-white px-4 py-2.5 text-sm font-bold text-navy shadow-lg transition hover:bg-blue-50 active:scale-[.98] motion-reduce:transform-none">발 움직임과 압력 함께 보기<ChevronIcon className="size-4" /></Link>
-          </div>
-        </div>
-      </section>
-
       <section className="rounded-2xl border border-line/90 bg-white p-5 shadow-[0_10px_28px_rgba(15,31,54,.04)] sm:p-6">
         <div className="flex items-end justify-between gap-3">
           <div><h2 className="text-lg font-bold">최근 주행 기록</h2><p className="mt-1 text-xs text-muted">언제 어디를 달렸는지 다시 확인해 보세요.</p></div>
@@ -224,9 +199,6 @@ export function Dashboard() {
         <div className="border-t border-line/80 p-3 sm:p-5"><ScoreExplanation score={score} subScores={period.subScores} events={events} period={period} /></div>
       </details>
 
-      <div id="vehicle" className="scroll-mt-24">
-        <DeviceOverview />
-      </div>
     </>
   );
 }

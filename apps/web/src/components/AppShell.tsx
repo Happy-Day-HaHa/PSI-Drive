@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { BarsIcon, FlagIcon, HomeIcon, PsiLogo, UserIcon } from "@/components/Icons";
-import { dataQuality, driver, mileage } from "@/lib/sample-data";
 
 const navItems = [
   { label: "홈", href: "/dashboard", icon: HomeIcon },
@@ -21,7 +20,6 @@ function isActive(pathname: string, href: string) {
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const isDriveReview = pathname === "/events";
-  const percent = Math.round((mileage.drivenKm / mileage.goalKm) * 100);
   return (
     <div className="flex min-h-dvh">
       <aside className="sticky top-0 hidden h-dvh w-[244px] shrink-0 flex-col bg-navy px-3 py-5 text-white shadow-[8px_0_30px_rgba(9,25,46,0.08)] xl:flex">
@@ -54,39 +52,12 @@ export function AppShell({ children }: { children: ReactNode }) {
             );
           })}
         </nav>
-        <div className="mt-auto space-y-4 border-t border-white/12 px-3 pt-4 text-[13px]">
-          <div>
-            <p className="text-white/60">운전자 · 차량</p>
-            <p className="mt-0.5 font-medium">
-              {driver.id} · {driver.vehicle}
-            </p>
-          </div>
-          <div>
-            <div className="flex justify-between text-white/60">
-              <span>이번 달 주행거리</span>
-              <span>{percent}%</span>
-            </div>
-            <div
-              className="mt-1.5 h-1 overflow-hidden rounded-full bg-white/15"
-              role="progressbar"
-              aria-valuenow={percent}
-              aria-valuemin={0}
-              aria-valuemax={100}
-              aria-label="월간 주행거리 진행률"
-            >
-              <div className="h-full rounded-full bg-white" style={{ width: `${percent}%` }} />
-            </div>
-            <p className="mt-1.5 font-medium">
-              {mileage.drivenKm.toLocaleString("ko-KR")} / {mileage.goalKm.toLocaleString("ko-KR")}km
-            </p>
-          </div>
-          <div>
-            <p className="text-white/60">데이터 품질</p>
-            <p className="mt-0.5 font-medium">
-              동기화 {dataQuality.sync} · 결측률 {dataQuality.missingRatePct}%
-            </p>
-          </div>
-          <Link href="/" className="inline-flex text-xs font-medium text-white/55 transition hover:text-white">로그아웃</Link>
+        <div className="mt-auto space-y-2 border-t border-white/12 px-2 pt-4">
+          <Link href="/profile" className="flex items-center gap-3 rounded-xl px-2 py-2.5 text-white/70 transition hover:bg-white/6 hover:text-white">
+            <span className="flex size-8 items-center justify-center rounded-lg bg-white/8"><UserIcon className="size-4" /></span>
+            <span><b className="block text-xs">마이페이지</b><span className="mt-0.5 block text-[10px] text-white/45">차량과 기기 상태 확인</span></span>
+          </Link>
+          <Link href="/" className="inline-flex px-2 py-2 text-[11px] font-medium text-white/45 transition hover:text-white">로그아웃</Link>
         </div>
       </aside>
 
@@ -97,7 +68,6 @@ export function AppShell({ children }: { children: ReactNode }) {
               <PsiLogo />
             </Link>
             <div className="flex items-center gap-2">
-              <span className="rounded-full border border-white/12 bg-white/[0.07] px-2.5 py-1.5 text-[10px] font-semibold text-white/75">{driver.id}</span>
               <Link href="/" className="text-[10px] font-semibold text-white/55">로그아웃</Link>
             </div>
           </div>
