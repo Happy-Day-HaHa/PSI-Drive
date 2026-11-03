@@ -139,3 +139,14 @@ def test_profile_prioritizes_status_and_hides_technical_details():
     assert "바로가기" not in profile
     assert "Vehicle & Device" not in profile
     assert '<details className="group mt-2">' in profile
+
+
+def test_login_separates_account_sign_in_from_demo_access():
+    login = (
+        ROOT / "apps" / "web" / "src" / "components" / "LoginScreen.tsx"
+    ).read_text(encoding="utf-8")
+    assert "내 운전 데이터 확인하기" in login
+    assert "데모 화면 둘러보기" in login
+    assert "암호화 연결" in login
+    assert "defaultValue=" not in login
+    assert 'type={showPassword ? "text" : "password"}' in login
