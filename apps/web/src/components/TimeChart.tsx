@@ -31,20 +31,22 @@ type Props = {
 
 const LEFT = 42;
 const RIGHT = 12;
-const LABEL_ROW = 15;
-const MIN_LABEL_GAP = 24;
+const MARK_LABEL_GAP = 31;
+const MARK_LABEL_WIDTH = 26;
 
-function labelRows(marks: Mark[], toX: (ms: number) => number) {
-  const lastInRow: number[] = [];
-  return [...marks]
+function labelPositions(marks: Mark[], toX: (ms: number) => number, minX: number, maxX: number) {
+  const positioned = [...marks]
     .sort((a, b) => a.ms - b.ms)
-    .map((mark) => {
-      const px = toX(mark.ms);
-      let row = lastInRow.findIndex((last) => px - last >= MIN_LABEL_GAP);
-      if (row === -1) row = lastInRow.length;
-      lastInRow[row] = px;
-      return { ...mark, row };
-    });
+    .map((mark) => ({ ...mark, markX: toX(mark.ms), labelX: Math.min(maxX, Math.max(minX, toX(mark.ms))) }));
+
+  for (let index = 1; index < positioned.length; index += 1) {
+    positioned[index].labelX = Math.max(positioned[index].labelX, positioned[index - 1].labelX + MARK_LABEL_GAP);
+  }
+  if (positioned.at(-1) && positioned.at(-1)!.labelX > maxX) positioned.at(-1)!.labelX = maxX;
+  for (let index = positioned.length - 2; index >= 0; index -= 1) {
+    positioned[index].labelX = Math.min(positioned[index].labelX, positioned[index + 1].labelX - MARK_LABEL_GAP);
+  }
+  return positioned;
 }
 
 export function TimeChart({ dtMs, series, domain, ticks, height, title, ariaLabel, marks, zeroMs, playheadMs, onScrub, showMarkLabels = false, showTimeAxis = false, bands = [], highlightKey = null }: Props) {
@@ -54,9 +56,8 @@ export function TimeChart({ dtMs, series, domain, ticks, height, title, ariaLabe
   const innerWidth = Math.max(width - LEFT - RIGHT, 40);
   const x = (ms: number) => LEFT + (ms / durationMs) * innerWidth;
 
-  const rows = showMarkLabels ? labelRows(marks, x) : [];
-  const rowCount = rows.reduce((max, mark) => Math.max(max, mark.row + 1), 0);
-  const top = showMarkLabels ? rowCount * LABEL_ROW + 6 : 6;
+  const labels = showMarkLabels ? labelPositions(marks, x, LEFT + MARK_LABEL_WIDTH / 2, width - RIGHT - MARK_LABEL_WIDTH / 2) : [];
+  const top = showMarkLabels ? 30 : 6;
   const bottom = showTimeAxis ? 22 : 4;
   const fullHeight = height + top + bottom;
   const y = (value: number) => top + (1 - (value - domain[0]) / (domain[1] - domain[0])) * height;
@@ -107,17 +108,16 @@ export function TimeChart({ dtMs, series, domain, ticks, height, title, ariaLabe
             strokeOpacity={highlightKey === mark.key ? 0.9 : 0.35}
           />
         ))}
-        {rows.map((mark) => (
-          <text
-            key={mark.key}
-            x={x(mark.ms)}
-            y={(mark.row + 1) * LABEL_ROW - 3}
-            textAnchor="middle"
-            className={`text-[11px] ${highlightKey === mark.key ? "fill-ink font-bold" : "fill-muted font-medium"}`}
-          >
-            {mark.key}
-          </text>
-        ))}
+        {labels.map((mark) => {
+          const active = highlightKey === mark.key;
+          return (
+            <g key={mark.key}>
+              <line x1={mark.markX} x2={mark.labelX} y1={top} y2={21} stroke={active ? "var(--color-brand)" : "var(--color-line)"} />
+              <rect x={mark.labelX - MARK_LABEL_WIDTH / 2} y={2} width={MARK_LABEL_WIDTH} height={18} rx={9} fill={active ? "var(--color-brand)" : "var(--color-canvas)"} stroke={active ? "var(--color-brand)" : "var(--color-line)"} />
+              <text x={mark.labelX} y={15} textAnchor="middle" className={`text-[10px] font-bold ${active ? "fill-white" : "fill-muted"}`}>{mark.key}</text>
+            </g>
+          );
+        })}
         {series.map((item) => (
           <path key={item.key} d={path(item.values)} fill="none" stroke={item.color} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
         ))}

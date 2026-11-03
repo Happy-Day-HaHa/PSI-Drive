@@ -85,7 +85,6 @@ export function EventDetail({ event }: { event: PedalEvent }) {
   const brake = interpolateSample(series.brake, playheadMs);
   const foot = interpolateSample(series.foot, playheadMs);
   const speed = interpolateSample(series.speedKmh, playheadMs);
-  const decel = interpolateSample(series.decelG, playheadMs);
   const elapsed = Math.round(playheadMs - zeroMs);
   const zeroName = zeroMark ? stepInfo[zeroMark.key].title : "시작";
   const steps = [...marks].sort((a, b) => a.ms - b.ms);
@@ -274,14 +273,10 @@ export function EventDetail({ event }: { event: PedalEvent }) {
                 <p className="mt-0.5 text-sm font-bold">장면 직전 주행</p>
               )}
             </div>
-            <dl className="mt-3 grid grid-cols-2 gap-2 border-t border-line pt-3 text-[13px]">
-              <div>
-                <dt className="text-muted">속도</dt>
+            <dl className="mt-3 border-t border-line pt-3 text-[13px]">
+              <div className="flex items-center justify-between gap-3">
+                <dt className="text-muted">현재 속도</dt>
                 <dd className="font-bold tabular-nums">{Math.round(speed)} km/h</dd>
-              </div>
-              <div>
-                <dt className="text-muted">종가속도</dt>
-                <dd className="font-bold tabular-nums">{decel.toFixed(2)} g</dd>
               </div>
             </dl>
           </div>
@@ -315,24 +310,6 @@ export function EventDetail({ event }: { event: PedalEvent }) {
               series={[{ key: "speed", values: series.speedKmh, color: "#475569" }]}
               domain={[0, speedTop]}
               ticks={[0, speedTop]}
-              height={56}
-              marks={marks}
-              zeroMs={zeroMs}
-              playheadMs={playheadMs}
-              onScrub={(ms) => {
-                setPlaying(false);
-                setPlayheadMs(ms);
-              }}
-              bands={bands}
-              highlightKey={highlight}
-            />
-            <TimeChart
-              title="종가속도 (g)"
-              ariaLabel={`차량 종가속도 그래프. 최대 감속 ${stats.peakDecelG.toFixed(2)}g`}
-              dtMs={SAMPLE_DT_MS}
-              series={[{ key: "decel", values: series.decelG, color: "#475569" }]}
-              domain={[-1, 0.5]}
-              ticks={[-1, 0]}
               height={56}
               marks={marks}
               zeroMs={zeroMs}

@@ -107,8 +107,8 @@ export const stepInfo: Record<string, { title: string; body: string; source: str
   T7: { title: "장면 종료", body: "차량이 정지했거나 브레이크를 놓았습니다.", source: "IMU·압력 센서" },
   O0: { title: "페달 중첩 시작", body: "가속 페달을 밟은 채 브레이크 압력이 올랐습니다.", source: "압력 센서" },
   O1: { title: "페달 중첩 종료", body: "두 페달 중 하나의 압력이 해제되었습니다.", source: "압력 센서" },
-  A0: { title: "급가속 시작", body: "종가속도가 설정 기준을 넘어선 시점입니다.", source: "IMU" },
-  A1: { title: "급가속 종료", body: "종가속도가 설정 기준 아래로 돌아온 시점입니다.", source: "IMU" },
+  A0: { title: "급가속 시작", body: "차량 가속이 설정 기준을 넘어선 시점입니다.", source: "IMU" },
+  A1: { title: "급가속 종료", body: "차량 가속이 설정 기준 아래로 돌아온 시점입니다.", source: "IMU" },
 };
 
 export function formatMs(ms: number): string {

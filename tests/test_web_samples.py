@@ -191,3 +191,17 @@ def test_final_mobile_polish_keeps_labels_readable_and_loading_friendly():
     assert "현재 설정" in profile
     assert "fallback={<EventsLoading />}" in events_page
     assert 'role="status"' in events_page
+
+
+def test_longitudinal_acceleration_is_hidden_and_chart_marks_do_not_stack():
+    components = ROOT / "apps" / "web" / "src" / "components"
+    detail = (components / "EventDetail.tsx").read_text(encoding="utf-8")
+    chart = (components / "TimeChart.tsx").read_text(encoding="utf-8")
+    pedal = (ROOT / "apps" / "web" / "src" / "lib" / "pedal.ts").read_text(encoding="utf-8")
+    rendered_copy = detail + pedal
+    assert "종가속도" not in rendered_copy
+    assert "중가속도" not in rendered_copy
+    assert 'title="종가속도 (g)"' not in detail
+    assert "labelPositions" in chart
+    assert "labelRows" not in chart
+    assert "MARK_LABEL_WIDTH" in chart
