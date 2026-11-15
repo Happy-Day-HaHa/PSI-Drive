@@ -88,7 +88,7 @@ function DataTable({ rows }: { rows: Row[] }) {
 }
 
 export function EvidencePage() {
-  const { source, configVersion, provenance, scope, averages, usage, thresholds, settings, transitionFullScoreMs, transitionZeroScoreMs } = pedalSamples;
+  const { source, configVersion, provenance, scope, averages, usage, thresholds, settings } = pedalSamples;
   const measuredRows: Row[] = [
     { label: "합성 세션", value: `${scope.sessions}개`, basis: `고정 시드 ${provenance.sessionSeeds.join(", ")}로 생성`, status: "계산값" },
     { label: "합성 주행 범위", value: `${scope.distanceKm}km · ${scope.drivingMinutes}분`, basis: "합성 속도 적분 거리와 세션 전체 지속시간 합계", status: "계산값" },
@@ -109,7 +109,10 @@ export function EvidencePage() {
     { label: "제동력 도달 마커 T5", value: `사건 최대 압력의 ${settings.brakeForceRatioPct}%`, basis: "제동력 상승 시간을 계산하기 위한 제품 정의", status: "내부 설정" },
     { label: "차량 감속 시작 T6", value: `${settings.vehicleDecelStartG}g 이하`, basis: "IMU에서 차량 감속 시작을 표시하는 제품 정의", status: "내부 설정" },
     { label: "급가속·급감속 후보", value: `+${thresholds.hardAccelG}g / ${thresholds.hardBrakeG}g`, basis: "외부 참고값과 별개인 PSI 초기 후보 탐지 기준", status: "내부 설정" },
-    { label: "페달 전환 점수 곡선", value: `${transitionFullScoreMs}ms 이하 100점 · ${transitionZeroScoreMs}ms 이상 0점`, basis: "파일럿 검증 전 초기 곡선이며 안전/위험 경계가 아님", status: "내부 설정" },
+    { label: "인지–가속 해제 점수 곡선", value: `${settings.recognitionFullScoreMs}ms 이하 100점 · ${settings.recognitionZeroScoreMs}ms 이상 0점`, basis: "두 값 사이는 선형 환산 · 파일럿 검증 전 초기 곡선", status: "내부 설정" },
+    { label: "페달 전환 점수 곡선", value: `${settings.transitionFullScoreMs}ms 이하 100점 · ${settings.transitionZeroScoreMs}ms 이상 0점`, basis: "두 값 사이는 선형 환산 · 파일럿 검증 전 초기 곡선", status: "내부 설정" },
+    { label: "총 제동 반응 점수 곡선", value: `${settings.reactionFullScoreMs}ms 이하 100점 · ${settings.reactionZeroScoreMs}ms 이상 0점`, basis: "두 값 사이는 선형 환산 · 파일럿 검증 전 초기 곡선", status: "내부 설정" },
+    { label: "최종 반응 점수", value: "(인지 점수 + 전환 점수 + 총 반응 점수) ÷ 3", basis: "세 구성 점수에 같은 비중을 둔 산술평균 · 파일럿 검증 전 제품 정의", status: "내부 설정" },
     { label: "영상–센서 동기화 목표", value: `${settings.videoSensorTargetMs}ms 이하`, basis: "실측 결과가 아니라 시스템 설계 목표", status: "내부 설정" },
     { label: "페달–IMU 동기화 목표", value: `${settings.pedalImuTargetMs}ms 이하`, basis: "실측 결과가 아니라 시스템 설계 목표", status: "내부 설정" },
     { label: "영상 프레임 결측 목표", value: `${settings.maxFrameDropPct}% 미만`, basis: "실측 결과가 아니라 수집 품질 설계 목표", status: "내부 설정" },
@@ -118,7 +121,7 @@ export function EvidencePage() {
 
   return (
     <>
-      <PageHeader title="수치 기준·출처" description="화면에 쓰인 계산값, PSI 내부 설정값, 외부 연구 참고값을 서로 섞지 않고 공개합니다." action={<SampleBadge />} />
+      <PageHeader title="수치 기준·출처" description={`${provenance.displayPeriod.label} 시연용 기록에 쓰인 계산값, PSI 내부 설정값, 외부 연구 참고값을 서로 섞지 않고 공개합니다.`} action={<SampleBadge />} />
       <div className="rounded-xl border border-[#f0dfc8] bg-[#fffaf3] px-4 py-3 text-xs leading-relaxed text-muted"><b className="text-ink">읽는 방법:</b> 계산값은 합성 데이터에서 재현할 수 있는 결과입니다. 내부 설정은 아직 파일럿 검증 전 제품 정의입니다. 외부 참고값은 연구 조건이 달라 PSI 점수 경계로 직접 사용하지 않습니다.</div>
 
       <section className="space-y-3"><div><p className="text-[11px] font-bold tracking-[.13em] text-brand uppercase">Generated results</p><h2 className="mt-1 text-xl font-extrabold">현재 화면의 합성 계산값</h2><p className="mt-1 text-xs text-muted">원본: {source} · 생성 간격 {provenance.sampleIntervalMs}ms · 설정 {configVersion}</p></div><DataTable rows={measuredRows} /></section>
@@ -127,7 +130,7 @@ export function EvidencePage() {
 
       <section id="sources" className="scroll-mt-24 rounded-2xl border border-line/90 bg-white p-5 shadow-[0_8px_24px_rgba(15,31,54,.04)] sm:p-6">
         <h2 className="text-xl font-extrabold">출처 원문</h2>
-        <p className="mt-1 text-xs text-muted">기관명과 문서 제목을 누르면 공식 원문으로 이동합니다. 확인일: 2026년 11월 11일.</p>
+        <p className="mt-1 text-xs text-muted">기관명과 문서 제목을 누르면 공식 원문으로 이동합니다. 확인일: 2026년 11월 15일.</p>
         <ol className="mt-4 divide-y divide-line/80">
           {sources.map((item) => (
             <li id={`source-${item.id}`} key={item.id} className="scroll-mt-24 py-4 first:pt-0 last:pb-0">

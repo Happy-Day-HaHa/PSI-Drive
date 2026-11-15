@@ -3,20 +3,15 @@
 import { useEffect, useRef, useState } from "react";
 import { FootView } from "@/components/FootView";
 import { MobileDriveWorkspace } from "@/components/MobileDriveWorkspace";
-import { PedalEventIcon, pedalActionLabel } from "@/components/PedalEventIcon";
-import { PauseIcon, PinIcon, PlayIcon } from "@/components/Icons";
-import { ChartLegend } from "@/components/LineChart";
+import { PauseIcon, PlayIcon } from "@/components/Icons";
 import { TimeChart } from "@/components/TimeChart";
-import { Panel, PanelHeader, Stat } from "@/components/ui";
-import { analyzeEvent } from "@/lib/event-analysis";
+import { Panel, PanelHeader } from "@/components/ui";
 import {
   ACCEL_COLOR,
   BRAKE_COLOR,
   SAMPLE_DT_MS,
-  compareToAverage,
   eventFindings,
   eventHeadline,
-  eventLocation,
   eventTypeLabels,
   formatMs,
   pedalSamples,
@@ -25,11 +20,6 @@ import {
 } from "@/lib/pedal";
 
 const RATES = [0.5, 1, 1.5];
-const findingTone = {
-  good: { label: "잘한 점", className: "bg-good-soft text-good" },
-  watch: { label: "살펴볼 점", className: "bg-caution-soft text-caution" },
-  info: { label: "참고", className: "bg-canvas text-muted" },
-};
 
 function interpolateSample(values: number[], playheadMs: number) {
   const position = playheadMs / SAMPLE_DT_MS;
@@ -39,21 +29,12 @@ function interpolateSample(values: number[], playheadMs: number) {
   return values[before] + (values[after] - values[before]) * progress;
 }
 
-function comparisonStat(label: string, value: number, average: number) {
-  const comparison = compareToAverage(value, average);
-  return (
-    <Stat
-      label={label}
-      value={value.toLocaleString("ko-KR")}
-      unit="ms"
-      note={comparison.text}
-      noteTone={comparison.better === null ? "muted" : comparison.better ? "good" : "alert"}
-    />
-  );
+function scoreTone(score: number | null) {
+  return score === null ? "bg-track text-muted" : "bg-[#eaf2fd] text-brand";
 }
 
 export function EventDetail({ event }: { event: PedalEvent }) {
-  const { series, marks, metrics, stats } = event;
+  const { series, marks, stats } = event;
   const durationMs = (series.accel.length - 1) * SAMPLE_DT_MS;
   const zeroMark = marks.find((mark) => mark.key === "T0" || mark.key === "T2" || mark.key === "O0" || mark.key === "A0");
   const zeroMs = zeroMark?.ms ?? 0;
@@ -84,26 +65,19 @@ export function EventDetail({ event }: { event: PedalEvent }) {
   const accel = interpolateSample(series.accel, playheadMs);
   const brake = interpolateSample(series.brake, playheadMs);
   const foot = interpolateSample(series.foot, playheadMs);
-  const speed = interpolateSample(series.speedKmh, playheadMs);
   const elapsed = Math.round(playheadMs - zeroMs);
-  const zeroName = zeroMark ? stepInfo[zeroMark.key].title : "시작";
   const steps = [...marks].sort((a, b) => a.ms - b.ms);
   const currentStep = steps.filter((mark) => mark.ms <= playheadMs).pop();
-  const markAt = (key: string) => marks.find((mark) => mark.key === key)?.ms;
-  const t2 = markAt("T2");
-  const t4 = markAt("T4");
-  const o0 = markAt("O0");
-  const o1 = markAt("O1");
+  const findings = eventFindings(event);
+  const t2 = marks.find((mark) => mark.key === "T2")?.ms;
+  const t4 = marks.find((mark) => mark.key === "T4")?.ms;
+  const o0 = marks.find((mark) => mark.key === "O0")?.ms;
+  const o1 = marks.find((mark) => mark.key === "O1")?.ms;
   const bands = [
     ...(t2 !== undefined && t4 !== undefined ? [{ from: t2, to: t4, color: "rgba(217,119,6,0.09)" }] : []),
     ...(o0 !== undefined && o1 !== undefined ? [{ from: o0, to: o1, color: "rgba(124,58,237,0.1)" }] : []),
   ];
-  const maxSpeed = Math.max(...series.speedKmh);
-  const speedTop = Math.max(Math.ceil(maxSpeed / 20) * 20, 20);
-  const averages = pedalSamples.averages;
-  const isHazard = event.type === "pedestrian" || event.type === "lead_brake";
-  const findings = eventFindings(event);
-  const analysis = analyzeEvent(event);
+  const speedTop = Math.max(Math.ceil(Math.max(...series.speedKmh) / 20) * 20, 20);
 
   const jumpTo = (key: string, ms: number) => {
     setPlaying(false);
@@ -141,317 +115,117 @@ export function EventDetail({ event }: { event: PedalEvent }) {
       />
 
       <Panel className="hidden lg:block">
-        <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="min-w-0">
-            <p className="text-[13px] text-muted">
-              {event.id} · {event.date} {event.time}
-            </p>
-            <h2 className="mt-1 text-xl font-bold tracking-tight">{eventTypeLabels[event.type]}</h2>
-            <p className="mt-1.5 flex items-center gap-1.5 text-[13px] font-medium text-muted">
-              <PinIcon className="size-4 text-brand" />{eventLocation(event)}
-            </p>
-            <div className="mt-2 flex items-center gap-2 text-xs font-semibold text-brand">
-              <PedalEventIcon type={event.type} className="h-10 w-[61px]" />
-              <span>
-                <span className="block text-[10px] tracking-[0.08em] text-muted">발과 페달 움직임</span>
-                {pedalActionLabel(event.type)}
-              </span>
-            </div>
+            <p className="text-xs font-bold text-brand">{event.date} {event.time} · 시연용 사건일</p>
+            <h2 className="mt-1 text-xl font-extrabold">{eventTypeLabels[event.type]}</h2>
+            <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted">{eventHeadline(event)}</p>
           </div>
-          {event.score !== null && (
-            <div className="rounded-lg border border-line px-3.5 py-2 text-right">
-              <p className="text-xs text-muted">반응 지표</p>
-              <p className="text-xl font-bold">
-                {event.score}
-                <span className="ml-0.5 text-[13px] font-medium text-muted">점</span>
-              </p>
-            </div>
-          )}
+          <span className={`rounded-full px-3 py-2 text-sm font-extrabold ${scoreTone(event.score)}`}>{event.score === null ? "점수 없음" : `${event.score}점`}</span>
         </div>
-        <p className="mt-3 max-w-3xl text-[15px] leading-relaxed">{eventHeadline(event)}</p>
-        <div className="mt-4 overflow-hidden rounded-xl border border-[#dbe7f7] bg-[linear-gradient(110deg,#f4f8fe,#ffffff)]">
-          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#dbe7f7] px-4 py-2.5">
-            <div className="flex items-center gap-2"><p className="text-xs font-bold">차량 움직임</p>{analysis.motionTags.map((tag) => <span key={tag} className={`rounded-full px-2.5 py-1 text-[10px] font-bold ${tag === "급감속" ? "bg-[#feecef] text-alert" : tag === "급가속" ? "bg-[#eaf2fd] text-data" : "bg-canvas text-muted"}`}>{tag}</span>)}</div>
-            <p className="text-[10px] text-muted">설정 {pedalSamples.configVersion} 초기 기준: 급가속 ≥ +{pedalSamples.thresholds.hardAccelG.toFixed(2)}g · 급감속 ≤ {pedalSamples.thresholds.hardBrakeG.toFixed(2)}g</p>
-          </div>
-          <dl className="grid grid-cols-2 divide-x divide-y divide-[#e7eef7] sm:grid-cols-4 sm:divide-y-0">
-            <div className="px-4 py-3"><dt className="text-[10px] text-muted">장면 내 최대 가속</dt><dd className="mt-1 text-base font-bold text-data tabular-nums">+{analysis.maxAccelerationG.toFixed(2)}g</dd></div>
-            <div className="px-4 py-3"><dt className="text-[10px] text-muted">장면 내 최대 감속</dt><dd className="mt-1 text-base font-bold text-alert tabular-nums">−{analysis.maxDecelerationG.toFixed(2)}g</dd></div>
-            <div className="px-4 py-3"><dt className="text-[10px] text-muted">속도 변화</dt><dd className="mt-1 text-base font-bold tabular-nums">{analysis.speedChangeKmh >= 0 ? "+" : ""}{analysis.speedChangeKmh.toFixed(1)}<span className="ml-0.5 text-[10px] font-medium text-muted">km/h</span></dd></div>
-            <div className="px-4 py-3"><dt className="text-[10px] text-muted">최대 페달 입력</dt><dd className="mt-1 text-xs font-bold tabular-nums"><span className="text-data">가속 {Math.round(analysis.maxAccelPedalPct)}%</span><span className="mx-1.5 text-line">/</span><span className="text-alert">제동 {Math.round(analysis.maxBrakePedalPct)}%</span></dd></div>
-          </dl>
+        <div className="mt-4 rounded-xl bg-track p-4">
+          <p className="text-xs font-bold text-brand">그래프 해석</p>
+          <p className="mt-1 text-sm leading-relaxed">{findings[0]?.text ?? "이 장면의 페달 압력과 속도 변화를 함께 확인할 수 있습니다."}</p>
         </div>
-        <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
-          <div className="rounded-xl bg-canvas px-3 py-2.5"><p className="text-[10px] text-muted">이벤트 분류</p><p className="mt-1 text-xs font-bold">{analysis.category} · {analysis.subtype}</p></div>
-          <div className="rounded-xl bg-canvas px-3 py-2.5"><p className="text-[10px] text-muted">전방 상황 출처</p><p className="mt-1 text-xs font-bold">{analysis.frontSource}</p></div>
-          <div className="rounded-xl bg-canvas px-3 py-2.5"><p className="text-[10px] text-muted">탐지 신뢰도</p><p className="mt-1 text-xs font-bold text-caution">미산출 · 검증 필요</p></div>
-          <div className="rounded-xl bg-canvas px-3 py-2.5"><p className="text-[10px] text-muted">사용 데이터</p><p className="mt-1 truncate text-xs font-bold">{analysis.sources.join(" · ")}</p></div>
-        </div>
-        <dl className="mt-5 grid grid-cols-2 gap-x-6 gap-y-5 border-t border-line pt-5 md:grid-cols-4">
-          {isHazard && (
-            <>
-              {comparisonStat("인지-해제", metrics.recognitionMs ?? 0, averages.recognitionMs)}
-              {comparisonStat("페달 전환", metrics.transitionMs ?? 0, averages.transitionMs)}
-              {comparisonStat("총 제동 반응", metrics.totalReactionMs ?? 0, averages.totalReactionMs)}
-              {comparisonStat("제동력 상승", metrics.riseMs ?? 0, averages.riseMs)}
-            </>
-          )}
-          {event.type === "routine" && (
-            <>
-              <Stat label="타력 주행" value={((metrics.coastMs ?? 0) / 1000).toFixed(1)} unit="초" />
-              <Stat label="제동력 상승" value={(metrics.riseMs ?? 0).toLocaleString("ko-KR")} unit="ms" />
-              <Stat label="최대 제동 압력" value={`${Math.round(stats.peakBrakePct)}`} unit="%" />
-              <Stat label="최대 감속" value={stats.peakDecelG.toFixed(2)} unit="g" />
-            </>
-          )}
-          {event.type === "overlap" && (
-            <>
-              <Stat label="중첩 시간" value={(metrics.overlapMs ?? 0).toLocaleString("ko-KR")} unit="ms" />
-              <Stat label="중첩 중 가속 압력" value={`${Math.round(stats.accelDuringPct ?? 0)}`} unit="%" />
-              <Stat label="최대 제동 압력" value={`${Math.round(stats.peakBrakePct)}`} unit="%" />
-              <Stat label="최대 감속" value={stats.peakDecelG.toFixed(2)} unit="g" />
-            </>
-          )}
-          {event.type === "hard_accel" && (
-            <>
-              <Stat label="기준 초과 시간" value={(metrics.hardAccelMs ?? 0).toLocaleString("ko-KR")} unit="ms" />
-              <Stat label="최대 가속" value={`+${stats.peakAccelG.toFixed(2)}`} unit="g" />
-              <Stat label="시작 속도" value={Math.round(stats.speedStartKmh).toString()} unit="km/h" />
-              <Stat label="종료 속도" value={Math.round(stats.speedEndKmh).toString()} unit="km/h" />
-            </>
-          )}
-        </dl>
       </Panel>
 
       <Panel className="hidden lg:block">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div><p className="text-[11px] font-bold tracking-[.13em] text-brand">이 장면의 흐름</p><h2 className="mt-1 text-lg font-bold">상황과 발 움직임을 시간순으로 봐요</h2><p className="mt-1 text-xs text-muted">확인된 센서 기록을 같은 시간축에 맞춰 보여드립니다.</p></div>
-          <span className="rounded-full bg-canvas px-2.5 py-1 text-[10px] font-bold text-muted">전방 영상 미연결</span>
+        <PanelHeader title="발 움직임과 페달 압력" description={`${event.date} ${event.time} · 재생 막대를 움직여 같은 시점의 발 위치와 그래프를 확인하세요.`} />
+        <div className="mb-4 flex flex-wrap items-center gap-x-2 gap-y-1 rounded-xl border border-[#d7e5f8] bg-[#f4f8fe] px-3 py-2" role="note" aria-label={`그래프 기준 날짜 ${event.date} ${event.time}`}>
+          <span className="text-[10px] font-extrabold tracking-[.08em] text-brand uppercase">그래프 기준 날짜</span>
+          <strong className="text-xs tabular-nums text-ink">{event.date} {event.time}</strong>
+          <span className="text-[11px] text-muted">시연용 사건일</span>
         </div>
-        <div className="mt-4 overflow-x-auto pb-1">
-          <ol className="flex min-w-[680px] items-center">
-            {steps.map((mark, index) => (
-              <li key={mark.key} className="flex min-w-0 flex-1 items-center">
-                <button type="button" onClick={() => jumpTo(mark.key, mark.ms)} className="group min-w-0 text-left">
-                  <span className={`flex size-7 items-center justify-center rounded-full text-[9px] font-bold transition ${currentStep?.key === mark.key ? "bg-brand text-white shadow-[0_5px_14px_rgba(36,108,226,.22)]" : "bg-canvas text-muted group-hover:bg-[#eaf2ff] group-hover:text-brand"}`}>{mark.key}</span>
-                  <span className="mt-1.5 block truncate text-[10px] font-semibold">{stepInfo[mark.key].title}</span>
-                  <span className="mt-0.5 block text-[9px] text-muted tabular-nums">{formatMs(mark.ms - zeroMs)}</span>
-                </button>
-                {index < steps.length - 1 && <span aria-hidden className="mx-2 h-px flex-1 bg-line" />}
-              </li>
-            ))}
-          </ol>
-        </div>
-        <div className="mt-4 grid grid-cols-2 gap-2 border-t border-line pt-4 md:grid-cols-4">
-          <div className="rounded-lg bg-[#f8fafc] p-3"><p className="text-[10px] text-muted">장면 지속 시간</p><p className="mt-1 text-sm font-bold tabular-nums">{formatMs(analysis.durationMs)}</p></div>
-          <div className="rounded-lg bg-[#f8fafc] p-3"><p className="text-[10px] text-muted">시작 → 종료 속도</p><p className="mt-1 text-sm font-bold tabular-nums">{Math.round(stats.speedStartKmh)} → {Math.round(stats.speedEndKmh)}km/h</p></div>
-          <div className="rounded-lg bg-[#f8fafc] p-3"><p className="text-[10px] text-muted">감속 변화 강도</p><p className="mt-1 text-sm font-bold tabular-nums">{analysis.maxJerkGPerS.toFixed(2)}g/s</p><p className="mt-0.5 text-[9px] text-muted">값이 클수록 변화가 빠릅니다</p></div>
-          <div className="rounded-lg bg-[#f8fafc] p-3"><p className="text-[10px] text-muted">데이터 품질</p><p className="mt-1 text-sm font-bold text-good">{analysis.quality}</p><p className="mt-0.5 text-[9px] text-muted">실제 동기화 오차 미산출</p></div>
-        </div>
-        <p className="mt-4 rounded-xl border border-[#dbe7f7] bg-[#f5f9ff] px-4 py-3 text-xs leading-relaxed text-muted"><b className="text-ink">시간적 연관 흐름:</b> {analysis.relationship}. 이 흐름은 관측된 데이터의 순서를 설명하며 운전자의 의도나 사고 원인을 확정하지 않습니다.</p>
-      </Panel>
-
-      <Panel className="hidden lg:block">
-        <PanelHeader
-          title="압력 센서 기록"
-          description="재생하거나 그래프를 눌러 시점을 옮기면 발 위치와 페달 압력이 함께 움직입니다."
-          action={<ChartLegend series={[{ name: "가속 페달", color: ACCEL_COLOR }, { name: "브레이크", color: BRAKE_COLOR }]} />}
-        />
-        <div className="hidden grid-cols-1 gap-6 lg:grid xl:grid-cols-[280px_minmax(0,1fr)]">
-          <div className="rounded-xl bg-canvas p-3 sm:p-4">
+        <div className="grid gap-5 xl:grid-cols-[300px_minmax(0,1fr)]">
+          <div>
             <FootView accel={accel} brake={brake} foot={foot} />
-            <div className="mt-3 border-t border-line pt-3">
-              <p className="text-xs text-muted">현재 단계</p>
-              {currentStep ? (
-                <>
-                  <p className="mt-0.5 text-sm font-bold">
-                    {currentStep.key} {stepInfo[currentStep.key].title}
-                  </p>
-                  <p className="mt-1 text-[13px] leading-relaxed text-muted">{stepInfo[currentStep.key].body}</p>
-                </>
-              ) : (
-                <p className="mt-0.5 text-sm font-bold">장면 직전 주행</p>
-              )}
-            </div>
-            <dl className="mt-3 border-t border-line pt-3 text-[13px]">
-              <div className="flex items-center justify-between gap-3">
-                <dt className="text-muted">현재 속도</dt>
-                <dd className="font-bold tabular-nums">{Math.round(speed)} km/h</dd>
+            <div className="mt-3 rounded-xl border border-line bg-canvas p-3">
+              <div className="flex items-center gap-2">
+                <button type="button" aria-label={playing ? "일시 정지" : "재생"} onClick={() => {
+                  if (playheadMs >= durationMs) setPlayheadMs(0);
+                  setHighlight(null);
+                  setPlaying((current) => !current);
+                }} className="flex size-9 items-center justify-center rounded-full bg-brand text-white">
+                  {playing ? <PauseIcon className="size-4" /> : <PlayIcon className="size-4" />}
+                </button>
+                <input aria-label="장면 재생 위치" type="range" min={0} max={durationMs} step={SAMPLE_DT_MS} value={Math.round(playheadMs)} onChange={(input) => {
+                  setPlaying(false);
+                  setHighlight(null);
+                  setPlayheadMs(Number(input.target.value));
+                }} className="min-w-0 flex-1 accent-brand" />
+                <span className="w-16 text-right text-xs font-bold tabular-nums">{elapsed >= 0 ? "+" : ""}{elapsed}ms</span>
               </div>
-            </dl>
+              <div className="mt-2 flex justify-end gap-1">
+                {RATES.map((item) => <button key={item} type="button" onClick={() => setRate(item)} className={`rounded-md px-2 py-1 text-[10px] font-bold ${rate === item ? "bg-brand text-white" : "bg-white text-muted"}`}>{item}×</button>)}
+              </div>
+            </div>
           </div>
-          <div className="min-w-0 space-y-2">
+          <div className="min-w-0 space-y-3">
             <TimeChart
               title="페달 압력 (%)"
-              ariaLabel={`가속 페달과 브레이크 압력 그래프. 최대 제동 압력 ${Math.round(stats.peakBrakePct)}%`}
+              ariaLabel={`가속 페달과 브레이크 압력 그래프. ${event.date} ${event.time}, 최대 제동 압력 ${Math.round(stats.peakBrakePct)}%`}
               dtMs={SAMPLE_DT_MS}
-              series={[
-                { key: "accel", values: series.accel, color: ACCEL_COLOR },
-                { key: "brake", values: series.brake, color: BRAKE_COLOR },
-              ]}
+              series={[{ key: "accel", values: series.accel, color: ACCEL_COLOR }, { key: "brake", values: series.brake, color: BRAKE_COLOR }]}
               domain={[0, 100]}
               ticks={[0, 25, 50, 75, 100]}
               height={190}
               marks={marks}
               zeroMs={zeroMs}
               playheadMs={playheadMs}
-              onScrub={(ms) => {
-                setPlaying(false);
-                setPlayheadMs(ms);
-              }}
+              onScrub={(ms) => { setPlaying(false); setPlayheadMs(ms); }}
               showMarkLabels
               bands={bands}
               highlightKey={highlight}
             />
+            <p className="rounded-lg bg-track px-3 py-2 text-[11px] leading-relaxed text-muted"><b className="text-ink">그래프 읽기:</b> 페달 압력은 운전자의 입력이고 속도는 차량의 반응입니다. 브레이크 입력과 차량 관성 때문에 짧은 순간에는 두 값의 방향이 다를 수 있습니다.</p>
             <TimeChart
               title="속도 (km/h)"
-              ariaLabel={`차량 속도 그래프. 시작 ${Math.round(stats.speedStartKmh)}km/h`}
+              ariaLabel={`차량 속도 그래프. ${event.date} ${event.time}, 시작 ${Math.round(stats.speedStartKmh)}km/h`}
               dtMs={SAMPLE_DT_MS}
               series={[{ key: "speed", values: series.speedKmh, color: "#475569" }]}
               domain={[0, speedTop]}
               ticks={[0, speedTop]}
-              height={56}
+              height={72}
               marks={marks}
               zeroMs={zeroMs}
               playheadMs={playheadMs}
-              onScrub={(ms) => {
-                setPlaying(false);
-                setPlayheadMs(ms);
-              }}
-              showTimeAxis
+              onScrub={(ms) => { setPlaying(false); setPlayheadMs(ms); }}
               bands={bands}
               highlightKey={highlight}
             />
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-2 pt-2">
-              <button
-                type="button"
-                onClick={() => {
-                  if (playheadMs >= durationMs) setPlayheadMs(0);
-                  setHighlight(null);
-                  setPlaying((current) => !current);
-                }}
-                className="inline-flex items-center gap-1.5 rounded-md bg-brand px-3 py-1.5 text-[13px] font-semibold text-white outline-offset-2 outline-brand transition-colors hover:bg-brand-hover focus-visible:outline-2"
-              >
-                {playing ? <PauseIcon className="size-3.5" /> : <PlayIcon className="size-3.5" />}
-                {playing ? "일시정지" : "재생"}
-              </button>
-              <div role="group" aria-label="재생 속도" className="flex overflow-hidden rounded-md border border-line">
-                {RATES.map((value) => (
-                  <button
-                    key={value}
-                    type="button"
-                    aria-pressed={rate === value}
-                    onClick={() => setRate(value)}
-                    className={`px-2.5 py-1.5 text-xs font-medium tabular-nums ${rate === value ? "bg-track text-ink" : "bg-card text-muted hover:text-ink"}`}
-                  >
-                    {value}배
-                  </button>
-                ))}
-              </div>
-              <input
-                type="range"
-                min={0}
-                max={durationMs}
-                step={SAMPLE_DT_MS}
-                value={Math.round(playheadMs)}
-                onChange={(input) => {
-                  setPlaying(false);
-                  setPlayheadMs(Number(input.target.value));
-                }}
-                aria-label="재생 위치"
-                aria-valuetext={`${zeroName} 기준 ${elapsed}ms`}
-                className="min-w-40 flex-1 accent-brand"
-              />
-              <span className="text-[13px] whitespace-nowrap text-muted tabular-nums">
-                {zeroName} {elapsed >= 0 ? "+" : "−"}
-                {Math.abs(elapsed).toLocaleString("ko-KR")}ms
-              </span>
-            </div>
           </div>
         </div>
-        {bands.length > 0 && (
-          <p className="mt-3 text-xs text-muted">
-            {t2 !== undefined && t4 !== undefined ? "옅은 주황색 구간은 가속 페달을 뗀 뒤 브레이크에 닿기까지입니다." : "옅은 보라색 구간은 두 페달을 함께 밟은 구간입니다."}
-          </p>
-        )}
       </Panel>
 
-      <div className="hidden gap-5 lg:grid lg:grid-cols-1 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
-        <Panel>
-          <PanelHeader title="발 움직임 단계" description="항목을 누르면 위 그래프의 해당 시점으로 이동합니다." />
-          <ol>
-            {steps.map((mark, stepIndex) => {
-              const info = stepInfo[mark.key];
-              const fromZero = mark.ms - zeroMs;
-              const previous = steps[stepIndex - 1];
-              return (
-                <li key={mark.key} className="border-t border-line first:border-t-0">
-                  <button
-                    type="button"
-                    onClick={() => jumpTo(mark.key, mark.ms)}
-                    aria-current={highlight === mark.key ? "step" : undefined}
-                    className={`grid w-full grid-cols-[38px_minmax(0,1fr)_auto] items-start gap-2 rounded-md px-1.5 py-2.5 text-left transition-colors hover:bg-canvas ${highlight === mark.key ? "bg-canvas" : ""}`}
-                  >
-                    <span className="mt-0.5 rounded border border-line bg-card py-0.5 text-center text-xs font-bold">{mark.key}</span>
-                    <span className="min-w-0">
-                      <span className="block text-sm font-semibold">{info.title}</span>
-                      <span className="mt-0.5 block text-[13px] leading-relaxed text-muted">{info.body}</span>
-                      <span className="mt-0.5 block text-xs text-muted/90">
-                        {info.source}
-                        {info.source.includes("영상") && " · 30fps 기준 ±17ms 불확실성"}
-                      </span>
-                    </span>
-                    <span className="text-right tabular-nums">
-                      <span className="block text-sm font-bold">
-                        {fromZero === 0 ? "기준" : `${fromZero > 0 ? "+" : "−"}${formatMs(Math.abs(fromZero))}`}
-                      </span>
-                      {previous && <span className="block text-xs text-muted">이전 단계 +{formatMs(mark.ms - previous.ms)}</span>}
-                    </span>
-                  </button>
-                </li>
-              );
-            })}
-          </ol>
-        </Panel>
-
-        <Panel>
-          <PanelHeader title="이번 장면 돌아보기" description={isHazard ? `주의 장면 ${pedalSamples.scope.hazardEvents}개의 평균과 비교했습니다.` : "이번 조작의 특징입니다."} />
-          <ul className="space-y-3">
-            {findings.map((finding) => (
-              <li key={finding.text} className="flex flex-col items-start gap-1.5">
-                <span className={`rounded px-1.5 py-0.5 text-xs font-semibold ${findingTone[finding.kind].className}`}>{findingTone[finding.kind].label}</span>
-                <p className="text-sm leading-relaxed">{finding.text}</p>
-              </li>
-            ))}
-          </ul>
-          <dl className="mt-5 space-y-2 border-t border-line pt-4 text-[13px]">
-            <div className="flex justify-between gap-4">
-              <dt className="text-muted">시작 속도</dt>
-              <dd className="font-medium tabular-nums">{Math.round(stats.speedStartKmh)} km/h</dd>
+      <details className="group hidden rounded-2xl border border-line bg-card shadow-[0_12px_32px_rgba(15,31,54,.04)] lg:block">
+        <summary className="flex cursor-pointer list-none items-center justify-between p-5 marker:hidden">
+          <div><h2 className="font-extrabold">상세 분석 보기</h2><p className="mt-1 text-xs text-muted">반응 단계, 모든 해석, 점수 산식 확인</p></div>
+          <span className="text-xs font-bold text-brand group-open:hidden">펼치기</span><span className="hidden text-xs font-bold text-brand group-open:inline">접기</span>
+        </summary>
+        <div className="space-y-5 border-t border-line p-5">
+          <section>
+            <h3 className="text-sm font-bold">반응 단계</h3>
+            <div className="mt-3 grid gap-2 md:grid-cols-2">
+              {steps.map((mark) => <button key={mark.key} type="button" onClick={() => jumpTo(mark.key, mark.ms)} className="rounded-xl border border-line bg-canvas p-3 text-left hover:border-brand">
+                <span className="text-xs font-extrabold text-brand">{mark.key} · {formatMs(mark.ms - zeroMs)}</span>
+                <span className="mt-1 block text-sm font-bold">{stepInfo[mark.key]?.title}</span>
+                <span className="mt-1 block text-xs leading-relaxed text-muted">{stepInfo[mark.key]?.body}</span>
+              </button>)}
             </div>
-            <div className="flex justify-between gap-4">
-              <dt className="text-muted">종료 속도</dt>
-              <dd className="font-medium tabular-nums">{Math.round(stats.speedEndKmh)} km/h</dd>
-            </div>
-            <div className="flex justify-between gap-4">
-              <dt className="text-muted">최대 제동 압력</dt>
-              <dd className="font-medium tabular-nums">{Math.round(stats.peakBrakePct)}%</dd>
-            </div>
-            {stats.accelBeforePct !== undefined && (
-              <div className="flex justify-between gap-4">
-                <dt className="text-muted">주의 상황 직전 가속 압력</dt>
-                <dd className="font-medium tabular-nums">{Math.round(stats.accelBeforePct)}%</dd>
-              </div>
-            )}
-            {metrics.vehicleDelayMs !== undefined && (
-              <div className="flex justify-between gap-4">
-                <dt className="text-muted">차량 반응 지연</dt>
-                <dd className="font-medium tabular-nums">{formatMs(metrics.vehicleDelayMs)}</dd>
-              </div>
-            )}
-          </dl>
-        </Panel>
-      </div>
+          </section>
+          <section>
+            <h3 className="text-sm font-bold">모든 해석</h3>
+            <ul className="mt-3 space-y-2">
+              {findings.map((finding, index) => <li key={index} className="rounded-xl bg-track p-3 text-sm leading-relaxed">{finding.text}</li>)}
+            </ul>
+          </section>
+          <section className="rounded-xl border border-[#d7e5f8] bg-[#f7faff] p-4">
+            <h3 className="text-sm font-bold">점수는 어떻게 계산했나요?</h3>
+            <p className="mt-2 text-xs leading-relaxed text-muted">인식 시간, 페달 전환 시간, 전체 제동 반응 시간을 각각 0–100점으로 선형 환산한 뒤 같은 비중으로 평균했습니다. 현재 값은 검증된 안전 등급이 아니라 {pedalSamples.configVersion}의 내부 파일럿 설정입니다.</p>
+            <p className="mt-2 text-xs font-semibold text-brand">인식 {pedalSamples.settings.recognitionFullScoreMs}–{pedalSamples.settings.recognitionZeroScoreMs}ms · 전환 {pedalSamples.settings.transitionFullScoreMs}–{pedalSamples.settings.transitionZeroScoreMs}ms · 전체 반응 {pedalSamples.settings.reactionFullScoreMs}–{pedalSamples.settings.reactionZeroScoreMs}ms</p>
+          </section>
+        </div>
+      </details>
     </div>
   );
 }

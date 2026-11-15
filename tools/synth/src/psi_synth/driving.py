@@ -137,10 +137,12 @@ class _Builder:
 
     def accel_signal(self, n: int) -> np.ndarray:
         t_s = np.arange(n) / 1000.0
+        # 합성 운전자의 작은 페달 흔들림이다. 장면 그래프에서 제동 중인
+        # 가속 입력이 실제 의도 변화처럼 보이지 않도록 진폭을 제한한다.
         ripple = (
             1.0
-            + 0.12 * np.sin(2 * np.pi * t_s / 7.0 + self.ripple_phase[0])
-            + 0.05 * np.sin(2 * np.pi * t_s / 2.3 + self.ripple_phase[1])
+            + 0.02 * np.sin(2 * np.pi * t_s / 7.0 + self.ripple_phase[0])
+            + 0.01 * np.sin(2 * np.pi * t_s / 2.3 + self.ripple_phase[1])
         )
         return self.accel.sample(n) * ripple
 
@@ -205,7 +207,10 @@ class _Builder:
                 "release_end": release_end,
             }
         )
-        return self.pull_away(release_end + self.ms(300, 1000))
+        # 웹 사건 그래프의 후행 1초에는 제동 회복만 남기고, 다음 출발은
+        # 별도 구간으로 분리한다. 그러면 가속 페달이 오르는데 직전 제동의
+        # 관성으로 속도가 내려가는 전환 순간을 한 사건으로 오해하지 않는다.
+        return self.pull_away(release_end + self.ms(1600, 2200))
 
     def routine_brake(self, t: int) -> int:
         self.accel.hold(t)
@@ -221,7 +226,7 @@ class _Builder:
         self.brake.to(rise_end, peak)
         self.brake.to(release, peak)
         self.brake.to(release_end, 0.0)
-        return self.pull_away(release_end + self.ms(400, 1000))
+        return self.pull_away(release_end + self.ms(1600, 2200))
 
 
 def _finalize_event(plan: dict, accel: np.ndarray, brake: np.ndarray, speed: np.ndarray, long_accel: np.ndarray,

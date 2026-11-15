@@ -26,6 +26,12 @@ def test_sample_provenance_is_explicit_and_reproducible(samples):
     assert provenance["kind"] == "synthetic_ground_truth"
     assert provenance["sessionSeeds"] == [101, 201, 301, 102, 202, 302]
     assert provenance["sampleIntervalMs"] == SAMPLE_DT_MS
+    assert provenance["displayPeriod"] == {
+        "start": "2026-10-26",
+        "end": "2026-11-01",
+        "label": "2026.10.26–11.01",
+        "note": "시연용 사건일 · 합성 세션 전체 · 날짜 필터 미적용",
+    }
     assert samples["configVersion"] == "v1"
     assert samples["settings"] == {
         "pedalOnPct": 5.0,
@@ -36,6 +42,12 @@ def test_sample_provenance_is_explicit_and_reproducible(samples):
         "videoSensorTargetMs": 33,
         "pedalImuTargetMs": 5,
         "maxFrameDropPct": 1.0,
+        "recognitionFullScoreMs": 300,
+        "recognitionZeroScoreMs": 1000,
+        "transitionFullScoreMs": 200,
+        "transitionZeroScoreMs": 600,
+        "reactionFullScoreMs": 700,
+        "reactionZeroScoreMs": 1500,
     }
 
 
@@ -114,6 +126,31 @@ def test_motion_thresholds_are_exported_and_match_event_examples(samples):
     assert [event["type"] for event in tagged_accels] == ["hard_accel"]
     assert tagged_decels
     assert all(event["type"] in {"pedestrian", "lead_brake"} for event in tagged_decels)
+
+
+def test_exported_graphs_do_not_show_unbraked_accel_rise_with_speed_drop(samples):
+    """눈에 띄는 가속 입력 상승과 속도 하락이 같은 무제동 구간에 겹치지 않는다."""
+    for event in samples["events"]:
+        accel = event["series"]["accel"]
+        brake = event["series"]["brake"]
+        speed = event["series"]["speedKmh"]
+        for window in (10, 20):  # 200ms, 400ms
+            for end in range(window, len(accel)):
+                start = end - window
+                accel_rise = accel[end] - accel[start]
+                speed_change = speed[end] - speed[start]
+                if accel_rise >= 2.0 and max(brake[start : end + 1]) <= 2.0:
+                    assert speed_change > -0.2, (event["id"], start, end)
+
+
+def test_event_speed_direction_matches_the_displayed_scenario(samples):
+    for event in samples["events"]:
+        start = event["stats"]["speedStartKmh"]
+        end = event["stats"]["speedEndKmh"]
+        if event["type"] == "hard_accel":
+            assert end > start
+        elif event["type"] in {"pedestrian", "lead_brake", "routine", "overlap"}:
+            assert end <= start
 
 
 def test_mobile_review_keeps_visual_and_timeline_in_separate_scroll_regions():
@@ -244,3 +281,30 @@ def test_longitudinal_acceleration_is_hidden_and_chart_marks_do_not_stack():
     assert "labelPositions" in chart
     assert "labelRows" not in chart
     assert "MARK_LABEL_WIDTH" in chart
+
+
+def test_primary_driving_views_use_progressive_disclosure_and_show_dates():
+    components = ROOT / "apps" / "web" / "src" / "components"
+    dashboard = (components / "Dashboard.tsx").read_text(encoding="utf-8")
+    habits = (components / "PedalHabits.tsx").read_text(encoding="utf-8")
+    events = (components / "EventsExplorer.tsx").read_text(encoding="utf-8")
+    detail = (components / "EventDetail.tsx").read_text(encoding="utf-8")
+
+    assert "점수 계산식" in dashboard
+    assert "provenance.displayPeriod.label" in dashboard
+    assert "사건별 점수 그래프 보기" in dashboard
+    assert "<details" in dashboard
+
+    assert "한눈에 해석" in habits
+    assert "상세 그래프 보기" in habits
+    assert "그래프 기준 날짜" in habits
+    assert 'role="note"' in habits
+    assert "<details" in habits
+
+    assert "pedalSamples.provenance.displayPeriod.label" in events
+    assert "그래프 해석" in detail
+    assert "상세 분석 보기" in detail
+    assert "event.date" in detail
+    assert "<details" in detail
+    assert "그래프 기준 날짜" in detail
+    assert "페달 압력은 운전자의 입력이고 속도는 차량의 반응" in detail

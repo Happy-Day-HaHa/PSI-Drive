@@ -3,7 +3,6 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { EventDetail } from "@/components/EventDetail";
-import { PinIcon } from "@/components/Icons";
 import { PedalEventIcon } from "@/components/PedalEventIcon";
 import { PageHeader, SampleBadge } from "@/components/ui";
 import { analyzeEvent } from "@/lib/event-analysis";
@@ -52,11 +51,8 @@ function keyFigure(event: PedalEvent) {
 }
 
 function eventLevel(event: PedalEvent) {
-  if (event.type === "hard_accel") return { label: "살펴보기", className: "bg-[#eaf2fd] text-data" };
-  if (event.type === "overlap") return { label: "확인", className: "bg-[#f1eafe] text-[#6d28d9]" };
-  if (event.score !== null && event.score < 70) return { label: "주의", className: "bg-[#feecef] text-alert" };
-  if (event.score !== null && event.score < 85) return { label: "살펴보기", className: "bg-caution-soft text-caution" };
-  return { label: "안정", className: "bg-good-soft text-good" };
+  if (event.score !== null) return { label: "반응 점수", className: "bg-[#eaf2fd] text-brand" };
+  return { label: "기록", className: "bg-track text-muted" };
 }
 
 export function EventsExplorer() {
@@ -140,7 +136,7 @@ export function EventsExplorer() {
       <div className="hidden lg:block">
         <PageHeader
           title="주행 기록"
-          description="운전 중 발이 어떤 순서로 움직였고 페달을 얼마나 세게 밟았는지, 기억하기 쉬운 장면별로 돌아봅니다."
+          description={`${pedalSamples.provenance.displayPeriod.label} 시연용 사건일 기준입니다. 장면을 고르면 애니메이션과 그래프 해석을 먼저 보여주고, 상세 분석은 필요할 때 펼칠 수 있습니다.`}
           action={<SampleBadge />}
         />
       </div>
@@ -169,7 +165,7 @@ export function EventsExplorer() {
             </div>
           </details>
         </div>
-        <label className="relative block"><span className="sr-only">이벤트 검색</span><input type="search" value={query} onChange={(input) => setQuery(input.target.value)} placeholder="장면·위치 검색" className="h-10 w-52 rounded-xl border border-line bg-canvas px-3 text-xs outline-none placeholder:text-muted/70 focus:border-brand focus:bg-white" /></label>
+        <label className="relative block"><span className="sr-only">이벤트 검색</span><input type="search" value={query} onChange={(input) => setQuery(input.target.value)} placeholder="장면 검색" className="h-10 w-52 rounded-xl border border-line bg-canvas px-3 text-xs outline-none placeholder:text-muted/70 focus:border-brand focus:bg-white" /></label>
       </div>
       <div className="grid min-h-0 grid-cols-1 items-start gap-5 overflow-hidden lg:grid-cols-[minmax(340px,400px)_minmax(0,1fr)] lg:overflow-visible xl:grid-cols-[440px_minmax(0,1fr)]">
         <nav aria-label="주행 장면 목록" className="hidden min-w-0 overflow-hidden rounded-2xl border border-line bg-card shadow-[0_12px_32px_rgba(15,31,54,0.04)] lg:sticky lg:top-6 lg:block">
@@ -205,19 +201,12 @@ export function EventsExplorer() {
                         <span className="mt-1 block text-[12px] leading-relaxed font-semibold text-brand">{analysis.subtype}</span>
                         <span className="mt-2 flex flex-wrap items-center gap-1.5">
                           {analysis.motionTags.map((tag) => <span key={tag} className={`inline-flex min-h-6 items-center justify-center rounded-full border px-2.5 text-center text-[10px] leading-none font-bold ${motionTone(tag)}`}>{tag}</span>)}
-                          {active && <span className="inline-flex min-h-6 items-center justify-center rounded-md bg-canvas px-2 text-center text-[10px] leading-none font-semibold text-muted">{analysis.frontSource}</span>}
                         </span>
                         <span className="mt-2 block text-[13px] leading-none text-muted">{event.date} · {event.time}</span>
-                        <span className="mt-2 flex items-center gap-1.5 text-[12px] leading-none text-muted">
-                          <PinIcon className="size-3 shrink-0" />{eventLocation(event)}
+                        <span className="mt-2 flex items-center justify-between gap-2 border-t border-line/70 pt-2 text-[11px]">
+                          <b>{keyFigure(event)}</b>
+                          <span className={active ? "font-bold text-brand" : "text-muted"}>{active ? "재생 중" : "장면 보기"}</span>
                         </span>
-                        {active ? <span className="mt-3 grid grid-cols-2 gap-1.5">
-                          <span className="rounded-lg bg-[#f5f8fc] px-2.5 py-2"><span className="block text-[9px] font-semibold text-muted">최대 가속</span><b className="mt-0.5 block text-[12px] text-data tabular-nums">+{analysis.maxAccelerationG.toFixed(2)}g</b></span>
-                          <span className="rounded-lg bg-[#fff4f5] px-2.5 py-2"><span className="block text-[9px] font-semibold text-muted">최대 감속</span><b className="mt-0.5 block text-[12px] text-alert tabular-nums">−{analysis.maxDecelerationG.toFixed(2)}g</b></span>
-                          <span className="rounded-lg bg-[#f8fafc] px-2.5 py-2"><span className="block text-[9px] font-semibold text-muted">속도 변화</span><b className="mt-0.5 block text-[12px] tabular-nums">{Math.round(event.stats.speedStartKmh)} → {Math.round(event.stats.speedEndKmh)}km/h</b></span>
-                          <span className="rounded-lg bg-[#f8fafc] px-2.5 py-2"><span className="block text-[9px] font-semibold text-muted">최대 페달 입력</span><b className="mt-0.5 block text-[12px] tabular-nums">가속 {Math.round(analysis.maxAccelPedalPct)}% · 제동 {Math.round(analysis.maxBrakePedalPct)}%</b></span>
-                        </span> : <span className="mt-2 flex items-center justify-between gap-2 border-t border-line/70 pt-2 text-[11px]"><b>{keyFigure(event)}</b><span className="text-muted">{analysis.motionTags.includes("급감속") ? `−${analysis.maxDecelerationG.toFixed(2)}g` : analysis.motionTags.includes("급가속") ? `+${analysis.maxAccelerationG.toFixed(2)}g` : "편안한 범위"}</span></span>}
-                        {active && <span className="mt-2 block text-[11px] font-semibold text-muted">{keyFigure(event)}</span>}
                       </span>
                     </span>
                   </button>

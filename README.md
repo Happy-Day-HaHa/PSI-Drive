@@ -12,7 +12,7 @@
 - [ ] Phase 2: 동기화 엔진
 - [ ] Phase 3~7: 이벤트 검출, 점수, 파이프라인, 세션 분석 화면, 멀티테넌시
 
-문서: [요구사항](CLAUDE.md) · [아키텍처](docs/ARCHITECTURE.md) · [가정 기록](docs/ASSUMPTIONS.md) · [수치 근거표](docs/METRIC_EVIDENCE.md)
+문서: [요구사항](CLAUDE.md) · [아키텍처](docs/ARCHITECTURE.md) · [가정 기록](docs/ASSUMPTIONS.md) · [웹사이트 사용값 근거·출처 보고서](docs/METRIC_EVIDENCE.md)
 
 ## 개발 환경
 

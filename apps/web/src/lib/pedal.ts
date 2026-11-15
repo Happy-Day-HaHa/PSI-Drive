@@ -45,6 +45,7 @@ type Samples = {
     generatedBy: string;
     sessionSeeds: number[];
     sampleIntervalMs: number;
+    displayPeriod: { start: string; end: string; label: string; note: string };
     scoreFormula: string;
     limitation: string;
   };
@@ -58,6 +59,12 @@ type Samples = {
     videoSensorTargetMs: number;
     pedalImuTargetMs: number;
     maxFrameDropPct: number;
+    recognitionFullScoreMs: number;
+    recognitionZeroScoreMs: number;
+    transitionFullScoreMs: number;
+    transitionZeroScoreMs: number;
+    reactionFullScoreMs: number;
+    reactionZeroScoreMs: number;
   };
   scope: { sessions: number; distanceKm: number; drivingMinutes: number; hazardEvents: number; hardBrakes: number; hardAccels: number };
   averages: {
@@ -130,7 +137,11 @@ export function eventHeadline(event: PedalEvent): string {
     return `${formatMs(metrics.hardAccelMs ?? 0)} 동안 가속도가 기준을 넘어 최대 +${stats.peakAccelG.toFixed(2)}g까지 올라갔습니다. ${Math.round(stats.speedStartKmh)}km/h에서 ${Math.round(stats.speedEndKmh)}km/h로 속도가 변했습니다.`;
   }
   if (event.type === "overlap") {
-    return `가속 페달을 약 ${Math.round(stats.accelDuringPct ?? 0)}% 밟은 상태에서 브레이크를 최대 ${Math.round(stats.peakBrakePct)}%까지 함께 밟았습니다. 중첩은 ${formatMs(metrics.overlapMs ?? 0)} 동안 이어졌습니다.`;
+    const speedChange = stats.speedEndKmh - stats.speedStartKmh;
+    const response = speedChange < -0.1
+      ? `브레이크 힘이 더 커 속도는 ${Math.abs(speedChange).toFixed(1)}km/h 줄었습니다.`
+      : `속도 변화는 ${Math.abs(speedChange).toFixed(1)}km/h 이내였습니다.`;
+    return `가속 페달을 약 ${Math.round(stats.accelDuringPct ?? 0)}% 밟은 상태에서 브레이크를 최대 ${Math.round(stats.peakBrakePct)}%까지 함께 밟았습니다. 중첩은 ${formatMs(metrics.overlapMs ?? 0)} 동안 이어졌고, ${response}`;
   }
   if (event.type === "routine") {
     return `가속 페달을 뗀 뒤 ${((metrics.coastMs ?? 0) / 1000).toFixed(1)}초 동안 타력으로 주행하고, 브레이크를 최대 ${Math.round(stats.peakBrakePct)}%까지 천천히 밟았습니다.`;
@@ -150,7 +161,7 @@ export function eventFindings(event: PedalEvent): Finding[] {
     return findings;
   }
   if (event.type === "overlap") {
-    findings.push({ kind: "watch", text: "두 페달을 함께 밟으면 제동 거리가 길어질 수 있습니다. 왼발 사용이나 발 위치를 영상으로 확인하시기 바랍니다." });
+    findings.push({ kind: "watch", text: "두 페달이 함께 입력된 구간입니다. 이때는 브레이크 힘이 가속 힘보다 커 가속 페달이 눌려 있어도 속도가 줄 수 있습니다." });
     findings.push({ kind: "info", text: `이 구간의 감속은 최대 ${stats.peakDecelG.toFixed(2)}g로 크지 않았습니다.` });
     return findings;
   }

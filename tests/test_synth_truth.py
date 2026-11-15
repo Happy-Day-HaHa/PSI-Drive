@@ -53,6 +53,16 @@ def test_normal_scenario_has_no_hazard_events_and_no_hard_braking():
 
 
 @pytest.mark.parametrize("scenario", SCENARIOS)
+def test_vehicle_speed_is_the_integral_of_longitudinal_acceleration(scenario):
+    drive = fast(scenario, 7).drive
+    observed_delta = np.diff(drive.speed_mps)
+    expected_delta = drive.accel_mps2[1:] * 0.001
+    stopped_at_zero = (drive.speed_mps[1:] == 0.0) & (drive.speed_mps[:-1] > 0.0)
+    np.testing.assert_allclose(observed_delta[~stopped_at_zero], expected_delta[~stopped_at_zero], atol=1e-12)
+    assert np.all(observed_delta[stopped_at_zero] < 0.0)
+
+
+@pytest.mark.parametrize("scenario", SCENARIOS)
 def test_injected_overlaps_and_harsh_accels_are_counted(scenario):
     session = simulate_session(SynthParams(scenario, seed=5, n_events=1, overlap_count=3, harsh_accel_count=2))
     habits = session.truth["habit_metrics"]
