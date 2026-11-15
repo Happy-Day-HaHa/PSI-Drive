@@ -232,20 +232,16 @@ def test_dashboard_only_shows_traceable_generated_metrics():
     assert "shadow-[inset" not in icons
 
 
-def test_evidence_page_separates_results_settings_and_published_sources():
-    component = (
-        ROOT / "apps" / "web" / "src" / "components" / "EvidencePage.tsx"
-    ).read_text(encoding="utf-8")
+def test_presentation_site_excludes_numeric_evidence_ui():
+    components = ROOT / "apps" / "web" / "src" / "components"
+    shell = (components / "AppShell.tsx").read_text(encoding="utf-8")
+    ui = (components / "ui.tsx").read_text(encoding="utf-8")
     route = ROOT / "apps" / "web" / "src" / "app" / "evidence" / "page.tsx"
-    assert route.exists()
-    assert "현재 화면의 합성 계산값" in component
-    assert "PSI 내부 기준과 설계 목표" in component
-    assert "외부 연구·표준의 참고 수치" in component
-    assert "출처 원문" in component
-    assert "nhtsa.gov" in component
-    assert "highways.fhwa.dot.gov" in component
-    assert "committee.iso.org" in component
-    assert "개인 점수 기준으로 사용하지 않음" in component
+    assert not route.exists()
+    assert not (components / "EvidencePage.tsx").exists()
+    assert "/evidence" not in shell
+    assert "수치 근거" not in shell
+    assert "EvidenceDisclosure" not in ui
 
 
 def test_brand_logo_uses_the_provided_web_asset():
