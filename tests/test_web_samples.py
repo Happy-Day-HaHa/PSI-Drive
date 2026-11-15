@@ -219,13 +219,13 @@ def test_dashboard_labels_accumulated_demo_metrics_and_keeps_key_moment():
     icons = (
         ROOT / "apps" / "web" / "src" / "components" / "Icons.tsx"
     ).read_text(encoding="utf-8")
-    assert 'aria-label="누적 시연 데이터 요약"' in dashboard
+    assert "accumulatedHabitSummary.period" in dashboard
     assert "EvidenceDisclosure" not in dashboard
     assert 'href="/evidence"' not in dashboard
     assert "accumulatedHabitSummary.drives" in dashboard
     assert "accumulatedHabitSummary.distanceKm" in dashboard
     assert "accumulatedHabitSummary.history" in dashboard
-    assert "Key moment" in dashboard
+    assert "확인할 장면" in dashboard
     assert "가장 길었던 페달 전환" in dashboard
     assert "devices.length" not in dashboard
     assert "scoreChange" not in dashboard
@@ -262,9 +262,11 @@ def test_accumulated_driving_habit_score_is_clear_across_pages():
     assert "weightedTotal.toFixed(1)" in guide
     assert "누적 시연 데이터" in guide
     assert 'href="/score-guide"' in dashboard
-    assert "종합 운전 습관 점수" in dashboard
-    assert "운전 습관 균형" in dashboard
-    assert "누적 점수 변화" in dashboard
+    assert "전체적으로 안정적이에요" in dashboard
+    assert "4개 습관 한눈에 보기" in dashboard
+    assert "좋아지고 있어요" in dashboard
+    assert "가장 좋은 습관" in dashboard
+    assert "먼저 개선할 습관" in dashboard
     assert "누적 운전 습관 점수" in events
     assert "점수 제외" not in events
 
@@ -314,9 +316,9 @@ def test_primary_driving_views_use_progressive_disclosure_and_show_dates():
     detail = (components / "EventDetail.tsx").read_text(encoding="utf-8")
 
     assert "점수 계산식" not in dashboard
-    assert "Accumulated driving score" in dashboard
+    assert "Overall score" in dashboard
     assert "provenance.displayPeriod.label" in dashboard
-    assert "최근 위험 대응 장면 보기" in dashboard
+    assert "더 자세한 분석 보기" in dashboard
     assert "<details" in dashboard
 
     assert "한눈에 해석" in habits
