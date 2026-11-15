@@ -5,7 +5,7 @@ import { Histogram } from "@/components/Histogram";
 import { ChevronIcon } from "@/components/Icons";
 import { ChartLegend, LineChart, type Series } from "@/components/LineChart";
 import { SegmentBar, type Segment } from "@/components/SegmentBar";
-import { PageHeader, Panel, PanelHeader, SampleBadge, Stat } from "@/components/ui";
+import { EvidenceDisclosure, PageHeader, Panel, PanelHeader, SampleBadge, Stat } from "@/components/ui";
 import { ACCEL_COLOR, BRAKE_COLOR, eventTypeLabels, formatMs, pedalSamples } from "@/lib/pedal";
 
 const NEUTRAL = "#94A3B8";
@@ -15,7 +15,7 @@ function Insight({ children }: { children: React.ReactNode }) {
 }
 
 export function PedalHabits() {
-  const { scope, averages, usage, accelHistogram, brakePeakHistogram, transitionHistogram, brakeCurve, transitionFullScoreMs, transitionZeroScoreMs, events } = pedalSamples;
+  const { source, configVersion, provenance, scope, averages, usage, accelHistogram, brakePeakHistogram, transitionHistogram, brakeCurve, transitionFullScoreMs, transitionZeroScoreMs, events } = pedalSamples;
 
   const usageSegments: Segment[] = [
     { key: "accel", label: "가속 페달", value: usage.accel, color: ACCEL_COLOR, onColor: "#FFFFFF" },
@@ -56,6 +56,17 @@ export function PedalHabits() {
         title="운전 습관"
         description={`압력 센서 기록으로 페달을 얼마나 부드럽고 빠르게 조작하는지 살펴봅니다. 주행 ${scope.drivingMinutes}분, 주의 장면 ${scope.hazardEvents}개 기준입니다.`}
         action={<SampleBadge />}
+      />
+
+      <EvidenceDisclosure
+        source={source}
+        configVersion={configVersion}
+        sessions={scope.sessions}
+        events={scope.hazardEvents}
+        seeds={provenance.sessionSeeds}
+        sampleIntervalMs={provenance.sampleIntervalMs}
+        formula={provenance.scoreFormula}
+        limitation={provenance.limitation}
       />
 
       <section className="grid gap-3 md:grid-cols-3" aria-label="운전 습관 분석 시작점">
@@ -139,7 +150,7 @@ export function PedalHabits() {
           <PanelHeader title="페달 전환 시간" description="가속 페달에서 발을 떼고 브레이크에 닿기까지 걸린 시간입니다." />
           <Histogram bins={transitionHistogram} color="#E8863A" valueSuffix="건" xTitle="페달 전환 시간 (ms)" ariaLabel="페달 전환 시간 분포" />
           <Insight>
-            점수 기준은 {transitionFullScoreMs}ms 이하 만점, {transitionZeroScoreMs}ms 이상 0점입니다. {transitionTotal}건 중 {slowTransitions}건이 400ms를 넘었습니다.{" "}
+            설정 {configVersion}의 초기 점수 곡선은 {transitionFullScoreMs}ms 이하 만점, {transitionZeroScoreMs}ms 이상 0점입니다. 외부 안전 기준이 아니라 파일럿 전 제품 가정입니다. {transitionTotal}건 중 {slowTransitions}건이 400ms를 넘었습니다.{" "}
             <Link href={`/events?id=${slowest.id}`} className="font-medium whitespace-nowrap text-brand underline underline-offset-2">
               전환이 길었던 장면 보기 ({eventTypeLabels[slowest.type]}, {formatMs(slowest.metrics.transitionMs ?? 0)})
             </Link>

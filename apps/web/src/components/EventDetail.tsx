@@ -172,7 +172,7 @@ export function EventDetail({ event }: { event: PedalEvent }) {
         <div className="mt-4 overflow-hidden rounded-xl border border-[#dbe7f7] bg-[linear-gradient(110deg,#f4f8fe,#ffffff)]">
           <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#dbe7f7] px-4 py-2.5">
             <div className="flex items-center gap-2"><p className="text-xs font-bold">차량 움직임</p>{analysis.motionTags.map((tag) => <span key={tag} className={`rounded-full px-2.5 py-1 text-[10px] font-bold ${tag === "급감속" ? "bg-[#feecef] text-alert" : tag === "급가속" ? "bg-[#eaf2fd] text-data" : "bg-canvas text-muted"}`}>{tag}</span>)}</div>
-            <p className="text-[10px] text-muted">판정 기준: 급가속 ≥ +{pedalSamples.thresholds.hardAccelG.toFixed(2)}g · 급감속 ≤ {pedalSamples.thresholds.hardBrakeG.toFixed(2)}g</p>
+            <p className="text-[10px] text-muted">설정 {pedalSamples.configVersion} 초기 기준: 급가속 ≥ +{pedalSamples.thresholds.hardAccelG.toFixed(2)}g · 급감속 ≤ {pedalSamples.thresholds.hardBrakeG.toFixed(2)}g</p>
           </div>
           <dl className="grid grid-cols-2 divide-x divide-y divide-[#e7eef7] sm:grid-cols-4 sm:divide-y-0">
             <div className="px-4 py-3"><dt className="text-[10px] text-muted">장면 내 최대 가속</dt><dd className="mt-1 text-base font-bold text-data tabular-nums">+{analysis.maxAccelerationG.toFixed(2)}g</dd></div>
@@ -398,7 +398,7 @@ export function EventDetail({ event }: { event: PedalEvent }) {
                       <span className="mt-0.5 block text-[13px] leading-relaxed text-muted">{info.body}</span>
                       <span className="mt-0.5 block text-xs text-muted/90">
                         {info.source}
-                        {info.source.includes("영상") && " · ±17ms 불확실성"}
+                        {info.source.includes("영상") && " · 30fps 기준 ±17ms 불확실성"}
                       </span>
                     </span>
                     <span className="text-right tabular-nums">

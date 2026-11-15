@@ -38,8 +38,27 @@ export type PedalEvent = {
 export type HistogramBin = { label: string; value: number };
 
 type Samples = {
+  source: string;
   configVersion: string;
+  provenance: {
+    kind: "synthetic_ground_truth";
+    generatedBy: string;
+    sessionSeeds: number[];
+    sampleIntervalMs: number;
+    scoreFormula: string;
+    limitation: string;
+  };
   thresholds: { hardAccelG: number; hardBrakeG: number };
+  settings: {
+    pedalOnPct: number;
+    pedalOffPct: number;
+    debounceMs: number;
+    brakeForceRatioPct: number;
+    vehicleDecelStartG: number;
+    videoSensorTargetMs: number;
+    pedalImuTargetMs: number;
+    maxFrameDropPct: number;
+  };
   scope: { sessions: number; distanceKm: number; drivingMinutes: number; hazardEvents: number; hardBrakes: number; hardAccels: number };
   averages: {
     recognitionMs: number;
@@ -76,24 +95,8 @@ export const eventTypeLabels: Record<EventType, string> = {
   hard_accel: "급가속",
 };
 
-const eventLocations: Record<string, string> = {
-  E01: "서울 성동구 · 성수사거리",
-  E02: "서울 송파구 · 잠실대교 남단",
-  E03: "서울 강남구 · 학동역 교차로",
-  E04: "서울 서초구 · 양재시민의숲",
-  E05: "서울 광진구 · 어린이대공원 앞",
-  E06: "서울 용산구 · 한남오거리",
-  E07: "서울 마포구 · 공덕오거리",
-  E08: "서울 영등포구 · 여의도공원",
-  E09: "서울 종로구 · 광화문광장",
-  E10: "서울 중구 · 서울역 서부",
-  E11: "서울 성북구 · 길음뉴타운",
-  E12: "서울 동작구 · 보라매공원",
-  E13: "서울 강동구 · 천호대교 남단",
-};
-
-export function eventLocation(event: Pick<PedalEvent, "id">): string {
-  return eventLocations[event.id] ?? "위치 정보 확인 중";
+export function eventLocation(_event: Pick<PedalEvent, "id">): string {
+  return "합성 시나리오 · 위치 미수집";
 }
 
 export const stepInfo: Record<string, { title: string; body: string; source: string }> = {

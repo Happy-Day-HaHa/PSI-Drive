@@ -12,7 +12,7 @@
 - [ ] Phase 2: 동기화 엔진
 - [ ] Phase 3~7: 이벤트 검출, 점수, 파이프라인, 세션 분석 화면, 멀티테넌시
 
-문서: [요구사항](CLAUDE.md) · [아키텍처](docs/ARCHITECTURE.md) · [가정 기록](docs/ASSUMPTIONS.md)
+문서: [요구사항](CLAUDE.md) · [아키텍처](docs/ARCHITECTURE.md) · [가정 기록](docs/ASSUMPTIONS.md) · [수치 근거표](docs/METRIC_EVIDENCE.md)
 
 ## 개발 환경
 
@@ -68,6 +68,8 @@ npm run dev   # http://localhost:3000
 ```
 
 첫 화면은 데모 로그인 페이지이며, 미리 입력된 계정으로 로그인하면 /dashboard에서 운전 점수와 차량·기기 상태를 확인할 수 있습니다. 현재 로그인은 정적 화면 흐름을 검증하기 위한 데모이며 실제 인증 서버와는 아직 연결되지 않았습니다.
+
+화면에 사용한 합성 계산값, PSI 내부 설정값, 외부 연구 참고값과 공식 출처는 `/evidence`에서 구분해 확인할 수 있습니다.
 
 ## 배포
 

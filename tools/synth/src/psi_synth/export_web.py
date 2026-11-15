@@ -283,9 +283,27 @@ def build_samples() -> dict:
     return {
         "source": "psi_synth 합성 세션의 정답값",
         "configVersion": th.config_version,
+        "provenance": {
+            "kind": "synthetic_ground_truth",
+            "generatedBy": "python -m psi_synth.export_web",
+            "sessionSeeds": [params.seed for params in SESSION_SPECS],
+            "sampleIntervalMs": SAMPLE_DT_MS,
+            "scoreFormula": "사건별 인지-해제·페달 전환·총 제동 반응을 config v1 곡선으로 환산한 산술평균",
+            "limitation": "실제 운전자 측정이나 임상·사고 위험 검증 결과가 아닌 재현 가능한 합성 테스트 데이터",
+        },
         "thresholds": {
             "hardAccelG": config["habits"]["hard_accel_g"],
             "hardBrakeG": config["habits"]["hard_brake_g"],
+        },
+        "settings": {
+            "pedalOnPct": config["event_detection"]["pedal"]["on_threshold_pct"],
+            "pedalOffPct": config["event_detection"]["pedal"]["off_threshold_pct"],
+            "debounceMs": config["event_detection"]["pedal"]["debounce_ms"],
+            "brakeForceRatioPct": round(config["event_detection"]["t5_brake_force_ratio"] * 100),
+            "vehicleDecelStartG": config["event_detection"]["t6_decel_threshold_g"],
+            "videoSensorTargetMs": config["sync"]["video_sensor_max_error_ms"],
+            "pedalImuTargetMs": config["sync"]["pedal_imu_max_error_ms"],
+            "maxFrameDropPct": config["sync"]["max_frame_drop_rate"] * 100,
         },
         "scope": {
             "sessions": len(sessions),

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { ReactNode } from "react";
 
 export function Panel({ children, className = "", id }: { children: ReactNode; className?: string; id?: string }) {
@@ -49,6 +50,43 @@ export function Stat({ label, value, unit, note, noteTone }: { label: string; va
 
 export function SampleBadge() {
   return (
-    <span className="rounded border border-line bg-canvas px-2 py-0.5 text-xs font-medium whitespace-nowrap text-muted">샘플 데이터</span>
+    <span className="rounded border border-[#c8d9ef] bg-[#f3f7fd] px-2 py-0.5 text-xs font-semibold whitespace-nowrap text-brand">합성 검증 데이터</span>
+  );
+}
+
+export function EvidenceDisclosure({
+  source,
+  configVersion,
+  sessions,
+  events,
+  seeds,
+  sampleIntervalMs,
+  formula,
+  limitation,
+}: {
+  source: string;
+  configVersion: string;
+  sessions: number;
+  events: number;
+  seeds: number[];
+  sampleIntervalMs: number;
+  formula: string;
+  limitation: string;
+}) {
+  return (
+    <details className="group rounded-xl border border-[#d7e4f5] bg-[#f7faff] text-xs text-muted">
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 marker:hidden">
+        <span><b className="text-ink">수치 산출 근거</b> · 생성 원본과 계산 기준 확인</span>
+        <span className="font-bold text-brand group-open:hidden">열기</span>
+        <span className="hidden font-bold text-brand group-open:inline">닫기</span>
+      </summary>
+      <dl className="grid gap-3 border-t border-[#d7e4f5] px-4 py-4 sm:grid-cols-2">
+        <div><dt className="font-semibold text-ink">데이터 원본</dt><dd className="mt-1 leading-relaxed">{source} · 고정 시드 {seeds.join(", ")}</dd></div>
+        <div><dt className="font-semibold text-ink">분석 범위</dt><dd className="mt-1 leading-relaxed">합성 세션 {sessions}개 · 주의 장면 {events}건 · {sampleIntervalMs}ms 간격 표본</dd></div>
+        <div><dt className="font-semibold text-ink">점수 산식</dt><dd className="mt-1 leading-relaxed">{formula} · 설정 {configVersion}</dd></div>
+        <div><dt className="font-semibold text-ink">해석 한계</dt><dd className="mt-1 leading-relaxed">{limitation}</dd></div>
+      </dl>
+      <div className="border-t border-[#d7e4f5] px-4 py-3 text-right"><Link href="/evidence" className="font-bold text-brand underline decoration-brand/25 underline-offset-2">전체 수치와 출처 보기</Link></div>
+    </details>
   );
 }

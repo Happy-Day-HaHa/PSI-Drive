@@ -56,7 +56,7 @@ export function FootView({ accel, brake, foot }: Props) {
       <div className="overflow-hidden rounded-xl border border-line/80 bg-[linear-gradient(180deg,#f8fbff_0%,#eef3f8_100%)] p-2">
         <div className="flex items-center justify-between px-1.5 pt-1">
           <span className="text-[10px] font-bold tracking-[0.14em] text-muted uppercase">Footwell camera view</span>
-          <span className="rounded-full border border-line bg-white/80 px-2 py-0.5 text-[9px] font-semibold text-muted">동기화 ±5ms</span>
+          <span className="rounded-full border border-line bg-white/80 px-2 py-0.5 text-[9px] font-semibold text-muted">동기화 설계 목표 ±5ms</span>
         </div>
         <svg viewBox="0 0 270 226" className="mx-auto mt-1 w-full max-w-[310px]" role="img" aria-label={`${current.detail}. 가속 페달 ${Math.round(accel)}%, 브레이크 ${Math.round(brake)}%`}>
           <defs>

@@ -21,6 +21,24 @@ def test_committed_json_matches_generator(samples):
     assert committed == json.loads(json.dumps(samples, ensure_ascii=False))
 
 
+def test_sample_provenance_is_explicit_and_reproducible(samples):
+    provenance = samples["provenance"]
+    assert provenance["kind"] == "synthetic_ground_truth"
+    assert provenance["sessionSeeds"] == [101, 201, 301, 102, 202, 302]
+    assert provenance["sampleIntervalMs"] == SAMPLE_DT_MS
+    assert samples["configVersion"] == "v1"
+    assert samples["settings"] == {
+        "pedalOnPct": 5.0,
+        "pedalOffPct": 2.0,
+        "debounceMs": 20,
+        "brakeForceRatioPct": 80,
+        "vehicleDecelStartG": -0.1,
+        "videoSensorTargetMs": 33,
+        "pedalImuTargetMs": 5,
+        "maxFrameDropPct": 1.0,
+    }
+
+
 def test_all_event_types_are_present_with_unique_ids(samples):
     events = samples["events"]
     assert {event["type"] for event in events} == {"pedestrian", "lead_brake", "routine", "overlap", "hard_accel"}
@@ -138,7 +156,9 @@ def test_profile_prioritizes_status_and_hides_technical_details():
     assert "데이터 상세 보기" in profile
     assert "바로가기" not in profile
     assert "Vehicle & Device" not in profile
-    assert '<details className="group mt-2">' in profile
+    assert "실제 계정·차량·기기는 아직 연결되지 않았습니다" in profile
+    assert "최저 배터리" not in profile
+    assert "센서 수집률" not in profile
 
 
 def test_login_separates_account_sign_in_from_demo_access():
@@ -155,19 +175,38 @@ def test_login_separates_account_sign_in_from_demo_access():
     assert "주행 장면과 페달 동시 확인" not in login
 
 
-def test_personal_overview_is_shown_after_login_on_dashboard():
+def test_dashboard_only_shows_traceable_generated_metrics():
     dashboard = (
         ROOT / "apps" / "web" / "src" / "components" / "Dashboard.tsx"
     ).read_text(encoding="utf-8")
     icons = (
         ROOT / "apps" / "web" / "src" / "components" / "Icons.tsx"
     ).read_text(encoding="utf-8")
-    assert 'aria-label="내 운전 요약"' in dashboard
-    assert "{period.label} 점수" in dashboard
-    assert "{metrics.events.value}{metrics.events.unit}" in dashboard
-    assert "{devices.length}대 정상" in dashboard
+    assert 'aria-label="합성 분석 요약"' in dashboard
+    assert "EvidenceDisclosure" in dashboard
+    assert "provenance.sampleIntervalMs" in dashboard
+    assert "scope.hazardEvents" in dashboard
+    assert "기간 추세가 아니라" in dashboard
+    assert "devices.length" not in dashboard
+    assert "scoreChange" not in dashboard
     assert "bg-[linear-gradient" not in icons
     assert "shadow-[inset" not in icons
+
+
+def test_evidence_page_separates_results_settings_and_published_sources():
+    component = (
+        ROOT / "apps" / "web" / "src" / "components" / "EvidencePage.tsx"
+    ).read_text(encoding="utf-8")
+    route = ROOT / "apps" / "web" / "src" / "app" / "evidence" / "page.tsx"
+    assert route.exists()
+    assert "현재 화면의 합성 계산값" in component
+    assert "PSI 내부 기준과 설계 목표" in component
+    assert "외부 연구·표준의 참고 수치" in component
+    assert "출처 원문" in component
+    assert "nhtsa.gov" in component
+    assert "highways.fhwa.dot.gov" in component
+    assert "committee.iso.org" in component
+    assert "개인 점수 기준으로 사용하지 않음" in component
 
 
 def test_brand_logo_uses_the_provided_web_asset():
