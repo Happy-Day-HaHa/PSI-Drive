@@ -3,12 +3,13 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
-import { BarsIcon, FlagIcon, HomeIcon, PsiLogo, UserIcon } from "@/components/Icons";
+import { BarsIcon, CalculatorIcon, FlagIcon, HomeIcon, PsiLogo, UserIcon } from "@/components/Icons";
 
 const navItems = [
   { label: "홈", href: "/dashboard", icon: HomeIcon },
   { label: "운전 습관", href: "/pedal", icon: BarsIcon },
   { label: "주행 기록", href: "/events", icon: FlagIcon },
+  { label: "점수 계산", href: "/score-guide", icon: CalculatorIcon },
   { label: "마이페이지", href: "/profile", icon: UserIcon },
 ];
 
@@ -85,7 +86,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <footer className={`mx-auto w-full max-w-[1320px] px-4 pb-28 text-xs leading-relaxed text-muted sm:px-8 lg:pb-8 ${isDriveReview ? "hidden xl:block" : ""}`}>
           점수와 지표는 운전 행동을 돌아보기 위한 시각 자료입니다.
         </footer>
-        <nav aria-label="모바일 주 메뉴" className="fixed inset-x-3 bottom-[max(.75rem,env(safe-area-inset-bottom))] z-40 grid grid-cols-4 overflow-hidden rounded-2xl border border-white/10 bg-navy/95 p-1.5 text-white shadow-[0_12px_32px_rgba(5,18,34,0.28)] backdrop-blur-xl xl:hidden">
+        <nav aria-label="모바일 주 메뉴" className="fixed inset-x-3 bottom-[max(.75rem,env(safe-area-inset-bottom))] z-40 grid grid-cols-5 overflow-hidden rounded-2xl border border-white/10 bg-navy/95 p-1.5 text-white shadow-[0_12px_32px_rgba(5,18,34,0.28)] backdrop-blur-xl xl:hidden">
           {navItems.map(({ label, href, icon: Icon }) => {
             const active = isActive(pathname, href);
             return (

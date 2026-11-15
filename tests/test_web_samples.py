@@ -244,6 +244,25 @@ def test_presentation_site_excludes_numeric_evidence_ui():
     assert "EvidenceDisclosure" not in ui
 
 
+def test_score_guide_explains_record_inclusion_and_home_average():
+    components = ROOT / "apps" / "web" / "src" / "components"
+    guide = (components / "ScoreGuidePage.tsx").read_text(encoding="utf-8")
+    dashboard = (components / "Dashboard.tsx").read_text(encoding="utf-8")
+    events = (components / "EventsExplorer.tsx").read_text(encoding="utf-8")
+    route = ROOT / "apps" / "web" / "src" / "app" / "score-guide" / "page.tsx"
+
+    assert route.exists()
+    assert "전체 기록" in guide
+    assert "점수 반영" in guide
+    assert "점수에서 제외" in guide
+    assert "세 가지 반응 시간" in guide
+    assert "최종 평균" in guide
+    assert 'href="/score-guide"' in dashboard
+    assert "주행 기록 {events.length}개 중 위험 대응 {scoredEvents.length}개 평균" in dashboard
+    assert "운전 습관 점수" in events
+    assert "점수 제외" in events
+
+
 def test_brand_logo_uses_the_provided_web_asset():
     icons = (
         ROOT / "apps" / "web" / "src" / "components" / "Icons.tsx"

@@ -120,7 +120,7 @@ export function EventDetail({ event }: { event: PedalEvent }) {
             <h2 className="mt-1 text-xl font-extrabold">{eventTypeLabels[event.type]}</h2>
             <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted">{eventHeadline(event)}</p>
           </div>
-          <span className={`rounded-full px-3 py-2 text-sm font-extrabold ${scoreTone(event.score)}`}>{event.score === null ? "점수 없음" : `${event.score}점`}</span>
+          <span className={`rounded-full px-3 py-2 text-sm font-extrabold ${scoreTone(event.score)}`}>{event.score === null ? "점수 제외 · 관찰 장면" : `${event.score}점 · 점수 반영`}</span>
         </div>
         <div className="mt-4 rounded-xl bg-track p-4">
           <p className="text-xs font-bold text-brand">그래프 해석</p>

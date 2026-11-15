@@ -28,14 +28,6 @@ function pressureAt(values: number[], ms: number) {
   return Math.round(values[index] ?? 0);
 }
 
-function eventStatus(event: PedalEvent) {
-  if (event.type === "hard_accel") return "살펴보기";
-  if (event.type === "overlap") return "확인 필요";
-  if (event.score !== null && event.score < 70) return "주의";
-  if (event.score !== null && event.score < 85) return "살펴보기";
-  return "안정";
-}
-
 export function MobileDriveWorkspace({
   event,
   accel,
@@ -147,7 +139,7 @@ export function MobileDriveWorkspace({
         <div className="shrink-0 text-right">
           <p className="text-[11px] text-white/65">{event.date}</p>
           <p className="mt-0.5 text-xs font-semibold">{event.time}</p>
-          {event.score !== null && <span className="mt-1 inline-flex min-h-5 items-center justify-center rounded-md bg-white/10 px-2 text-center text-[10px] font-bold">{event.score}점 · {eventStatus(event)}</span>}
+          <span className="mt-1 inline-flex min-h-5 items-center justify-center rounded-md bg-white/10 px-2 text-center text-[10px] font-bold">{event.score !== null ? `${event.score}점 · 점수 반영` : "점수 제외"}</span>
         </div>
         <span aria-hidden className="absolute inset-x-0 bottom-0 h-0.5 bg-white/10"><span className="block h-full bg-blue-300 transition-[width] duration-150" style={{ width: `${playProgress}%` }} /></span>
       </header>

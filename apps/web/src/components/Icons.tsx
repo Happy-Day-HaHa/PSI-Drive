@@ -40,6 +40,12 @@ export const UserIcon = (p: P) => (
     <path d="M5 20c.5-4 3.1-6 7-6s6.5 2 7 6" />
   </Icon>
 );
+export const CalculatorIcon = (p: P) => (
+  <Icon {...p}>
+    <rect x="5" y="3" width="14" height="18" rx="2" />
+    <path d="M8 7h8M8 11h2M14 11h2M8 15h2M14 15h2M8 18h2M14 18h2" />
+  </Icon>
+);
 export const ChevronIcon = (p: P) => (
   <Icon {...p}>
     <path d="m9 6 6 6-6 6" />

@@ -53,7 +53,8 @@ export function Dashboard() {
           <div className="relative w-full text-center"><p className="text-xs font-bold tracking-[.12em] text-brand uppercase">Driving score</p><h2 className="mt-1 text-xl font-extrabold">평균 반응 점수</h2></div>
           <ScoreRing score={reactionScore} large />
           <p className="mt-1 text-3xl font-black tracking-tight">{reactionScore}<span className="ml-1 text-base font-bold text-muted">점</span></p>
-          <p className="mt-2 text-center text-xs text-muted">대표 주의 장면 {scoredEvents.length}건의 반응을 한눈에 요약했습니다.</p>
+          <p className="mt-2 text-center text-xs text-muted">주행 기록 {events.length}개 중 위험 대응 {scoredEvents.length}개 평균</p>
+          <Link href="/score-guide" className="mt-4 inline-flex items-center gap-1 rounded-full bg-brand px-4 py-2 text-xs font-bold text-white">점수 계산법 보기 <ChevronIcon className="size-3" /></Link>
         </article>
 
         <Link href={`/events?id=${slowestTransition.id}`} className="group relative flex min-h-[340px] flex-col overflow-hidden rounded-[28px] bg-[linear-gradient(145deg,#10223f,#173f73_62%,#246ce2)] p-6 text-white shadow-[0_18px_44px_rgba(17,49,92,.2)] sm:p-8">
