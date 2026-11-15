@@ -1,90 +1,87 @@
 import Link from "next/link";
 import { ChevronIcon } from "@/components/Icons";
+import { HabitRadar } from "@/components/HabitRadar";
 import { ScoreRing } from "@/components/ScoreRing";
 import { PageHeader, SampleBadge } from "@/components/ui";
-import { eventTypeLabels, pedalSamples } from "@/lib/pedal";
-
-function mean(values: number[]) {
-  return Math.round(values.reduce((sum, value) => sum + value, 0) / values.length);
-}
-
-function linearScore(value: number, full: number, zero: number) {
-  return Math.max(0, Math.min(100, ((zero - value) / (zero - full)) * 100));
-}
+import { accumulatedHabitSummary } from "@/lib/habit-summary";
+import { pedalSamples } from "@/lib/pedal";
 
 export function ScoreGuidePage() {
-  const { events, settings } = pedalSamples;
-  const scored = events.filter((event) => event.score !== null);
-  const excluded = events.filter((event) => event.score === null);
-  const scoreValues = scored.map((event) => event.score as number);
-  const rawAverage = scoreValues.reduce((sum, value) => sum + value, 0) / scoreValues.length;
-  const score = mean(scoreValues);
-  const pedestrianCount = scored.filter((event) => event.type === "pedestrian").length;
-  const leadBrakeCount = scored.filter((event) => event.type === "lead_brake").length;
-  const example = scored[0];
-  const recognition = linearScore(example.metrics.recognitionMs ?? 0, settings.recognitionFullScoreMs, settings.recognitionZeroScoreMs);
-  const transition = linearScore(example.metrics.transitionMs ?? 0, settings.transitionFullScoreMs, settings.transitionZeroScoreMs);
-  const reaction = linearScore(example.metrics.totalReactionMs ?? 0, settings.reactionFullScoreMs, settings.reactionZeroScoreMs);
+  const summary = accumulatedHabitSummary;
+  const scored = pedalSamples.events.filter((event) => event.score !== null);
+  const reactionAverage = scored.reduce((sum, event) => sum + (event.score ?? 0), 0) / scored.length;
+  const weightedTotal = summary.domains.reduce((sum, domain) => sum + domain.score * domain.weight, 0);
 
   return (
     <>
-      <PageHeader title="점수 계산법" description="13개 주행 기록 가운데 어떤 장면이 점수에 들어가고, 64점이 어떻게 만들어졌는지 단계별로 보여드립니다." action={<SampleBadge />} />
+      <PageHeader title="점수 계산법" description="점수가 충분히 쌓인 상황을 가정해, 전체 운전 습관을 4개 영역으로 나누고 한 점수로 합치는 방식을 보여드립니다." action={<SampleBadge />} />
 
       <section className="grid overflow-hidden rounded-[28px] bg-[linear-gradient(135deg,#10223f,#173f73_60%,#246ce2)] text-white shadow-[0_18px_44px_rgba(17,49,92,.2)] lg:grid-cols-[.8fr_1.2fr]">
         <div className="flex flex-col items-center justify-center p-7 sm:p-9">
-          <p className="text-xs font-bold tracking-[.13em] text-blue-200 uppercase">Driving habit score</p>
-          <ScoreRing score={score} large />
-          <p className="mt-1 text-4xl font-black">{score}<span className="ml-1 text-base text-white/60">점</span></p>
+          <p className="text-xs font-bold tracking-[.13em] text-blue-200 uppercase">Accumulated driving score</p>
+          <ScoreRing score={summary.overall} large />
+          <p className="mt-1 text-4xl font-black">{summary.overall}<span className="ml-1 text-base text-white/60">점</span></p>
+          <p className="mt-2 rounded-full bg-white/10 px-3 py-1 text-[11px] text-white/75">점수가 쌓였다고 가정한 누적 시연 데이터</p>
         </div>
         <div className="grid grid-cols-[1fr_auto_1fr_auto_1fr] items-center gap-2 border-t border-white/10 p-6 text-center lg:border-t-0 lg:border-l">
-          <div className="rounded-2xl bg-white/10 p-4"><p className="text-3xl font-black">{events.length}</p><p className="mt-1 text-xs text-white/65">전체 기록</p></div>
+          <div className="rounded-2xl bg-white/10 p-4"><p className="text-3xl font-black">{summary.drives}</p><p className="mt-1 text-xs text-white/65">누적 주행</p></div>
           <span className="text-xl text-white/35">→</span>
-          <div className="rounded-2xl bg-white p-4 text-brand"><p className="text-3xl font-black">{scored.length}</p><p className="mt-1 text-xs font-bold">점수 반영</p></div>
+          <div className="rounded-2xl bg-white p-4 text-brand"><p className="text-3xl font-black">4</p><p className="mt-1 text-xs font-bold">습관 영역</p></div>
           <span className="text-xl text-white/35">→</span>
-          <div className="rounded-2xl bg-white/10 p-4"><p className="text-3xl font-black">{score}</p><p className="mt-1 text-xs text-white/65">최종 평균</p></div>
+          <div className="rounded-2xl bg-white/10 p-4"><p className="text-3xl font-black">{summary.overall}</p><p className="mt-1 text-xs text-white/65">종합 점수</p></div>
         </div>
       </section>
 
-      <section className="grid gap-4 lg:grid-cols-2">
-        <article className="rounded-2xl border border-[#d7e5f8] bg-[#f5f9ff] p-5 sm:p-6">
-          <p className="text-[11px] font-extrabold tracking-[.12em] text-brand uppercase">점수에 포함</p>
-          <h2 className="mt-2 text-xl font-extrabold">위험 대응 장면 {scored.length}개</h2>
-          <p className="mt-2 text-sm leading-relaxed text-muted">보행자 대응 {pedestrianCount}개와 선행차 감속 대응 {leadBrakeCount}개입니다. 위험을 확인한 뒤 브레이크에 닿기까지의 반응을 계산합니다.</p>
-          <div className="mt-4 flex flex-wrap gap-2">{scored.map((event) => <span key={event.id} className="rounded-full bg-white px-3 py-1.5 text-xs font-bold text-brand shadow-sm">{event.id} · {event.score}점</span>)}</div>
+      <section className="grid gap-4 lg:grid-cols-[.8fr_1.2fr]">
+        <article className="rounded-[28px] border border-line bg-white p-5 shadow-[0_12px_34px_rgba(15,31,54,.05)] sm:p-6">
+          <p className="text-[11px] font-extrabold tracking-[.12em] text-brand uppercase">Habit balance</p>
+          <h2 className="mt-1 text-xl font-extrabold">4개 영역을 함께 봅니다</h2>
+          <HabitRadar domains={summary.domains} />
         </article>
-        <article className="rounded-2xl border border-line bg-white p-5 sm:p-6">
-          <p className="text-[11px] font-extrabold tracking-[.12em] text-muted uppercase">점수에서 제외</p>
-          <h2 className="mt-2 text-xl font-extrabold">관찰 장면 {excluded.length}개</h2>
-          <p className="mt-2 text-sm leading-relaxed text-muted">급가속·페달 중첩·일상 감속은 위험 출현 시점 T0가 없어 같은 반응식으로 비교하지 않습니다.</p>
-          <div className="mt-4 flex flex-wrap gap-2">{excluded.map((event) => <span key={event.id} className="rounded-full bg-canvas px-3 py-1.5 text-xs font-bold text-muted">{event.id} · {eventTypeLabels[event.type]}</span>)}</div>
-        </article>
-      </section>
-
-      <section className="rounded-[28px] border border-line bg-white p-5 shadow-[0_12px_34px_rgba(15,31,54,.05)] sm:p-7">
-        <p className="text-[11px] font-extrabold tracking-[.12em] text-brand uppercase">1. 세 가지 반응 시간</p>
-        <div className="mt-4 grid gap-3 md:grid-cols-3">
-          <div className="rounded-2xl bg-[#eef5ff] p-5"><p className="text-xs font-bold text-brand">인지 → 가속 해제</p><p className="mt-3 text-2xl font-black">{settings.recognitionFullScoreMs}–{settings.recognitionZeroScoreMs.toLocaleString("ko-KR")}<span className="ml-1 text-sm text-muted">ms</span></p><p className="mt-2 text-xs text-muted">빠를수록 높은 점수</p></div>
-          <div className="rounded-2xl bg-[#fff7ed] p-5"><p className="text-xs font-bold text-caution">페달 전환</p><p className="mt-3 text-2xl font-black">{settings.transitionFullScoreMs}–{settings.transitionZeroScoreMs}<span className="ml-1 text-sm text-muted">ms</span></p><p className="mt-2 text-xs text-muted">가속 해제 → 브레이크 접촉</p></div>
-          <div className="rounded-2xl bg-[#fff1f3] p-5"><p className="text-xs font-bold text-alert">전체 제동 반응</p><p className="mt-3 text-2xl font-black">{settings.reactionFullScoreMs}–{settings.reactionZeroScoreMs.toLocaleString("ko-KR")}<span className="ml-1 text-sm text-muted">ms</span></p><p className="mt-2 text-xs text-muted">위험 확인 → 브레이크 접촉</p></div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {summary.domains.map((domain) => (
+            <article key={domain.key} className="rounded-2xl border border-line/90 p-5" style={{ backgroundColor: domain.soft }}>
+              <div className="flex items-start justify-between gap-3"><div><h3 className="text-sm font-extrabold" style={{ color: domain.color }}>{domain.label}</h3><p className="mt-2 text-xs leading-relaxed text-muted">{domain.description}</p></div><span className="text-3xl font-black tabular-nums" style={{ color: domain.color }}>{domain.score}</span></div>
+              <div className="mt-5 h-2 overflow-hidden rounded-full bg-white/80"><div className="h-full rounded-full" style={{ width: `${domain.score}%`, backgroundColor: domain.color }} /></div>
+              <p className="mt-2 text-[10px] font-semibold text-muted">종합점수 반영 {Math.round(domain.weight * 100)}%</p>
+            </article>
+          ))}
         </div>
-        <p className="mt-4 text-xs leading-relaxed text-muted">각 범위의 빠른 끝은 100점, 느린 끝은 0점이며 그 사이는 직선으로 환산합니다.</p>
       </section>
 
       <section className="rounded-[28px] bg-navy p-5 text-white sm:p-7">
-        <p className="text-[11px] font-extrabold tracking-[.12em] text-blue-200 uppercase">2. 장면 점수 예시 · {example.id}</p>
-        <div className="mt-4 grid gap-3 md:grid-cols-[1fr_1fr_1fr_auto] md:items-center">
-          <div className="rounded-2xl bg-white/10 p-4"><p className="text-xs text-white/60">인지 점수</p><p className="mt-2 text-2xl font-black">{recognition.toFixed(1)}</p></div>
-          <div className="rounded-2xl bg-white/10 p-4"><p className="text-xs text-white/60">전환 점수</p><p className="mt-2 text-2xl font-black">{transition.toFixed(1)}</p></div>
-          <div className="rounded-2xl bg-white/10 p-4"><p className="text-xs text-white/60">전체 반응 점수</p><p className="mt-2 text-2xl font-black">{reaction.toFixed(1)}</p></div>
-          <div className="rounded-2xl bg-white px-6 py-4 text-center text-brand"><p className="text-xs font-bold">세 점수 평균</p><p className="mt-1 text-3xl font-black">{example.score}점</p></div>
-        </div>
+        <p className="text-[11px] font-extrabold tracking-[.12em] text-blue-200 uppercase">종합점수 계산</p>
+        <h2 className="mt-2 text-xl font-extrabold">각 영역 점수에 가중치를 곱해 더합니다</h2>
+        <p className="mt-5 text-lg font-extrabold leading-relaxed sm:text-2xl">64×35% + 78×20% + 74×25% + 82×20% = <span className="text-blue-200">{weightedTotal.toFixed(1)}</span> → <span className="text-3xl">{summary.overall}점</span></p>
+        <p className="mt-4 text-xs leading-relaxed text-white/60">영역 점수와 가중치는 전체 화면의 동작을 보여주기 위한 프로토타입 가정입니다. 실제 구현 시 차량 신호 수집 범위와 검증 결과에 맞춰 확정해야 합니다.</p>
       </section>
 
       <section className="rounded-[28px] border border-line bg-white p-5 sm:p-7">
-        <p className="text-[11px] font-extrabold tracking-[.12em] text-brand uppercase">3. 최종 평균</p>
-        <p className="mt-3 text-lg font-extrabold leading-relaxed">({scored.map((event) => event.score).join(" + ")}) ÷ {scored.length} = {rawAverage.toFixed(3)} → <span className="text-3xl text-brand">{score}점</span></p>
-        <p className="mt-3 text-xs leading-relaxed text-muted">현재 점수는 위험 대응 반응을 보여주는 합성 데이터용 지수입니다. 급가속·페달 중첩·일상 감속은 별도 장면으로 보여주지만 점수에는 넣지 않습니다.</p>
-        <Link href="/events" className="mt-5 inline-flex items-center gap-1 rounded-xl bg-brand px-4 py-3 text-xs font-bold text-white">13개 주행 기록 보기 <ChevronIcon className="size-3" /></Link>
+        <p className="text-[11px] font-extrabold tracking-[.12em] text-brand uppercase">영역별 입력값</p>
+        <h2 className="mt-2 text-xl font-extrabold">전체 주행과 주요 장면을 함께 반영합니다</h2>
+        <div className="mt-5 grid gap-3 sm:grid-cols-2">
+          <div className="rounded-2xl bg-[#eef5ff] p-5"><b className="text-sm text-brand">위험 대응</b><p className="mt-2 text-xs leading-relaxed text-muted">보행자·선행차 감속 등 위험 장면에서 인지 후 가속 해제, 페달 전환, 전체 제동 반응 시간을 봅니다.</p></div>
+          <div className="rounded-2xl bg-[#effaf5] p-5"><b className="text-sm text-[#16855b]">가속 부드러움</b><p className="mt-2 text-xs leading-relaxed text-muted">전체 주행의 가속 페달 변화와 급가속 빈도를 누적해 일관된 가속 습관을 봅니다.</p></div>
+          <div className="rounded-2xl bg-[#fff1f3] p-5"><b className="text-sm text-alert">제동 부드러움</b><p className="mt-2 text-xs leading-relaxed text-muted">급감속 빈도, 브레이크 압력 상승, 일상 감속 장면을 누적해 제동 습관을 봅니다.</p></div>
+          <div className="rounded-2xl bg-[#f5f0ff] p-5"><b className="text-sm text-[#7c3aed]">페달 조작</b><p className="mt-2 text-xs leading-relaxed text-muted">가속에서 제동으로 옮기는 시간과 두 페달 입력 중첩 장면을 누적해 조작 안정성을 봅니다.</p></div>
+        </div>
+      </section>
+
+      <details className="group rounded-[28px] border border-line bg-white">
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-3 p-5 marker:hidden sm:p-7">
+          <span><b className="block text-base">위험 대응 64점 상세 계산 보기</b><span className="mt-1 block text-xs text-muted">현재 13개 장면 중 위험 대응 장면 8개의 평균입니다.</span></span>
+          <span className="font-bold text-brand group-open:hidden">열기</span><span className="hidden font-bold text-brand group-open:inline">닫기</span>
+        </summary>
+        <div className="border-t border-line p-5 sm:p-7">
+          <div className="flex flex-wrap gap-2">{scored.map((event) => <span key={event.id} className="rounded-full bg-[#eef5ff] px-3 py-1.5 text-xs font-bold text-brand">{event.id} · {event.score}점</span>)}</div>
+          <p className="mt-5 text-base font-extrabold leading-relaxed">({scored.map((event) => event.score).join(" + ")}) ÷ {scored.length} = {reactionAverage.toFixed(3)} → <span className="text-2xl text-brand">64점</span></p>
+          <p className="mt-3 text-xs leading-relaxed text-muted">나머지 5개 기록도 버리는 것이 아닙니다. 급가속·일상 감속·페달 중첩 기록은 각각 가속, 제동, 페달 조작 영역의 누적 입력으로 사용한다는 구조입니다.</p>
+        </div>
+      </details>
+
+      <section className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[#d7e5f8] bg-[#f5f9ff] p-5 sm:p-6">
+        <div><p className="text-sm font-extrabold">개별 장면에서는 날짜·애니메이션·그래프 해석을 먼저 보여줍니다.</p><p className="mt-1 text-xs text-muted">더 깊은 수치는 필요할 때만 펼쳐볼 수 있습니다.</p></div>
+        <Link href="/events" className="inline-flex items-center gap-1 rounded-xl bg-brand px-4 py-3 text-xs font-bold text-white">주행 기록 보기 <ChevronIcon className="size-3" /></Link>
       </section>
     </>
   );

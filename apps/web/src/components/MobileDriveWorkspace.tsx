@@ -28,6 +28,13 @@ function pressureAt(values: number[], ms: number) {
   return Math.round(values[index] ?? 0);
 }
 
+function habitArea(event: PedalEvent) {
+  if (event.score !== null) return `위험 대응 ${event.score}점`;
+  if (event.type === "hard_accel") return "가속 영역";
+  if (event.type === "routine") return "제동 영역";
+  return "페달 영역";
+}
+
 export function MobileDriveWorkspace({
   event,
   accel,
@@ -139,7 +146,7 @@ export function MobileDriveWorkspace({
         <div className="shrink-0 text-right">
           <p className="text-[11px] text-white/65">{event.date}</p>
           <p className="mt-0.5 text-xs font-semibold">{event.time}</p>
-          <span className="mt-1 inline-flex min-h-5 items-center justify-center rounded-md bg-white/10 px-2 text-center text-[10px] font-bold">{event.score !== null ? `${event.score}점 · 점수 반영` : "점수 제외"}</span>
+          <span className="mt-1 inline-flex min-h-5 items-center justify-center rounded-md bg-white/10 px-2 text-center text-[10px] font-bold">{habitArea(event)}</span>
         </div>
         <span aria-hidden className="absolute inset-x-0 bottom-0 h-0.5 bg-white/10"><span className="block h-full bg-blue-300 transition-[width] duration-150" style={{ width: `${playProgress}%` }} /></span>
       </header>

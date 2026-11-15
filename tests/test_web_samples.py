@@ -212,18 +212,19 @@ def test_login_separates_account_sign_in_from_demo_access():
     assert "주행 장면과 페달 동시 확인" not in login
 
 
-def test_dashboard_only_shows_traceable_generated_metrics():
+def test_dashboard_labels_accumulated_demo_metrics_and_keeps_key_moment():
     dashboard = (
         ROOT / "apps" / "web" / "src" / "components" / "Dashboard.tsx"
     ).read_text(encoding="utf-8")
     icons = (
         ROOT / "apps" / "web" / "src" / "components" / "Icons.tsx"
     ).read_text(encoding="utf-8")
-    assert 'aria-label="합성 분석 요약"' in dashboard
+    assert 'aria-label="누적 시연 데이터 요약"' in dashboard
     assert "EvidenceDisclosure" not in dashboard
     assert 'href="/evidence"' not in dashboard
-    assert "scope.hazardEvents" in dashboard
-    assert "기간 추세가 아니라" in dashboard
+    assert "accumulatedHabitSummary.drives" in dashboard
+    assert "accumulatedHabitSummary.distanceKm" in dashboard
+    assert "accumulatedHabitSummary.history" in dashboard
     assert "Key moment" in dashboard
     assert "가장 길었던 페달 전환" in dashboard
     assert "devices.length" not in dashboard
@@ -244,7 +245,7 @@ def test_presentation_site_excludes_numeric_evidence_ui():
     assert "EvidenceDisclosure" not in ui
 
 
-def test_score_guide_explains_record_inclusion_and_home_average():
+def test_accumulated_driving_habit_score_is_clear_across_pages():
     components = ROOT / "apps" / "web" / "src" / "components"
     guide = (components / "ScoreGuidePage.tsx").read_text(encoding="utf-8")
     dashboard = (components / "Dashboard.tsx").read_text(encoding="utf-8")
@@ -252,15 +253,20 @@ def test_score_guide_explains_record_inclusion_and_home_average():
     route = ROOT / "apps" / "web" / "src" / "app" / "score-guide" / "page.tsx"
 
     assert route.exists()
-    assert "전체 기록" in guide
-    assert "점수 반영" in guide
-    assert "점수에서 제외" in guide
-    assert "세 가지 반응 시간" in guide
-    assert "최종 평균" in guide
+    assert "4개 영역" in guide
+    assert "종합점수 계산" in guide
+    assert "위험 대응" in guide
+    assert "가속 부드러움" in guide
+    assert "제동 부드러움" in guide
+    assert "페달 조작" in guide
+    assert "weightedTotal.toFixed(1)" in guide
+    assert "누적 시연 데이터" in guide
     assert 'href="/score-guide"' in dashboard
-    assert "주행 기록 {events.length}개 중 위험 대응 {scoredEvents.length}개 평균" in dashboard
-    assert "운전 습관 점수" in events
-    assert "점수 제외" in events
+    assert "종합 운전 습관 점수" in dashboard
+    assert "운전 습관 균형" in dashboard
+    assert "누적 점수 변화" in dashboard
+    assert "누적 운전 습관 점수" in events
+    assert "점수 제외" not in events
 
 
 def test_brand_logo_uses_the_provided_web_asset():
@@ -308,9 +314,9 @@ def test_primary_driving_views_use_progressive_disclosure_and_show_dates():
     detail = (components / "EventDetail.tsx").read_text(encoding="utf-8")
 
     assert "점수 계산식" not in dashboard
-    assert "Driving score" in dashboard
+    assert "Accumulated driving score" in dashboard
     assert "provenance.displayPeriod.label" in dashboard
-    assert "사건별 점수 그래프 보기" in dashboard
+    assert "최근 위험 대응 장면 보기" in dashboard
     assert "<details" in dashboard
 
     assert "한눈에 해석" in habits

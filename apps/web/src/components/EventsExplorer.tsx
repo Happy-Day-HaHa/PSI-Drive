@@ -7,6 +7,7 @@ import { EventDetail } from "@/components/EventDetail";
 import { PedalEventIcon } from "@/components/PedalEventIcon";
 import { PageHeader, SampleBadge } from "@/components/ui";
 import { analyzeEvent } from "@/lib/event-analysis";
+import { accumulatedHabitSummary } from "@/lib/habit-summary";
 import { eventLocation, eventTypeLabels, formatMs, pedalSamples, type EventType, type PedalEvent } from "@/lib/pedal";
 
 const filters: { key: EventType | "all"; label: string }[] = [
@@ -52,8 +53,10 @@ function keyFigure(event: PedalEvent) {
 }
 
 function eventLevel(event: PedalEvent) {
-  if (event.score !== null) return { label: "반응 점수", className: "bg-[#eaf2fd] text-brand" };
-  return { label: "기록", className: "bg-track text-muted" };
+  if (event.score !== null) return { label: "위험 대응", className: "bg-[#eaf2fd] text-brand" };
+  if (event.type === "hard_accel") return { label: "가속 영역", className: "bg-[#effaf5] text-[#16855b]" };
+  if (event.type === "routine") return { label: "제동 영역", className: "bg-[#fff1f3] text-alert" };
+  return { label: "페달 영역", className: "bg-[#f5f0ff] text-[#7c3aed]" };
 }
 
 export function EventsExplorer() {
@@ -68,8 +71,7 @@ export function EventsExplorer() {
   const mobileStrip = useRef<HTMLUListElement>(null);
   const mobileEventButtons = useRef(new Map<string, HTMLButtonElement>());
   const events = pedalSamples.events;
-  const scoredEvents = events.filter((event) => event.score !== null);
-  const habitScore = Math.round(scoredEvents.reduce((sum, event) => sum + (event.score ?? 0), 0) / scoredEvents.length);
+  const habitScore = accumulatedHabitSummary.overall;
   const visible = useMemo(() => events.filter((event) => {
     const analysis = analyzeEvent(event);
     const typeMatch = filter === "all" || event.type === filter;
@@ -107,8 +109,8 @@ export function EventsExplorer() {
       <nav aria-label="모바일 주행 장면 선택" className="mobile-event-strip min-w-0 lg:hidden">
         <h1 className="sr-only">주행 기록</h1>
         <Link href="/score-guide" className="mb-2 flex items-center justify-between rounded-xl bg-navy px-3 py-2 text-white">
-          <span className="text-[11px] font-bold">운전 습관 점수 <b className="ml-1 text-base">{habitScore}점</b></span>
-          <span className="text-[10px] text-white/65">기록 {events.length}개 중 {scoredEvents.length}개 반영 →</span>
+          <span className="text-[11px] font-bold">누적 운전 습관 점수 <b className="ml-1 text-base">{habitScore}점</b></span>
+          <span className="text-[10px] text-white/65">24회 · 4개 영역 종합 →</span>
         </Link>
         <ul ref={mobileStrip} className="event-strip-scroll flex gap-1.5 overflow-x-auto pb-0.5">
           {events.map((event) => {
@@ -132,9 +134,7 @@ export function EventsExplorer() {
                     <span className="block text-[11px] font-bold leading-none">{eventTypeLabels[event.type]}</span>
                     <span className={`mt-1 block text-[9px] leading-none ${active ? "text-white/65" : "text-muted"}`}>{event.date} · {event.time}</span>
                   </span>
-                  {event.score !== null
-                    ? <span className={`rounded-full px-1.5 py-0.5 text-[9px] font-bold ${active ? "bg-white/15 text-white" : level.className}`}>{event.score}점</span>
-                    : <span className={`rounded-full px-1.5 py-0.5 text-[9px] font-bold ${active ? "bg-white/15 text-white/75" : "bg-canvas text-muted"}`}>점수 제외</span>}
+                  <span className={`rounded-full px-1.5 py-0.5 text-[9px] font-bold ${active ? "bg-white/15 text-white" : level.className}`}>{event.score !== null ? `${event.score}점` : level.label}</span>
                 </button>
               </li>
             );
@@ -150,8 +150,8 @@ export function EventsExplorer() {
         />
       </div>
       <Link href="/score-guide" className="hidden overflow-hidden rounded-2xl bg-[linear-gradient(110deg,#10223f,#173f73)] text-white shadow-[0_12px_30px_rgba(17,49,92,.15)] lg:grid lg:grid-cols-[auto_1fr_auto] lg:items-center lg:gap-5 lg:px-6 lg:py-4">
-        <div><p className="text-[10px] font-bold tracking-[.12em] text-blue-200 uppercase">Driving habit score</p><p className="mt-1 text-3xl font-black">{habitScore}<span className="ml-1 text-sm text-white/60">점</span></p></div>
-        <div className="border-l border-white/15 pl-5"><p className="text-sm font-bold">전체 기록 {events.length}개 중 위험 대응 {scoredEvents.length}개를 반영했습니다.</p><p className="mt-1 text-xs text-white/60">점수가 없는 장면은 ‘점수 제외’로 표시됩니다.</p></div>
+        <div><p className="text-[10px] font-bold tracking-[.12em] text-blue-200 uppercase">Accumulated driving score</p><p className="mt-1 text-3xl font-black">{habitScore}<span className="ml-1 text-sm text-white/60">점</span></p></div>
+        <div className="border-l border-white/15 pl-5"><p className="text-sm font-bold">누적 {accumulatedHabitSummary.drives}회 · {accumulatedHabitSummary.distanceKm}km · 4개 영역을 종합했습니다.</p><p className="mt-1 text-xs text-white/60">각 장면은 위험 대응·가속·제동·페달 영역으로 연결됩니다.</p></div>
         <span className="rounded-full bg-white px-4 py-2 text-xs font-bold text-brand">계산법 보기</span>
       </Link>
       <div className="hidden rounded-2xl border border-line/90 bg-white p-4 shadow-[0_8px_22px_rgba(15,31,54,.035)] lg:grid lg:grid-cols-1 lg:items-center lg:gap-3 xl:grid-cols-[minmax(0,1fr)_auto] xl:gap-4">
