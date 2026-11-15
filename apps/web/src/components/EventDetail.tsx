@@ -14,7 +14,6 @@ import {
   eventHeadline,
   eventTypeLabels,
   formatMs,
-  pedalSamples,
   stepInfo,
   type PedalEvent,
 } from "@/lib/pedal";
@@ -199,7 +198,7 @@ export function EventDetail({ event }: { event: PedalEvent }) {
 
       <details className="group hidden rounded-2xl border border-line bg-card shadow-[0_12px_32px_rgba(15,31,54,.04)] lg:block">
         <summary className="flex cursor-pointer list-none items-center justify-between p-5 marker:hidden">
-          <div><h2 className="font-extrabold">상세 분석 보기</h2><p className="mt-1 text-xs text-muted">반응 단계, 모든 해석, 점수 산식 확인</p></div>
+          <div><h2 className="font-extrabold">상세 분석 보기</h2><p className="mt-1 text-xs text-muted">반응 단계와 장면 해석 확인</p></div>
           <span className="text-xs font-bold text-brand group-open:hidden">펼치기</span><span className="hidden text-xs font-bold text-brand group-open:inline">접기</span>
         </summary>
         <div className="space-y-5 border-t border-line p-5">
@@ -218,11 +217,6 @@ export function EventDetail({ event }: { event: PedalEvent }) {
             <ul className="mt-3 space-y-2">
               {findings.map((finding, index) => <li key={index} className="rounded-xl bg-track p-3 text-sm leading-relaxed">{finding.text}</li>)}
             </ul>
-          </section>
-          <section className="rounded-xl border border-[#d7e5f8] bg-[#f7faff] p-4">
-            <h3 className="text-sm font-bold">점수는 어떻게 계산했나요?</h3>
-            <p className="mt-2 text-xs leading-relaxed text-muted">인식 시간, 페달 전환 시간, 전체 제동 반응 시간을 각각 0–100점으로 선형 환산한 뒤 같은 비중으로 평균했습니다. 현재 값은 검증된 안전 등급이 아니라 {pedalSamples.configVersion}의 내부 파일럿 설정입니다.</p>
-            <p className="mt-2 text-xs font-semibold text-brand">인식 {pedalSamples.settings.recognitionFullScoreMs}–{pedalSamples.settings.recognitionZeroScoreMs}ms · 전환 {pedalSamples.settings.transitionFullScoreMs}–{pedalSamples.settings.transitionZeroScoreMs}ms · 전체 반응 {pedalSamples.settings.reactionFullScoreMs}–{pedalSamples.settings.reactionZeroScoreMs}ms</p>
           </section>
         </div>
       </details>

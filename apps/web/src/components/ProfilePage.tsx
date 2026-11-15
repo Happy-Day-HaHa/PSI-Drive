@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { ChevronIcon, UserIcon } from "@/components/Icons";
-import { EvidenceDisclosure, SampleBadge } from "@/components/ui";
+import { SampleBadge } from "@/components/ui";
 import { pedalSamples } from "@/lib/pedal";
 
 export function ProfilePage() {
-  const { source, configVersion, provenance, scope } = pedalSamples;
+  const { configVersion, provenance } = pedalSamples;
   return (
     <div className="space-y-4 sm:space-y-5">
       <header className="rounded-[24px] border border-line/90 bg-white px-5 py-5 shadow-[0_12px_34px_rgba(15,31,54,.05)] sm:px-7 sm:py-6">
@@ -16,8 +16,6 @@ export function ProfilePage() {
           </div>
         </div>
       </header>
-
-      <EvidenceDisclosure source={source} configVersion={configVersion} sessions={scope.sessions} events={scope.hazardEvents} seeds={provenance.sessionSeeds} sampleIntervalMs={provenance.sampleIntervalMs} formula={provenance.scoreFormula} limitation={provenance.limitation} />
 
       <section aria-labelledby="status-title">
         <div className="mb-3 px-1"><h2 id="status-title" className="text-lg font-extrabold sm:text-xl">한눈에 보는 상태</h2><p className="mt-1 text-xs text-muted">연결 근거가 없는 배터리·수집률·점검일 수치는 표시하지 않습니다.</p></div>

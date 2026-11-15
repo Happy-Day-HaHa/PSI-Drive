@@ -5,8 +5,8 @@ import { Histogram } from "@/components/Histogram";
 import { ChevronIcon } from "@/components/Icons";
 import { ChartLegend, LineChart, type Series } from "@/components/LineChart";
 import { SegmentBar, type Segment } from "@/components/SegmentBar";
-import { EvidenceDisclosure, PageHeader, Panel, PanelHeader, SampleBadge } from "@/components/ui";
-import { ACCEL_COLOR, BRAKE_COLOR, eventTypeLabels, formatMs, pedalSamples } from "@/lib/pedal";
+import { PageHeader, Panel, PanelHeader, SampleBadge } from "@/components/ui";
+import { ACCEL_COLOR, BRAKE_COLOR, formatMs, pedalSamples } from "@/lib/pedal";
 
 const NEUTRAL = "#94A3B8";
 
@@ -25,7 +25,7 @@ function Insight({ children }: { children: React.ReactNode }) {
 }
 
 export function PedalHabits() {
-  const { source, configVersion, provenance, scope, averages, usage, accelHistogram, brakePeakHistogram, transitionHistogram, brakeCurve, transitionFullScoreMs, transitionZeroScoreMs, events } = pedalSamples;
+  const { provenance, scope, averages, usage, accelHistogram, brakePeakHistogram, transitionHistogram, brakeCurve, events } = pedalSamples;
   const usageSegments: Segment[] = [
     { key: "accel", label: "가속 페달", value: usage.accel, color: ACCEL_COLOR, onColor: "#FFFFFF" },
     { key: "coast", label: "페달 없음", value: usage.coast, color: NEUTRAL, onColor: "#10223F" },
@@ -100,10 +100,9 @@ export function PedalHabits() {
           </div>
           <div className="grid gap-5 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
             <Panel><PanelHeader title="브레이크 압력 변화" description="브레이크 접촉 시점을 0으로 맞춘 평균 곡선입니다." action={<ChartLegend series={curveSeries} />} /><GraphScope /><LineChart labels={curveLabels} series={curveSeries} domain={[0, 100]} ticks={[0, 25, 50, 75, 100]} labelEvery={10} unit="%" height={230} ariaLabel={`브레이크 접촉 후 250ms 시점 압력: 주의 장면 ${brakeCurve.hazard[at250]}%, 일상 감속 ${brakeCurve.routine[at250]}%`} /><Insight>접촉 250ms 뒤 평균 압력은 주의 장면 <b>{Math.round(brakeCurve.hazard[at250])}%</b>, 일상 감속 {Math.round(brakeCurve.routine[at250])}%입니다.</Insight></Panel>
-            <Panel><PanelHeader title="페달 전환 시간 분포" description="가속 해제부터 브레이크 접촉까지 걸린 시간입니다." /><GraphScope /><Histogram bins={transitionHistogram} color="#E8863A" valueSuffix="건" xTitle="페달 전환 시간 (ms)" ariaLabel="페달 전환 시간 분포" /><Insight>{transitionFullScoreMs}ms 이하 만점, {transitionZeroScoreMs}ms 이상 0점은 <b>{configVersion} 내부 파일럿 가정</b>이며 외부 안전 기준이 아닙니다. <Link href={`/events?id=${slowest.id}`} className="font-medium text-brand underline underline-offset-2">가장 긴 장면 보기 ({eventTypeLabels[slowest.type]})</Link></Insight></Panel>
+            <Panel><PanelHeader title="페달 전환 시간 분포" description="가속 해제부터 브레이크 접촉까지 걸린 시간입니다." /><GraphScope /><Histogram bins={transitionHistogram} color="#E8863A" valueSuffix="건" xTitle="페달 전환 시간 (ms)" ariaLabel="페달 전환 시간 분포" /><Insight>{transitionTotal}건 중 <b>{slowTransitions}건</b>이 400ms를 넘었습니다. <Link href={`/events?id=${slowest.id}`} className="font-medium text-brand underline underline-offset-2">가장 긴 장면 애니메이션 보기</Link></Insight></Panel>
           </div>
           <Panel><PanelHeader title="주의 장면의 평균 반응 단계" description={`상황 확인부터 브레이크 접촉까지 평균 ${formatMs(averages.totalReactionMs)}입니다.`} /><GraphScope /><SegmentBar segments={reactionSegments} unit="ms" ariaLabel="주의 장면 반응 시간 구성" /><p className="mt-3 text-xs text-muted">T0는 전방 영상에서 표시한 시점이므로 약 ±17ms의 불확실성이 있습니다.</p></Panel>
-          <EvidenceDisclosure source={source} configVersion={configVersion} sessions={scope.sessions} events={scope.hazardEvents} seeds={provenance.sessionSeeds} sampleIntervalMs={provenance.sampleIntervalMs} formula={provenance.scoreFormula} limitation={provenance.limitation} />
         </div>
       </details>
     </>

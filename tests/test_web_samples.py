@@ -220,10 +220,12 @@ def test_dashboard_only_shows_traceable_generated_metrics():
         ROOT / "apps" / "web" / "src" / "components" / "Icons.tsx"
     ).read_text(encoding="utf-8")
     assert 'aria-label="합성 분석 요약"' in dashboard
-    assert "EvidenceDisclosure" in dashboard
-    assert "provenance.sampleIntervalMs" in dashboard
+    assert "EvidenceDisclosure" not in dashboard
+    assert 'href="/evidence"' not in dashboard
     assert "scope.hazardEvents" in dashboard
     assert "기간 추세가 아니라" in dashboard
+    assert "Key moment" in dashboard
+    assert "가장 길었던 페달 전환" in dashboard
     assert "devices.length" not in dashboard
     assert "scoreChange" not in dashboard
     assert "bg-[linear-gradient" not in icons
@@ -290,7 +292,8 @@ def test_primary_driving_views_use_progressive_disclosure_and_show_dates():
     events = (components / "EventsExplorer.tsx").read_text(encoding="utf-8")
     detail = (components / "EventDetail.tsx").read_text(encoding="utf-8")
 
-    assert "점수 계산식" in dashboard
+    assert "점수 계산식" not in dashboard
+    assert "Driving score" in dashboard
     assert "provenance.displayPeriod.label" in dashboard
     assert "사건별 점수 그래프 보기" in dashboard
     assert "<details" in dashboard
