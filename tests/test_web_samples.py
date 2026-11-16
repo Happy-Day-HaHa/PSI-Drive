@@ -354,3 +354,24 @@ def test_event_detail_connects_front_object_detection_to_pedal_reaction():
     assert "페달 반응 연결" in detail
     assert "전방 객체 인식" in workspace
     assert "페달 움직임" in workspace
+
+
+def test_video_analysis_page_shows_upload_to_result_workflow():
+    components = ROOT / "apps" / "web" / "src" / "components"
+    page = (components / "VideoAnalysisPage.tsx").read_text(encoding="utf-8")
+    shell = (components / "AppShell.tsx").read_text(encoding="utf-8")
+    dashboard = (components / "Dashboard.tsx").read_text(encoding="utf-8")
+    route = ROOT / "apps" / "web" / "src" / "app" / "analysis" / "page.tsx"
+
+    assert route.exists()
+    assert "전방 블랙박스" in page
+    assert "페달 블랙박스" in page
+    assert "영상 분석 시작" in page
+    assert "두 영상 시간 동기화" in page
+    assert "전방 객체 탐지·추적" in page
+    assert "발·페달 움직임 추출" in page
+    assert "분석이 완료됐어요" in page
+    assert "데모 영상으로 체험" in page
+    assert "서버로 전송되지 않으며" in page
+    assert 'href: "/analysis"' in shell
+    assert 'href="/analysis"' in dashboard

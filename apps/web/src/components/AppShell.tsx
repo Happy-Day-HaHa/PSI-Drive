@@ -3,15 +3,18 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
-import { BarsIcon, CalculatorIcon, FlagIcon, HomeIcon, PsiLogo, UserIcon } from "@/components/Icons";
+import { BarsIcon, CalculatorIcon, CameraIcon, FlagIcon, HomeIcon, PsiLogo, UserIcon } from "@/components/Icons";
 
 const navItems = [
   { label: "홈", href: "/dashboard", icon: HomeIcon },
+  { label: "영상 분석", href: "/analysis", icon: CameraIcon },
   { label: "운전 습관", href: "/pedal", icon: BarsIcon },
   { label: "주행 기록", href: "/events", icon: FlagIcon },
   { label: "점수 계산", href: "/score-guide", icon: CalculatorIcon },
   { label: "마이페이지", href: "/profile", icon: UserIcon },
 ];
+
+const mobileNavItems = navItems.filter((item) => item.href !== "/score-guide");
 
 function isActive(pathname: string, href: string) {
   const path = pathname.replace(/\/$/, "") || "/";
@@ -87,7 +90,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           점수와 지표는 운전 행동을 돌아보기 위한 시각 자료입니다.
         </footer>
         <nav aria-label="모바일 주 메뉴" className="fixed inset-x-3 bottom-[max(.75rem,env(safe-area-inset-bottom))] z-40 grid grid-cols-5 overflow-hidden rounded-2xl border border-white/10 bg-navy/95 p-1.5 text-white shadow-[0_12px_32px_rgba(5,18,34,0.28)] backdrop-blur-xl xl:hidden">
-          {navItems.map(({ label, href, icon: Icon }) => {
+          {mobileNavItems.map(({ label, href, icon: Icon }) => {
             const active = isActive(pathname, href);
             return (
               <Link
