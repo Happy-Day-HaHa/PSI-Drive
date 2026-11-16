@@ -7,7 +7,7 @@ import { BarsIcon, CalculatorIcon, CameraIcon, FlagIcon, HomeIcon, PsiLogo, User
 
 const navItems = [
   { label: "홈", href: "/dashboard", icon: HomeIcon },
-  { label: "영상 분석", href: "/analysis", icon: CameraIcon },
+  { label: "영상 가져오기", href: "/analysis", icon: CameraIcon },
   { label: "운전 습관", href: "/pedal", icon: BarsIcon },
   { label: "주행 기록", href: "/events", icon: FlagIcon },
   { label: "점수 계산", href: "/score-guide", icon: CalculatorIcon },
@@ -36,8 +36,8 @@ export function AppShell({ children }: { children: ReactNode }) {
             <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-300 opacity-40 motion-reduce:animate-none" />
             <span className="relative inline-flex size-2 rounded-full bg-emerald-300" />
           </span>
-          <span className="text-xs font-medium text-white/80">주행 기록 연결됨</span>
-            <span className="ml-auto text-[10px] font-semibold text-white/65">LIVE</span>
+          <span className="text-xs font-medium text-white/80">촬영 영상 분석 방식</span>
+            <span className="ml-auto text-[10px] font-semibold text-white/65">MVP</span>
         </div>
         <nav aria-label="주 메뉴" className="mt-8 space-y-1">
           {navItems.map(({ label, href, icon: Icon }) => {

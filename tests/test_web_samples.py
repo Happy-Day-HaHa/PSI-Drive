@@ -366,12 +366,17 @@ def test_video_analysis_page_shows_upload_to_result_workflow():
     assert route.exists()
     assert "전방 블랙박스" in page
     assert "페달 블랙박스" in page
-    assert "영상 분석 시작" in page
+    assert "가져온 영상 분석 시작" in page
     assert "두 영상 시간 동기화" in page
     assert "전방 객체 탐지·추적" in page
     assert "발·페달 움직임 추출" in page
     assert "분석이 완료됐어요" in page
     assert "데모 영상으로 체험" in page
-    assert "서버로 전송되지 않으며" in page
+    assert "서버로 전송되지 않습니다" in page
+    assert "현재 MVP" in page
+    assert "촬영 후 파일 분석" in page
+    assert "향후 개발" in page
+    assert "카메라 자동 연동" in page
+    assert "하드웨어 개발이 필요" in page
     assert 'href: "/analysis"' in shell
     assert 'href="/analysis"' in dashboard

@@ -40,7 +40,7 @@ export function Dashboard() {
           <h1 className="mt-2 text-[26px] leading-tight font-bold tracking-[-.035em] sm:text-[32px]">내 운전 습관</h1>
           <p className="mt-2 text-sm text-muted">{accumulatedHabitSummary.period} · 누적 {accumulatedHabitSummary.drives}회 · {accumulatedHabitSummary.distanceKm}km</p>
         </div>
-        <div className="flex flex-wrap gap-2"><Link href="/analysis" className="inline-flex items-center gap-1 rounded-xl bg-brand px-4 py-3 text-xs font-bold text-white">새 영상 분석 <ChevronIcon className="size-3.5" /></Link><Link href="/events" className="inline-flex items-center gap-1 rounded-xl border border-line bg-white px-4 py-3 text-xs font-bold text-brand">주행 기록 보기</Link></div>
+        <div className="flex flex-wrap gap-2"><Link href="/analysis" className="inline-flex items-center gap-1 rounded-xl bg-brand px-4 py-3 text-xs font-bold text-white">촬영 영상 가져오기 <ChevronIcon className="size-3.5" /></Link><Link href="/events" className="inline-flex items-center gap-1 rounded-xl border border-line bg-white px-4 py-3 text-xs font-bold text-brand">주행 기록 보기</Link></div>
       </header>
 
       <section className="grid gap-4 lg:grid-cols-[1.15fr_.85fr]">
