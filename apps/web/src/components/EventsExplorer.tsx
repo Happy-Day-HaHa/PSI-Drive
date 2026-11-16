@@ -145,7 +145,7 @@ export function EventsExplorer() {
       <div className="hidden lg:block">
         <PageHeader
           title="주행 기록"
-          description={`${pedalSamples.provenance.displayPeriod.label} 시연용 사건일 기준입니다. 장면을 고르면 애니메이션과 그래프 해석을 먼저 보여주고, 상세 분석은 필요할 때 펼칠 수 있습니다.`}
+          description={`${pedalSamples.provenance.displayPeriod.label} 시연용 사건일 기준입니다. 장면을 고르면 전방 객체 인식과 페달 블랙박스 반응을 같은 시간축으로 보여줍니다.`}
           action={<SampleBadge />}
         />
       </div>

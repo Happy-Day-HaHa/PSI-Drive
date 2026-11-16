@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { FootView } from "@/components/FootView";
 import { MobileDriveWorkspace } from "@/components/MobileDriveWorkspace";
+import { ObjectDetectionView } from "@/components/ObjectDetectionView";
 import { PauseIcon, PlayIcon } from "@/components/Icons";
 import { TimeChart } from "@/components/TimeChart";
 import { Panel, PanelHeader } from "@/components/ui";
@@ -136,12 +137,17 @@ export function EventDetail({ event }: { event: PedalEvent }) {
       </Panel>
 
       <Panel className="hidden lg:block">
-        <PanelHeader title="발 움직임과 페달 압력" description={`${event.date} ${event.time} · 재생 막대를 움직여 같은 시점의 발 위치와 그래프를 확인하세요.`} />
+        <PanelHeader title="전방 객체와 페달 반응" description={`${event.date} ${event.time} · 전방 블랙박스의 객체와 페달 블랙박스 반응을 같은 시간축에서 확인하세요.`} />
         <div className="mb-4 flex flex-wrap items-center gap-x-2 gap-y-1 rounded-xl border border-[#d7e5f8] bg-[#f4f8fe] px-3 py-2" role="note" aria-label={`그래프 기준 날짜 ${event.date} ${event.time}`}>
           <span className="text-[10px] font-extrabold tracking-[.08em] text-brand uppercase">그래프 기준 날짜</span>
           <strong className="text-xs tabular-nums text-ink">{event.date} {event.time}</strong>
           <span className="text-[11px] text-muted">시연용 사건일</span>
         </div>
+        <ObjectDetectionView event={event} playheadMs={playheadMs} durationMs={durationMs} accel={accel} brake={brake} />
+        <div className="my-4 grid grid-cols-[1fr_auto_1fr_auto_1fr] items-center gap-2 rounded-xl bg-[#f4f8fe] p-3 text-center text-[10px] font-bold sm:text-xs">
+          <span className="rounded-lg bg-white px-2 py-2 text-brand">① 객체 탐지·추적</span><span className="text-muted">→</span><span className="rounded-lg bg-white px-2 py-2 text-caution">② 위험 대상 판별</span><span className="text-muted">→</span><span className="rounded-lg bg-white px-2 py-2 text-alert">③ 페달 반응 연결</span>
+        </div>
+        <div className="mb-3"><h3 className="text-sm font-extrabold">페달 블랙박스와 센서 그래프</h3><p className="mt-1 text-xs text-muted">위 전방 장면과 정확히 같은 재생 시점입니다.</p></div>
         <div className="grid gap-5 xl:grid-cols-[300px_minmax(0,1fr)]">
           <div>
             <FootView accel={accel} brake={brake} foot={foot} />

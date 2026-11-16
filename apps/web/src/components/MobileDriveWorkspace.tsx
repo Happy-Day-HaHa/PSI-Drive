@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { PauseIcon, PinIcon, PlayIcon } from "@/components/Icons";
 import { MobilePedalSync } from "@/components/MobilePedalSync";
+import { ObjectDetectionView } from "@/components/ObjectDetectionView";
 import { analyzeEvent } from "@/lib/event-analysis";
 import { SAMPLE_DT_MS, eventLocation, eventTypeLabels, formatMs, stepInfo, type PedalEvent } from "@/lib/pedal";
 
@@ -77,6 +78,7 @@ export function MobileDriveWorkspace({
   const userScrolling = useRef(false);
   const releaseScrollTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [scrollEdges, setScrollEdges] = useState({ top: false, bottom: true });
+  const [cameraView, setCameraView] = useState<"front" | "pedal">("front");
   const foundIndex = steps.findIndex((mark) => mark.key === visibleKey);
   const activeIndex = Math.max(0, foundIndex);
   const playProgress = Math.min(100, Math.max(0, (playheadMs / Math.max(durationMs, 1)) * 100));
@@ -132,7 +134,7 @@ export function MobileDriveWorkspace({
       <header className="mobile-workspace-meta relative flex items-start justify-between gap-3 overflow-hidden border-b border-white/10 bg-[linear-gradient(120deg,#0b203b,#173f73)] px-4 py-3 text-white">
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <span className="rounded-full bg-blue-300/15 px-2 py-0.5 text-[10px] font-bold tracking-[.06em] text-blue-200">발·페달 함께 보기</span>
+            <span className="rounded-full bg-blue-300/15 px-2 py-0.5 text-[10px] font-bold tracking-[.06em] text-blue-200">전방·페달 동시 분석</span>
             <span className="text-[10px] font-medium text-white/65">{event.id}</span>
           </div>
           <div className="mt-1.5 flex min-w-0 items-center gap-1.5">
@@ -152,7 +154,11 @@ export function MobileDriveWorkspace({
       </header>
 
       <div className="min-h-0 overflow-hidden bg-[#eef3f8] p-2">
-        <MobilePedalSync
+        <div className="mb-2 grid grid-cols-2 rounded-lg bg-[#dfe7f0] p-1">
+          <button type="button" onClick={() => setCameraView("front")} className={`min-h-8 rounded-md text-[11px] font-bold ${cameraView === "front" ? "bg-white text-brand shadow-sm" : "text-muted"}`}>전방 객체 인식</button>
+          <button type="button" onClick={() => setCameraView("pedal")} className={`min-h-8 rounded-md text-[11px] font-bold ${cameraView === "pedal" ? "bg-white text-brand shadow-sm" : "text-muted"}`}>페달 움직임</button>
+        </div>
+        {cameraView === "front" ? <ObjectDetectionView event={event} playheadMs={playheadMs} durationMs={durationMs} accel={accel} brake={brake} compact /> : <MobilePedalSync
           accel={accel}
           brake={brake}
           foot={foot}
@@ -161,7 +167,7 @@ export function MobileDriveWorkspace({
           playheadMs={playheadMs}
           durationMs={durationMs}
           stepLabel={activeKey ? `${activeKey} · ${stepInfo[activeKey].title}` : "장면 직전 주행"}
-        />
+        />}
       </div>
 
       <div className="border-y border-white/8 bg-[#0d223e] px-3 py-2.5 text-white">

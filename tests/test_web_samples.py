@@ -334,3 +334,23 @@ def test_primary_driving_views_use_progressive_disclosure_and_show_dates():
     assert "<details" in detail
     assert "그래프 기준 날짜" in detail
     assert "페달 압력은 운전자의 입력이고 속도는 차량의 반응" in detail
+
+
+def test_event_detail_connects_front_object_detection_to_pedal_reaction():
+    components = ROOT / "apps" / "web" / "src" / "components"
+    detection = (components / "ObjectDetectionView.tsx").read_text(encoding="utf-8")
+    detail = (components / "EventDetail.tsx").read_text(encoding="utf-8")
+    workspace = (components / "MobileDriveWorkspace.tsx").read_text(encoding="utf-8")
+
+    assert "Object tracking" in detection
+    assert "보행자" in detection
+    assert "감속 차량" in detection
+    assert "confidence" in detection
+    assert "시연 분석" in detection
+    assert "전방 영상 미수집" in detection
+    assert "ObjectDetectionView" in detail
+    assert "객체 탐지·추적" in detail
+    assert "위험 대상 판별" in detail
+    assert "페달 반응 연결" in detail
+    assert "전방 객체 인식" in workspace
+    assert "페달 움직임" in workspace
